@@ -37,3 +37,17 @@ def test_sample_tarot_draw():
     response = client.post("/api/tarot/spreads/deal-slot", json={"spread_id":"reset-energy","slot_num":1,"exclude_card_ids":[]})
     assert response.status_code == 200
     assert "card" in response.json()
+
+def test_web_app_has_new_branding():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Spiritual Vibez" in response.text
+    assert "AuraMystic" not in response.text
+
+def test_new_css_js_and_illustration_are_served():
+    stylesheet = client.get("/styles.css")
+    script = client.get("/app.js")
+    illustration = client.get("/guide.svg")
+    assert stylesheet.status_code == 200 and "feature-grid" in stylesheet.text
+    assert script.status_code == 200 and "Spiritual Vibez" in script.text
+    assert illustration.status_code == 200 and illustration.headers["content-type"].startswith("image/svg+xml")
