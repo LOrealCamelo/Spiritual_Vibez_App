@@ -20,3 +20,5 @@ jobs:
         run: python backend/tests/test_all_endpoints.py
       - name: Run pytest
         run: pytest -q backend/tests
+      - name: Syntax-check browser app
+        run: node --check frontend/app.js
