@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Spiritual Vibez",
+    "slug": "spiritual-vibez",
+    "scheme": "spiritualvibez",
+    "version": "0.3.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "ios": {
+      "supportsTablet": true
+    }
+  }
+}
