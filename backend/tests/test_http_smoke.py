@@ -51,3 +51,12 @@ def test_new_css_js_and_illustration_are_served():
     assert stylesheet.status_code == 200 and "feature-grid" in stylesheet.text
     assert script.status_code == 200 and "Spiritual Vibez" in script.text
     assert illustration.status_code == 200 and illustration.headers["content-type"].startswith("image/svg+xml")
+
+
+def test_approved_illustrations():
+    for name in ["hero.webp", "hero-portrait.webp", "feature-spreads.webp", "spread-reset.webp"]:
+        response=client.get("/assets/"+name)
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("image/webp")
+    appjs=client.get("/app.js")
+    assert appjs.status_code == 200 and "Spiritual Vibez" in appjs.text
