@@ -4,6 +4,7 @@ Production FastAPI Backend Server (NeuroSpicy Mystic)
 """
 import os
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from .database import init_db
@@ -85,3 +86,7 @@ def serve_app_script():
 @app.get("/guide.svg", include_in_schema=False)
 def serve_guide_illustration():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
+
+
+# Serve the approved Spiritual Vibez illustrated artwork as real image assets.
+app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "frontend", "assets")), name="spiritual-vibez-artwork")

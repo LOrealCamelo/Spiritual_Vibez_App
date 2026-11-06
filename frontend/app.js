@@ -1,163 +1,169 @@
+/* Spiritual Vibez — illustrated responsive frontend. Uses the existing FastAPI API when available. */
 'use strict';
-const $=(s)=>document.querySelector(s);
-const esc=(v)=>String(v??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const API='/api';
 const signs=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
-const groups={
-  'Astrology & Charts':[['moon','🌒','Natal Moon Phase'],['natal','🪐','Natal Birth Chart'],['draconic','🐉','Draconic Chart'],['bazi','🐲','Chinese Zodiac & BaZi'],['houses','🏡','Twelve Zodiac Houses'],['asteroids','☄️','Asteroids'],['calendar','🗓️','13-Moon Calendar'],['astro','🌍','Astrocartography']],
-  'Numbers & Love':[['life','🔢','Life Path Calculator'],['numbers','✨','Numerology Academy'],['love','💞','Love Match']],
-  'Sound, Rituals & Wellness':[['sound','🎵','Frequency Studio'],['rituals','🕯️','Ritual Finder'],['cycle','🌸','Moon & Cycle Tracker'],['shadow','📓','Shadow Work']],
-  'Divination & More':[['runes','ᚠ','Rune Casting'],['pendulum','🔮','Pendulum Dowsing'],['oracle','💬','Mystic Companion'],['store','🛍️','Creator Store']]
+const major=['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
+const meanings=['new beginnings, possibilities and an open mind','intentional action and creative resourcefulness','intuition, mystery and inner knowing','nurturing, growth and abundance','boundaries, stability and personal authority','tradition, teaching and values','alignment, choices and connection','determination, direction and momentum','courage, kindness and self-trust','reflection, solitude and wisdom','cycles, timing and changing circumstances','balance, fairness and accountability','a new perspective and patient surrender','endings that create room for renewal','moderation, patience and harmony','attachments, patterns and reclaiming choice','disruption, honesty and rebuilding','hope, renewal and inspiration','uncertainty, intuition and dreams','joy, clarity and confidence','awakening, evaluation and calling','completion, integration and wholeness'];
+const icons=['🌱','✨','🌙','🌺','👑','📖','💞','🏇','🦁','🕯️','🎡','⚖️','🔄','🦋','🌈','🔗','⚡','⭐','🌘','🌞','📣','🌎'];
+const suits=['Wands','Cups','Swords','Coins'];const ranks=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
+const sampleCards=[...major.map((name,id)=>({id,name,suit:'Major',upright:meanings[id],reversed:'an invitation to examine blocks around '+meanings[id],icon:icons[id],mantra:'I choose my own next step.'})),...suits.flatMap((s,si)=>ranks.map((r,ri)=>({id:22+si*14+ri,name:r+' of '+s,suit:s,icon:['🔥','💗','⚔️','🪙'][si],upright:(['creative energy and initiative','feelings and relationships','thoughts and communication','practical resources and everyday life'][si])+' viewed through '+r.toLowerCase()+' energy',reversed:'a chance to reassess '+s.toLowerCase()+' patterns',mantra:'I notice the choices available to me.'})))];
+const mkSpread=(id,title,cat,qs,desc='A moment of reflection')=>({id,title,category:cat,cardCount:qs.length,desc,questions:qs.map((q,i)=>({slot:i+1,title:q,q}))});
+const demoSpreads=[
+ mkSpread('reset-energy','Reset Your Energy','wellbeing',['What is draining me?','What can I release?','What restores me?','One grounded next step']),
+ mkSpread('trust-gut','Trust Your Gut','crossroads',['What do I already know?','What is clouding my intuition?','What deserves attention?','What can I set down?','What is my next step?']),
+ mkSpread('next-phase','The Next Phase','purpose',['What am I outgrowing?','What is becoming possible?','What supports change?','What needs patience?','What is the hidden opportunity?','What direction feels aligned?']),
+ mkSpread('grounding','Grounding','wellbeing',['What needs my attention?','Where can I slow down?','What is steady in my life?','What grounds my body?','What is one manageable action?']),
+ mkSpread('daily-check','Your Daily Check-In','daily',['How am I arriving today?','What deserves care?','One intention']),
+ mkSpread('love-language','Heart to Heart','love',['What do I need?','What do they need?','Where can we connect?','What conversation matters?']),
+ mkSpread('shadow-light','Shadow & Light','shadow',['What am I avoiding?','What does it protect?','Where is my strength?','How can I respond gently?']),
+ mkSpread('fresh-start','Fresh Start','purpose',['What is ending?','What is emerging?','What can I begin?']),
+ mkSpread('career-clarity','Career Clarity','crossroads',['Where am I now?','What are my strengths?','What is limiting me?','Where is opportunity?','What is my next move?']),
+ mkSpread('moon-mood','Moon Mood','spirit',['What is illuminated?','What is hidden?','What can I release?','What is my intention?']),
+];
+const menu=[['home','⌂','Home'],['spreads','⤨','Spreads'],['learn','▣','Learn Tarot'],['cosmos','☾','Cosmos'],['explore','✦','Explore'],['journal','▤','Journal']];
+const tools={
+ 'Astrology & Cosmos':[['natal','🪐','Natal Birth Chart','Planetary placements and house themes'],['draconic','🐉','Draconic Chart','North Node-based symbolic placements'],['moon','🌙','Natal Moon Phase','The Moon phase at your birth'],['bazi','🐲','Chinese Zodiac & BaZi','Zodiac animal and four pillars'],['houses','🏘️','Astrology Houses','The meaning of all 12 houses'],['asteroids','☄️','Asteroids','Chiron, Juno, Vesta and more'],['astro','🌍','Astrocartography','Location and planetary lines'],['calendar','🗓️','13-Moon Calendar','An alternative calendar system']],
+ 'Numbers & Relationships':[['life','🔢','Life Path','Discover your life path number'],['numbers','✨','Learn Numerology','Numbers and master numbers'],['love','💖','Love Match','Zodiac compatibility']],
+ 'Wellness & Rituals':[['sound','🎶','Sound Frequencies','Listen to locally generated tones'],['rituals','🕯️','Ritual Finder','Find a ritual by intention'],['cycle','🌸','Moon & Period Tracker','Private, estimated cycle dates'],['shadow','📝','Shadow Work','Prompts and reflections']],
+ 'Divination & More':[['runes','ᚠ','Rune Casting','Three symbolic runes'],['pendulum','🔮','Pendulum','Reflective yes-or-no draw'],['oracle','💬','Mystic Companion','Rule-based responses, no paid AI'],['store','🛍️','Creator Store','Shop and offerings']]
 };
-const tools=Object.values(groups).flat();
-const pill=(name,action,active=false,attr='')=>'<button class="pill '+(active?'active':'')+'" data-action="'+action+'" '+attr+'>'+esc(name)+'</button>';
-const btn=(name,action,alt=false,disabled=false)=>'<button class="btn '+(alt?'alt':'')+'" data-action="'+action+'" '+(disabled?'disabled':'')+'>'+name+'</button>';
-const field=(label,id,type='text',value='')=>'<label class="field">'+esc(label)+'<input id="'+id+'" type="'+type+'" value="'+esc(value)+'"></label>';
-const chooser=(label,id,options,selected)=>'<label class="field">'+esc(label)+'<select id="'+id+'">'+options.map(x=>'<option '+(x===selected?'selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label>';
-const note=(txt,kind='')=>'<div class="notice '+kind+'">'+esc(txt)+'</div>';
-const heading=(title,sub)=>'<div class="eyebrow">SPIRITUAL VIBEZ ✦</div><h1 class="page-title">'+title+'</h1><p class="page-sub">'+sub+'</p>';
-let page='home',tool=null,spreads=[],cards=[],chosen=null,dealt={},interpretation='',cat='All',query='',filter='all',cardDetails=null,quiz=null,answer='',transit=null,sign='Scorpio',result=null,err='',audio=null,osc=null;
-async function request(path,opts){const r=await fetch('/api'+path,opts);if(!r.ok)throw Error('Backend HTTP '+r.status+'. Please verify the API is running.');return r.json()}
-const post=(p,obj)=>request(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
-function screen(p){page=p;tool=null;result=null;err='';location.hash=p;paint();window.scrollTo(0,0)}
-function openTool(id){page='explore';tool=id;result=null;err='';location.hash='explore/'+id;paint();window.scrollTo(0,0)}
+const allTools=Object.values(tools).flat();
+const state={page:'home',selected:null,drawn:{},reading:'',cards:sampleCards,spreads:demoSpreads,online:false,sign:'Scorpio',transit:null,category:'All',search:'',filter:'all',cardDetail:null,quiz:null,answer:'',tool:null,result:null,error:'',quizProgress:0,cycles:null};
+const btn=(text,action,other='',extra='')=>'<button class="btn '+other+'" data-action="'+action+'" '+extra+'>'+text+'</button>';
+const field=(label,id,type='text',value='',attrs='')=>'<label class="field">'+e(label)+'<input id="'+id+'" type="'+type+'" value="'+e(value)+'" '+attrs+'></label>';
+const selector=(label,id,values,selected)=>'<label class="field">'+e(label)+'<select id="'+id+'">'+values.map(x=>'<option value="'+e(x)+'" '+(selected===x?'selected':'')+'>'+e(x)+'</option>').join('')+'</select></label>';
+const chip=(text,action,active=false,attrs='')=>'<button class="chip '+(active?'active':'')+'" data-action="'+action+'" '+attrs+'>'+e(text)+'</button>';
+const notice=(text,kind='')=>'<div class="note '+kind+'">'+e(text)+'</div>';
+const heading=(h,desc)=>'<header class="page-head"><div class="kicker">SPIRITUAL VIBEZ · ZODIAC, TAROT & MORE ✦</div><h1 class="page-title">'+h+'</h1><p class="page-desc">'+desc+'</p></header>';
+async function api(path,options){const r=await fetch(API+path,{...options,signal:AbortSignal.timeout(6000)});if(!r.ok)throw Error('API '+r.status);return r.json()}
+const post=(path,data)=>api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+function transition(page,sub=null){state.page=page;state.tool=sub;state.error='';state.result=null;window.location.hash=page+(sub?'/'+sub:'');render();window.scrollTo({top:0,behavior:'instant'});}
 function home(){
- let out='<section class="hero"><div class="stars"></div><div class="skyline"></div><span class="moon">☾</span><div class="hero-copy"><div class="eyebrow">TAROT, ASTRO & DAILY VIBES ✨</div><h1>Zero boring.</h1><p>Explore cards, learn tarot, and discover something about yourself—your way.</p><div class="hero-buttons">'+btn('🔀 Try a spread','nav:spreads')+btn('📚 Learn tarot','nav:learn',true)+'</div></div><div class="hero-art"><img src="guide.svg" style="height:100%;width:100%;object-fit:contain;object-position:bottom" alt="Illustrated tarot guide with headphones, tattoos and colorful tarot cards"></div></section>';
- const quick=[['spreads','🃏','Tarot Spreads','Shuffle & reveal'],['learn','📚','Learn Tarot','78 cards + quizzes'],['cosmos','☀️','Daily Cosmos','Planetary forecast'],['explore','💖','Explore More','All your cosmic tools']];
- out+='<div class="section-head"><h2>Pick your adventure 💫</h2></div><div class="feature-grid">'+quick.map(([id,e,n,d])=>'<button class="feature" data-action="nav:'+id+'"><span class="emoji">'+e+'</span><span><b>'+n+'</b><small>'+d+'</small></span><span class="arrow">❯</span></button>').join('')+'</div>';
- const fav=[['Reset Your Energy','⚡','Self-care'],['Trust Your Gut','💗','Clarity & Choices'],['The Next Phase','🛤️','Growth & Change'],['Grounding','🪷','Self-care']];
- out+='<div class="section-head"><h2>Fan-favorite spreads ♡</h2><a href="#spreads">See all →</a></div><div class="spread-grid">'+fav.map(([n,e,k])=>'<button class="spread-preview" data-action="favorite" data-name="'+esc(n)+'"><div class="spread-art">'+e+'</div><div class="spread-info"><small>'+k+'</small><b>'+n+'</b><span>Tap to explore ✨ →</span></div></button>').join('')+'</div>';
- return out+'<div class="home-callout"><h2>🌈 A whole cosmic world—not just tarot.</h2><p>Daily transits, birth charts, draconic charts, Chinese astrology, numerology, love matching, sound, rituals, divination and wellness in their own sections.</p>'+btn('Explore everything','nav:explore',true)+'</div>';
+ const feats=[['spreads','feature-spreads.webp','Tarot Spreads'],['learn','feature-learn.webp','Learn Tarot'],['daily','feature-daily.webp','Daily Card'],['journal','feature-journal.webp','My Journal']];
+ const fave=[['Reset Your Energy','spread-reset.webp'],['Trust Your Gut','spread-gut.webp'],['The Next Phase','spread-next.webp'],['Grounding','spread-ground.webp']];
+ const more=[['cosmos','more-cosmos.webp','Cosmos'],['natal','more-birth.webp','Birth Chart'],['life','more-numerology.webp','Numerology'],['moon','more-moon.webp','Moon Phase'],['rituals','more-ritual.webp','Rituals'],['journal','more-readings.webp','Saved Readings']];
+ return '<section class="home-hero" aria-label="Zero boring. Your illustrated spiritual home"><div class="hero-mobile-content"><h1>Zero boring.</h1><p>Explore cards, learn tarot and discover something about yourself—your way.</p></div><img src="assets/hero.webp" alt="Zero boring. Illustrated brown-haired tarot guide with headphones, tattoos, purple tarot cards, crystals, neon sunset and colorful city skyline."><button class="hitbox hitbox--spread" data-action="nav:spreads" aria-label="Try a spread">Try a spread</button><button class="hitbox hitbox--learn" data-action="nav:learn" aria-label="Learn tarot">Learn tarot</button><div class="hero-mobile">'+btn('🔀 Try a spread','nav:spreads')+btn('📚 Learn tarot','nav:learn','cream')+'</div></section>'+
+ '<div class="section-heading"><h2>Pick your adventure 💫</h2></div><div class="feature-grid">'+feats.map(([id,file,title])=>'<button class="picture-tile" data-action="'+(id==='daily'?'daily-card':'nav:'+id)+'" aria-label="Open '+title+'"><img src="assets/'+file+'" alt="'+title+'" loading="lazy"></button>').join('')+'</div>'+
+ '<div class="section-heading"><h2>Fan-favorite spreads ♡</h2><a href="#spreads" data-action="nav:spreads">See all →</a></div><div class="favorite-grid">'+fave.map(([name,file])=>'<button class="favorite-card" data-action="favorite" data-name="'+e(name)+'" aria-label="Open '+e(name)+' spread"><img src="assets/'+file+'" alt="'+e(name)+' illustrated spread" loading="lazy"></button>').join('')+'</div>'+
+ '<div class="section-heading"><h2>More to explore ✨</h2></div><div class="more-grid">'+more.map(([id,file,title])=>'<button class="extra-card" data-action="'+(id==='journal'?'nav:journal':id==='cosmos'?'nav:cosmos':'tool:'+id)+'" aria-label="Open '+title+'"><img src="assets/'+file+'" alt="'+title+'" loading="lazy"></button>').join('')+'</div><div class="scenic" aria-hidden="true"></div>';
 }
-function spreadPage(){
- let h=heading(chosen?esc(chosen.title)+' 🔮':'Tarot Spreads ✨','A dedicated spread studio. Each card position has its own meaning.');
- if(chosen){
- const qs=chosen.questions||[];
- h+=btn('← Browse spreads','back-spreads',true)+'<div class="reading-board"><h3>✦ '+esc(chosen.title)+' ✦</h3><div class="card-row">'+qs.map(q=>{const d=dealt[q.slot];return '<button class="flip-card '+(d?'revealed':'')+'" data-action="draw" data-slot="'+q.slot+'" '+(d?'disabled':'')+'><span class="symbol">'+(d?esc(d.card.icon||'✦'):'☀')+'</span><b>'+esc(d?d.card.name:'CARD '+q.slot)+'</b><small>'+esc(d?d.card.orientation:'TAP TO REVEAL')+'</small></button>'}).join('')+'</div></div><div class="reading-positions">'+qs.map(q=>'<div class="position"><strong>POSITION '+q.slot+' · '+esc(q.title)+'</strong><p>'+esc(q.q)+'</p>'+(dealt[q.slot]?'<p>🃏 '+esc(dealt[q.slot].card.name)+' ('+esc(dealt[q.slot].card.orientation)+'): '+esc(dealt[q.slot].card.meaning)+'</p>':'')+'</div>').join('')+'</div>';
- h+=note('Interpretations are reflective—not predictions or professional advice.');
- h+=btn('✨ Interpret my reading','interpret',false,Object.keys(dealt).length!==qs.length)+' '+btn('🔀 Start again','reset',true);
- if(interpretation)h+='<div class="result"><h3>💗 Your combined reading</h3><p>'+esc(interpretation)+'</p>'+btn('Share reading','share-reading',true)+' '+btn('Save to journal','save-reading',true)+'</div>';
- return h;
+function spreadsPage(){
+ let out=heading(state.selected?e(state.selected.title)+' 🃏':'Tarot Spreads ✨',state.selected?'Tap each position to reveal a card and receive a combined reading.':'Find the right spread for your mood, question or moment. Tarot learning is a separate section.');
+ if(state.selected){const s=state.selected,qs=s.questions||[];
+  out+=btn('← All spreads','back-spreads','cream')+'<div class="reading-board"><h3>✦ '+e(s.title)+' ✦</h3><div class="slots">'+qs.map(q=>{const d=state.drawn[q.slot];return '<button class="slot '+(d?'opened':'')+'" data-action="draw" data-slot="'+q.slot+'" aria-label="'+(d?'Revealed ':'Reveal ')+e(q.title)+'" '+(d?'disabled':'')+'><span>'+e(d?d.card.icon||'🃏':'☀')+'</span><strong>'+e(d?d.card.name:'CARD '+q.slot)+'</strong><small>'+e(d?d.card.orientation:'TAP TO REVEAL')+'</small></button>'}).join('')+'</div></div>';
+  out+='<div class="list" style="margin-bottom:15px">'+qs.map(q=>'<div class="glass"><b>'+q.slot+'. '+e(q.title)+'</b><p>'+e(q.q)+'</p>'+(state.drawn[q.slot]?'<p><b>'+e(state.drawn[q.slot].card.name)+' ('+e(state.drawn[q.slot].card.orientation)+')</b><br>'+e(state.drawn[q.slot].card.meaning)+'</p>':'')+'</div>').join('')+'</div>';
+  out+=notice('Readings are for self-reflection, not certain predictions.');
+  out+=btn('✨ Interpret all my cards','interpret','',Object.keys(state.drawn).length===qs.length?'':'disabled')+' '+btn('🔀 Start again','reset-spread','cream');
+  if(state.reading)out+='<div class="glass"><h3>💗 Your combined reading</h3><p>'+e(state.reading)+'</p>'+btn('Share this reading','share-reading')+' '+btn('Save to journal','save-reading','cream')+'</div>';
+  return out;
  }
- const cats=['All',...new Set(spreads.map(s=>s.category))];
- h+='<div class="panel"><label class="field">Find a spread<input id="spread-search" placeholder="Search all spreads" value="'+esc(query)+'"></label><div class="pillbar">'+cats.map(c=>pill(c,'cat',cat===c,'data-cat="'+esc(c)+'"')).join('')+'</div></div>';
- const filtered=spreads.filter(s=>(cat==='All'||s.category===cat)&&s.title.toLowerCase().includes(query.toLowerCase()));
- h+='<div class="panels">'+filtered.map((s,i)=>'<button class="list-item" data-action="choose" data-id="'+esc(s.id)+'"><span class="icon">'+['🔮','🌙','💗','🌈','🦋','🪷'][i%6]+'</span><span><b>'+esc(s.title)+'</b><small>'+s.cardCount+' cards · '+esc(s.category)+'</small><small>'+esc(s.desc||'Reveal your insights')+'</small></span><span>❯</span></button>').join('')+'</div>';
- return h+(spreads.length?'':note('Connect to the running backend to load the 48-spread library.','error'));
+ const cats=['All',...new Set(state.spreads.map(x=>x.category))];
+ out+='<div class="glass"><label class="field">Search spreads<input id="spread-search" value="'+e(state.search)+'" placeholder="Try love, clarity, career, shadow..."></label><div class="chips">'+cats.map(c=>chip(c,'category',state.category===c,'data-category="'+e(c)+'"')).join('')+'</div>'+(state.online?'':notice('Preview mode: built-in sample spreads are active. Connect the existing backend for the full spread library.'))+'</div>';
+ const matches=state.spreads.filter(s=>(state.category==='All'||s.category===state.category)&&s.title.toLowerCase().includes(state.search.toLowerCase()));
+ out+='<div class="list">'+matches.map((s,i)=>'<button class="listbutton" data-action="select-spread" data-id="'+e(s.id)+'"><span class="glyph">'+['🔮','💫','🦋','💞','🌙','✨'][i%6]+'</span><span><strong>'+e(s.title)+'</strong><small>'+s.cardCount+' cards · '+e(s.category)+'</small><small>'+e(s.desc||'Your reflective reading')+'</small></span></button>').join('')+'</div>';
+ return out;
 }
-function learnPage(){
- let h=heading('Learn Tarot 📚','This academy is completely separate from your tarot spread randomizer.');
- h+='<div class="panel gradient"><h3>🎓 Learn all 78 cards</h3><p>Study card meanings, elements, upright and reversed themes. Take a quick knowledge quiz.</p>'+btn('✨ Quiz Me','quiz')+'</div>';
- if(quiz)h+='<div class="panel"><h3>🎯 What does '+esc(quiz.card_name)+' mean?</h3><div class="pillbar">'+quiz.options.map(o=>pill(o,'answer',false,'data-answer="'+esc(o)+'"')).join('')+'</div>'+(answer?note(answer,answer.startsWith('Correct')?'success':''):'')+'</div>';
- if(cardDetails)h+='<div class="panel"><h3>'+esc(cardDetails.name)+'</h3><p><b>Upright:</b> '+esc(cardDetails.description_upright||cardDetails.upright)+'</p><p><b>Reversed:</b> '+esc(cardDetails.description_reversed||cardDetails.reversed)+'</p><p><b>Mantra:</b> '+esc(cardDetails.mantra)+'</p>'+btn('Close card','close-card',true)+'</div>';
- h+='<div class="pillbar">'+['all','Major','Wands','Cups','Swords','Coins'].map(f=>pill(f==='all'?'All 78':f,'filter',f===filter,'data-filter="'+f+'"')).join('')+'</div><div class="lesson-grid">'+cards.filter(c=>filter==='all'||c.suit===filter).map(c=>'<button class="lesson" data-action="card" data-id="'+c.id+'"><span class="sym">'+esc(c.icon||'🃏')+'</span><strong>'+esc(c.name)+'</strong><small>'+esc(c.suit)+'</small></button>').join('')+'</div>';
- return h+(cards.length?'':note('Connect to the backend to display the complete tarot encyclopedia.','error'));
+function learningPage(){
+ let out=heading('Learn Tarot 📚','Learn every card upright and reversed. A dedicated academy, completely separate from the spread randomizer.');
+ out+='<div class="glass"><h3>📚 Your learning journey</h3><p>Major Arcana (22 cards), Minor Arcana (56 cards), reversals, card meanings and an interactive quiz.</p><p><b>'+state.quizProgress+' quiz answers attempted this session</b></p>'+btn('🎯 Quiz me','quiz')+'</div>';
+ if(state.quiz){const q=state.quiz;out+='<div class="glass"><h3>🎯 What does '+e(q.card_name)+' represent?</h3><div class="chips">'+q.options.map(x=>chip(x,'quiz-answer',false,'data-answer="'+e(x)+'"')).join('')+'</div>'+(state.answer?notice(state.answer,state.answer.startsWith('Correct')?'ok':''):'')+'</div>'}
+ if(state.cardDetail){const c=state.cardDetail;out+='<div class="glass" id="selected-card"><h3>'+e(c.icon)+' '+e(c.name)+'</h3><p><strong>Upright:</strong> '+e(c.description_upright||c.upright)+'</p><p><strong>Reversed:</strong> '+e(c.description_reversed||c.reversed)+'</p><p><strong>Mantra:</strong> '+e(c.mantra||'Reflect on what resonates.')+'</p>'+btn('Close card','close-card','cream')+'</div>'}
+ out+='<div class="chips">'+['all','Major','Wands','Cups','Swords','Coins'].map(f=>chip(f==='all'?'All 78':f,'learn-filter',state.filter===f,'data-filter="'+f+'"')).join('')+'</div><div class="deck-cards">'+state.cards.filter(c=>state.filter==='all'||c.suit===state.filter).map(c=>'<button class="deck-card" data-action="card" data-card="'+c.id+'"><span class="symbol">'+e(c.icon||'🃏')+'</span>'+e(c.name)+'<small>'+e(c.suit)+'</small></button>').join('')+'</div>';
+ return out;
 }
-function cosmosPage(){
- let h=heading('Cosmos & Transits 🌙','Moon phase, Sun position, Mercury and Venus, with a symbolic mood forecast.');
- h+='<div class="panel gradient"><h3>☀️ Daily planetary alignment</h3><div class="controls">'+chooser('Choose your zodiac sign','transit-sign',signs,sign)+btn('Refresh forecast','refresh')+'</div>';
- if(transit)h+='<div class="panels">'+[['🌙 Moon',transit.moon_phase],['☀️ Sun',transit.sun_position],['☿ Mercury',transit.mercury_status],['♀ Venus',transit.venus_status]].map(([a,b])=>'<div class="panel"><h3>'+esc(a)+'</h3><p>'+esc(b)+'</p></div>').join('')+'</div><div class="result"><h3>💖 Your '+esc(sign)+' forecast</h3><p>'+esc(transit.forecast?.content)+'</p>'+btn('Share forecast','share-transit')+'</div>';
- else h+=note('Select your sign and tap Refresh to fetch data from the backend.');
- return h+'</div><div class="panel"><h3>🌒 Birth charts & moon phase</h3><p>Your separate calculators are under Explore More.</p>'+btn('View astrology tools','nav:explore',true)+'</div>';
+function cosmosPage(){const d=state.transit;
+ let out=heading('Cosmos & Transits 🌙','Moon phase, Sun position, Mercury and Venus—plus a zodiac-inspired mood forecast.');
+ out+='<div class="glass"><h3>✨ Daily Moon & Planetary Alignment</h3><div class="controls">'+selector('Your zodiac sign','transit-sign',signs,state.sign)+btn('Refresh my cosmic weather','get-transit')+'</div>'+(state.online?'':notice('A working backend connection is required for planetary calculations. No fake positions will be shown.'))+'</div>';
+ if(d){out+='<div class="tiles">'+[['🌙','Moon',d.moon_phase],['☀️','Sun',d.sun_position],['☿','Mercury',d.mercury_status],['♀','Venus',d.venus_status]].map(([i,n,v])=>'<div class="glass"><h3>'+i+' '+n+'</h3><p>'+e(v)+'</p></div>').join('')+'</div><div class="glass"><h3>💖 Your '+e(state.sign)+' mood forecast</h3><p>'+e(d.forecast?.content)+'</p><small>Astrology is symbolic; it does not scientifically predict mood.</small><p>'+btn('Share forecast','share-transit')+'</p></div>'}
+ out+='<div class="glass"><h3>🌒 More astrology tools</h3><p>Natal moon phase, natal and draconic charts, Chinese zodiac, houses and astrocartography all have dedicated screens.</p>'+btn('Open astrology tools','nav:explore','cream')+'</div>';return out;
 }
-function toolPage(){
- if(!tool)return heading('Explore More ✨','All the features you requested, grouped into their own tappable sections.')+Object.entries(groups).map(([group,entries])=>'<div class="section-head"><h2>'+esc(group)+'</h2></div><div class="tool-grid">'+entries.map(([id,e,t])=>'<button class="tool-card" data-action="open-tool" data-tool="'+id+'"><span class="icon">'+e+'</span><b>'+esc(t)+'</b><small>Tap to explore →</small></button>').join('')+'</div>').join('');
- const t=tools.find(x=>x[0]===tool)||[tool,'✨',tool],id=tool;
- let h=btn('← Explore all','back-tools',true)+heading(t[1]+' '+esc(t[2]),'Your own dedicated '+esc(t[2])+' screen.');
- let form='';
- if(['moon','natal','draconic','bazi','life'].includes(id))form+='<div class="controls">'+field('Birth date','birth-date','date')+(['moon','natal','draconic','bazi'].includes(id)?field('Birth time','birth-time','time','12:00'):'')+'</div>';
- if(['natal','draconic'].includes(id))form+=note('CHART LIMITATION: Current backend coordinates and astronomical formulas are approximations. Accurate birth charts require verified time zones and a precision ephemeris.');
- if(id==='love')form+='<div class="controls">'+chooser('Your sign','sign-a',signs,'Scorpio')+chooser('Their sign','sign-b',signs,'Taurus')+'</div>';
- if(id==='cycle')form+='<div class="controls">'+field('Last period','period-date','date')+field('Average cycle length','cycle-length','number','28')+'</div>'+note('Cycle predictions are estimates, not fertility or contraception guidance. Do not enter personal tracking data on the public backend until accounts and privacy are implemented.');
- if(id==='rituals')form+='<div class="controls">'+field('Search by intention','search','search')+chooser('Category','ritual-category',['all','money','love','protection'],'all')+'</div>';
- if(id==='astro')form+=field('Focus city','city','text','Utica, NY');
- if(['oracle','pendulum'].includes(id))form+=field('Your question','search','text');
- if(id==='sound')form+='<div class="controls">'+chooser('Frequency (Hz)','hz',['396','417','432','528','639','741','852','963'],'528')+field('Volume (0.00–0.10)','volume','number','0.04')+'</div>'+btn('▶ Play tone','play')+' '+btn('■ Stop tone','stop',true)+note('Generated original pure sine wave, not a medical treatment. Start at low volume.');
- if(id==='shadow')form+=note('Personal journal saving should remain local until private accounts and secure storage are added.');
- if(id==='oracle')form+=note('Uses free, deterministic question matching; no paid AI API is required.');
- h+='<div class="panel"><div class="controls">'+form+'</div>'+(id==='sound'?'':btn(id==='rituals'?'Find rituals':'✨ Calculate / Explore','run-tool'))+(err?note(err,'error'):'')+'</div>';
- if(result)h+=renderResult(result);
- return h;
+function getTool(id){return allTools.find(t=>t[0]===id)}
+function explorePage(){
+ if(!state.tool)return heading('Explore More ✨','Every part of your spiritual playground gets its own space.')+Object.entries(tools).map(([name,items])=>'<section class="tool-group"><h2>'+e(name)+'</h2><div class="tiles">'+items.map(([id,ico,title,detail])=>'<button class="tooltile" data-action="tool:'+id+'"><span class="emoji">'+ico+'</span><strong>'+e(title)+'</strong><span>'+e(detail)+'</span></button>').join('')+'</div></section>').join('');
+ const t=getTool(state.tool);if(!t)return '';const [id,ico,title,detail]=t;
+ let out=btn('← All features','tool-back','cream')+heading(ico+' '+e(title),e(detail));
+ const birth=['moon','natal','draconic','bazi','life'].includes(id);
+ let form='';if(birth)form+='<div class="controls">'+field('Birth date','birth-date','date')+(id==='life'?'':field('Birth time (local)','birth-time','time','12:00'))+'</div>';
+ if(['natal','draconic'].includes(id))form+='<div class="controls">'+field('Birth latitude','birth-lat','number','43.1009','step="any"')+field('Birth longitude','birth-lon','number','-75.2327','step="any"')+'</div>'+notice('Your current backend uses approximate formulas and does not correctly resolve birth time zones. Chart accuracy must be repaired before production.');
+ if(id==='astro')form+=field('Destination city','city','text','Utica, NY');
+ if(id==='love')form+='<div class="controls">'+selector('Your zodiac sign','sign-a',signs,'Scorpio')+selector('Their zodiac sign','sign-b',signs,'Taurus')+'</div>';
+ if(id==='rituals')form+='<div class="controls">'+field('Search intentions','search','search')+selector('Category','ritual-category',['all','money','love','protection'],'all')+'</div>';
+ if(id==='oracle'||id==='pendulum')form+=field('Your question','search','text');
+ if(id==='cycle')form+='<div class="controls">'+field('First day of last period','period-date','date')+field('Average cycle length','period-length','number','28','min="20" max="45"')+'</div>'+notice('This preview stores period information locally only. Cycle predictions are rough estimates and cannot establish fertility or safe contraception days.');
+ if(id==='sound')form+='<div class="controls">'+selector('Choose tone (Hz)','hz',['174','285','396','417','432','528','639','741','852','963'],'528')+field('Volume (0–0.1)','volume','number','0.04','step="0.01" min="0" max="0.1"')+'</div>'+btn('▶ Play tone','audio-play')+' '+btn('■ Stop tone','audio-stop','cream')+notice('These are original synthesized tones, not copyrighted recordings. Use a comfortable volume; no medical treatment claims.');
+ if(id==='shadow')form+=notice('Journal reflections are saved locally in the Journal tab; public server-side storage is disabled until authentication is built.');
+ if(id==='oracle')form+=notice('Rule-based interpretations require no paid AI API. The backend is not a large language model.');
+ out+='<div class="glass"><h3>'+ico+' '+e(title)+'</h3>'+form+(id==='sound'?'':btn(id==='rituals'?'Find rituals ✨':'Explore / Calculate ✨','tool-run'))+(state.error?notice(state.error,'error'):'')+'</div>'+(state.result?renderResult(state.result):'');
+ return out;
 }
-function renderResult(o){
- let inner='';
- if(o.oracle_response)inner='<p>'+esc(o.oracle_response).replace(/\n/g,'<br>')+'</p>';
- else if(o.placements)inner='<p><b>Ascendant:</b> '+esc(o.ascendant)+'</p>'+o.placements.map(x=>'<div class="line"><b>'+esc(x.planet)+':</b> '+esc(x.sign)+' · '+esc(x.house)+'</div>').join('');
- else if(o.cards)inner=o.cards.map(c=>'<p>'+esc(c.name)+'</p>').join('');
- else if(o.lessons)inner=o.lessons.map(x=>'<div class="line"><b>'+esc(x.number)+' · '+esc(x.title)+'</b><p>'+esc(x.lesson)+'</p></div>').join('');
- else if(o.rituals)inner=o.rituals.map(x=>'<div class="line"><b>'+esc(x.title)+'</b><p>'+esc(x.tools)+'</p><p>'+esc(x.steps)+'</p></div>').join('');
- else if(o.houses)inner=o.houses.map(x=>'<div class="line"><b>'+esc(x.name||x.title||x.house)+'</b><p>'+esc(x.meaning||x.desc||x.description)+'</p></div>').join('');
- else if(o.life_path_number)inner='<h3>Life Path '+esc(o.life_path_number)+'</h3><p>'+esc(o.description)+'</p>';
- else if(o.natal_moon_phase)inner='<h3>'+esc(o.natal_moon_phase)+'</h3><p>'+esc(o.description)+'</p>';
- else inner='<pre>'+esc(JSON.stringify(o,null,2))+'</pre>';
- return '<div class="result"><h3>✨ Your result</h3>'+inner+btn('Share result','share-result',true)+'</div>';
+function renderResult(o){let s='';if(o.oracle_response)s='<p>'+e(o.oracle_response).replace(/\n/g,'<br>')+'</p>';
+ else if(o.placements)s='<p><b>Ascendant:</b> '+e(o.ascendant)+'</p>'+o.placements.map(x=>'<p><b>'+e(x.planet)+'</b> · '+e(x.sign)+' · '+e(x.house)+'</p>').join('');
+ else if(o.natal_moon_phase)s='<h3>'+e(o.natal_moon_phase)+'</h3><p>'+e(o.description)+'</p>';
+ else if(o.life_path_number)s='<h3>Life Path '+e(o.life_path_number)+'</h3><p>'+e(o.description)+'</p>';
+ else if(o.lessons)s=o.lessons.map(x=>'<p><b>'+e(x.number)+' · '+e(x.title)+'</b><br>'+e(x.lesson)+'</p>').join('');
+ else if(o.rituals)s=o.rituals.map(x=>'<p><b>🕯️ '+e(x.title)+'</b><br>'+e(x.tools||'')+'<br>'+e(x.steps||'')+'</p>').join('');
+ else if(o.houses)s=o.houses.map(x=>'<p><b>'+e(x.name||x.title||'House')+'</b><br>'+e(x.desc||x.meaning||x.description||'')+'</p>').join('');
+ else if(o.cycle_day)s='<p>Cycle day '+e(o.cycle_day)+'</p><p>Next estimated period: '+e(o.next_period)+'</p>';
+ else s='<pre>'+e(JSON.stringify(o,null,2))+'</pre>';
+ return '<div class="result"><h3>✨ Your '+e(getTool(state.tool)?.[2]||'cosmic')+' result</h3>'+s+'<p>'+btn('Share result','share-result','cream')+'</p></div>';
 }
-function journal(){
- let x=[];try{x=JSON.parse(localStorage.getItem('spiritual-vibez-journal')||'[]')}catch{}
- return heading('My Journal 💗','Save your own reflections locally in this browser.')+'<div class="panels"><div class="panel"><h3>📝 Write a reflection</h3><label class="field">Your thoughts<textarea id="journal-text" placeholder="What did you notice today?"></textarea></label>'+btn('Save reflection','save-note')+'</div><div class="panel"><h3>💌 Saved notes</h3>'+(x.length?x.slice().reverse().map(i=>'<p><b>'+esc(i.title)+'</b> · '+esc(i.date)+'<br>'+esc(i.text)+'</p>').join(''):note('Nothing saved yet.'))+'</div></div>'+note('Journal contents stay on this browser only. Avoid shared devices for sensitive entries.');
+function journalPage(){let saved=[];try{saved=JSON.parse(localStorage.getItem('sv_private_journal')||'[]')}catch{}
+ return heading('My Journal 💗','Save your reflections and readings on this device—not in an unprotected public database.')+'<div class="tiles"><div class="glass"><h3>📓 Today’s reflection</h3><label class="field">Your thoughts<textarea id="journal-text" placeholder="What came up for you today?"></textarea></label><p>'+btn('Save reflection','save-note')+'</p></div><div class="glass"><h3>💌 Saved reflections</h3>'+(saved.length?saved.slice().reverse().map(x=>'<p><b>'+e(x.title)+'</b> <small> · '+e(x.date)+'</small><br>'+e(x.text)+'</p>').join(''):notice('No saved reflections yet.'))+'</div></div>'+notice('Local storage is device-specific. Do not enter private information on a shared device.');
 }
-function layout(content){
- const n=[['home','🏠','Home'],['spreads','🔀','Spreads'],['learn','📖','Learn Tarot'],['cosmos','🌙','Cosmos'],['explore','✨','Explore'],['journal','📝','Journal']];
- const items=n.map(([id,e,t])=>'<button class="'+(id===page?'active':'')+'" data-action="nav:'+id+'"><span>'+e+'</span> '+t+'</button>').join('');
- return '<header class="topbar"><div class="nav-inner"><a class="logo" href="#home"><strong>🌙 Spiritual Vibez ✦</strong><span>ZODIAC, TAROT & MORE</span></a><nav class="topnav" aria-label="Main navigation">'+items+'</nav><div class="nav-heart">💖</div></div></header><main class="shell">'+content+'</main><footer class="footer">Spiritual Vibez • Zodiac, Tarot & More ✨ For personal reflection and entertainment.</footer><nav class="bottom-nav" aria-label="Quick navigation">'+items+'</nav>';
+function dailyCard(){if(state.cards.length){const card=state.cards[Math.floor(Math.random()*state.cards.length)];state.cardDetail=card;transition('learn');document.querySelector('#selected-card')?.scrollIntoView({behavior:'smooth'});}}
+function render(){
+ const nav=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'selected':'')+'" data-action="nav:'+id+'"><span class="navicon">'+icon+'</span>'+label+'</button>').join('');
+ const dock=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'current':'')+'" data-action="nav:'+id+'"><span>'+icon+'</span>'+label+'</button>').join('');
+ const pageContent={home,spreads:spreadsPage,learn:learningPage,cosmos:cosmosPage,explore:explorePage,journal:journalPage}[state.page]||home;
+ $('#app').innerHTML='<header class="topbar"><div class="topbar__inner"><a href="#home" class="brand" aria-label="Spiritual Vibez Home"><span class="brand__moon">☾</span><span class="brand__text"><strong>Spiritual Vibez</strong><small>ZODIAC, TAROT & MORE</small></span><span class="brand__cards">🃏</span></a><nav class="nav" aria-label="Primary">'+nav+'</nav><div class="top-actions"><button aria-label="Find a feature" data-action="nav:explore">⌕</button><button class="avatar-chip" aria-label="Open journal" data-action="nav:journal">💖</button></div></div></header><main class="container '+(state.page==='home'?'':'main-page')+'">'+pageContent()+'</main><footer class="footer">Spiritual Vibez · Zodiac, Tarot & More · For reflection and entertainment, not medical or financial advice.</footer><nav class="bottomdock" aria-label="Mobile navigation">'+dock+'</nav>';
 }
-function paint(){const h={home,spreads:spreadPage,learn:learnPage,cosmos:cosmosPage,explore:toolPage,journal};$('#app').innerHTML=layout((h[page]||home)());}
-const val=(id)=>document.getElementById(id)?.value||'';
-const save=(title,text)=>{let x=[];try{x=JSON.parse(localStorage.getItem('spiritual-vibez-journal')||'[]')}catch{}x.push({title,text,date:new Date().toLocaleDateString()});localStorage.setItem('spiritual-vibez-journal',JSON.stringify(x.slice(-70)))};
-const share=(text)=>{if(navigator.share)navigator.share({title:'Spiritual Vibez',text}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>alert('Copied. You can paste it into a text, email or social post.'));else prompt('Copy to share:',text)};
-async function doTool(){
- const id=tool,dob=val('birth-date'),[y,m,d]=dob.split('-').map(Number),bt=val('birth-time')||'12:00';
- if(['moon','natal','draconic','bazi','life'].includes(id)&&(!dob||isNaN(Date.parse(dob)))){err='Enter a valid birth date.';paint();return}
- const routes={
- moon:()=>post('/astrology/moon-phase',{birth_date:dob,birth_time:bt}),
- natal:()=>post('/astrology/natal-chart',{birth_date:dob,birth_time:bt,chart_system:'placidus'}),
- draconic:()=>post('/astrology/natal-chart',{birth_date:dob,birth_time:bt,chart_system:'draconic'}),
- bazi:()=>post('/astrology/bazi',{birth_year:y,birth_month:m,birth_day:d,birth_hour:Number(bt.slice(0,2))}),
- houses:()=>request('/astrology/houses'),asteroids:()=>request('/astrology/asteroids'),
- calendar:()=>request('/astrology/lunar-calendar/1'),astro:()=>request('/astrology/astrocartography?city='+encodeURIComponent(val('city'))),
- life:()=>post('/synastry/life-path',{birth_year:y,birth_month:m,birth_day:d}),
- numbers:()=>request('/synastry/numerology-lessons'),
- love:()=>post('/synastry/compatibility',{partner_a_sign:val('sign-a'),partner_b_sign:val('sign-b')}),
- rituals:()=>request('/rituals/search?category='+encodeURIComponent(val('ritual-category'))+'&query='+encodeURIComponent(val('search'))),
- cycle:()=>post('/wellness/menstrual-cycle',{last_period_date:val('period-date'),cycle_length:Number(val('cycle-length'))}),
- shadow:()=>request('/wellness/shadow-prompts'),
- runes:()=>post('/divination/runes/cast',{rune_count:3}),
- pendulum:()=>post('/divination/pendulum',{question:val('search')||'What is my next step?'}),
- oracle:()=>post('/oracle/chat',{message:val('search')||'Tell me about the Moon'}),
- store:()=>request('/store/products')
- };
- err='';result=null;try{result=await routes[id]()}catch(e){err=e.message}paint();
-}
-function stop(){try{osc?.stop();audio?.close()}catch{}osc=null;audio=null}
-function play(){stop();try{audio=new (window.AudioContext||window.webkitAudioContext)();osc=audio.createOscillator();const gain=audio.createGain();osc.type='sine';osc.frequency.value=Number(val('hz')||528);gain.gain.value=Math.max(0,Math.min(.10,Number(val('volume')||.04)));osc.connect(gain);gain.connect(audio.destination);osc.start()}catch(e){alert(e.message)}}
-document.addEventListener('click',async(e)=>{
- const b=e.target.closest('[data-action]');if(!b)return;e.preventDefault();const action=b.dataset.action;
- if(action.startsWith('nav:'))return screen(action.slice(4));
- if(action==='open-tool')return openTool(b.dataset.tool);
- if(action==='back-tools')return screen('explore');
- if(action==='favorite'){chosen=spreads.find(s=>s.title.toLowerCase()===b.dataset.name.toLowerCase())||null;dealt={};interpretation='';screen('spreads');if(!chosen)alert('Choose an available spread in the list.');return}
- if(action==='cat'){cat=b.dataset.cat;paint();return}
- if(action==='choose'){chosen=spreads.find(s=>s.id===b.dataset.id);dealt={};interpretation='';paint();window.scrollTo(0,0);return}
- if(action==='back-spreads'){chosen=null;paint();return}
- if(action==='reset'){dealt={};interpretation='';paint();return}
- if(action==='draw'){if(dealt[b.dataset.slot])return;try{const r=await post('/tarot/spreads/deal-slot',{spread_id:chosen.id,slot_num:Number(b.dataset.slot),exclude_card_ids:Object.values(dealt).map(x=>x.card.id)});dealt[b.dataset.slot]=r;paint()}catch(e){alert(e.message)}return}
- if(action==='interpret'){try{const r=await post('/tarot/spreads/synthesize',{spread_id:chosen.id,drawn_cards:Object.values(dealt).map(x=>({slot:x.slot,card_id:x.card.id,orientation:x.card.orientation})),save_to_journal:false});interpretation=r.synthesis;paint()}catch(e){alert(e.message)}return}
- if(action==='share-reading')return share(chosen.title+'\n\n'+interpretation);
- if(action==='save-reading'){save(chosen.title,interpretation);alert('Saved locally to your journal.');return}
- if(action==='filter'){filter=b.dataset.filter;paint();return}
- if(action==='card'){cardDetails=cards.find(x=>String(x.id)===b.dataset.id);paint();window.scrollTo(0,0);return}
- if(action==='close-card'){cardDetails=null;paint();return}
- if(action==='quiz'){try{quiz=await request('/tarot/study/quiz');answer='';paint()}catch(e){alert(e.message)}return}
- if(action==='answer'){answer=b.dataset.answer===quiz.correct_answer?'Correct! ✨':'Keep learning—the answer is '+quiz.correct_answer;paint();return}
- if(action==='refresh'){sign=val('transit-sign');try{transit=await request('/astrology/daily-transits?sign='+sign);paint()}catch(e){alert(e.message)}return}
- if(action==='share-transit')return share(sign+' forecast: '+transit.forecast?.content);
- if(action==='run-tool')return doTool();
- if(action==='share-result')return share(JSON.stringify(result,null,2));
- if(action==='save-note'){const t=val('journal-text').trim();if(t){save('Journal reflection',t);paint()}else alert('Write something first.');return}
- if(action==='play')return play();
- if(action==='stop')return stop();
-});
-document.addEventListener('input',e=>{if(e.target.id==='spread-search'){query=e.target.value;const pos=e.target.selectionStart;paint();$('#spread-search')?.focus();$('#spread-search')?.setSelectionRange(pos,pos)}});
-window.addEventListener('hashchange',()=>{const parts=location.hash.slice(1).split('/');if(parts[0]&&parts[0]!==page){page=parts[0];tool=parts[0]==='explore'?(parts[1]||null):null;paint()}});
-window.addEventListener('beforeunload',stop);
-async function start(){const parts=location.hash.slice(1).split('/');page=['home','spreads','learn','cosmos','explore','journal'].includes(parts[0])?parts[0]:'home';tool=parts[1]||null;paint();const all=await Promise.allSettled([request('/tarot/spreads'),request('/tarot/cards')]);if(all[0].status==='fulfilled')spreads=all[0].value.spreads||[];if(all[1].status==='fulfilled')cards=all[1].value.cards||[];paint()}
-start();
+function val(id){return document.getElementById(id)?.value??''}
+function save(title,text){let arr=[];try{arr=JSON.parse(localStorage.getItem('sv_private_journal')||'[]')}catch{}arr.push({title,text,date:new Date().toLocaleDateString()});localStorage.setItem('sv_private_journal',JSON.stringify(arr.slice(-100)));}
+function share(text){if(navigator.share){navigator.share({title:'Spiritual Vibez',text}).catch(()=>{});}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste it into a text, email, or social post.')).catch(()=>prompt('Copy this:',text));}else prompt('Copy this:',text)}
+let ac=null,osc=null;function stopAudio(){try{osc?.stop();ac?.close()}catch{}osc=null;ac=null}
+function startAudio(){stopAudio();try{ac=new (window.AudioContext||window.webkitAudioContext)();osc=ac.createOscillator();const gain=ac.createGain();osc.type='sine';osc.frequency.value=Number(val('hz'))||528;gain.gain.value=Math.max(0,Math.min(.10,Number(val('volume'))||.04));osc.connect(gain);gain.connect(ac.destination);osc.start()}catch(ex){alert('Audio could not start: '+ex.message)}}
+function pickSpread(s){state.selected=s;state.drawn={};state.reading='';transition('spreads')}
+async function draw(slot){if(state.drawn[slot])return;let card;try{if(!state.online)throw Error('offline');const d=await post('/tarot/spreads/deal-slot',{spread_id:state.selected.id,slot_num:slot,exclude_card_ids:Object.values(state.drawn).map(x=>x.card.id)});state.drawn[slot]=d;}catch{const available=state.cards.filter(c=>!Object.values(state.drawn).some(x=>x.card.id===c.id));card=available[Math.floor(Math.random()*available.length)];const reversed=Math.random()<.2;state.drawn[slot]={slot,card:{...card,orientation:reversed?'Reversed':'Upright',meaning:reversed?card.reversed:card.upright}};}render()}
+async function interpret(){try{if(!state.online)throw Error('offline');const d=await post('/tarot/spreads/synthesize',{spread_id:state.selected.id,drawn_cards:Object.values(state.drawn).map(x=>({slot:x.slot,card_id:x.card.id,orientation:x.card.orientation})),save_to_journal:false});state.reading=d.synthesis||'';}catch{const names=Object.values(state.drawn).map(x=>x.card.name);const themes=Object.values(state.drawn).slice(0,3).map(x=>x.card.meaning);state.reading='This '+state.selected.title+' reading moves through '+names.join(', ')+'. Together, these cards invite you to consider '+themes.join('; ')+'. Notice which position resonates with your situation, and choose one practical action that supports your intentions. These are reflective prompts, not predictions.';}render()}
+function fallbackLifePath(year,month,day){let num=(v)=>{let x=v;while(x>9&&![11,22,33].includes(x))x=String(x).split('').reduce((a,b)=>a+Number(b),0);return x};return num(num(year)+num(month)+num(day))}
+async function runTool(){const id=state.tool, dob=val('birth-date'),birthTime=val('birth-time')||'12:00',[y,m,d]=(dob||'').split('-').map(Number);state.error='';state.result=null;
+ if(['natal','draconic','moon','bazi','life'].includes(id)&&(!dob||Number.isNaN(Date.parse(dob)))){state.error='Please enter a valid birth date.';render();return}
+ if(id==='cycle'){const last=val('period-date');if(!last){state.error='Please enter your last period start date.';render();return}const length=Number(val('period-length'));if(length<20||length>45){state.error='Cycle length must be between 20 and 45 days.';render();return}const days=Math.floor((new Date().getTime()-new Date(last+'T12:00:00').getTime())/86400000);const step=Math.max(0,days);const next=new Date(last+'T12:00:00');next.setDate(next.getDate()+(Math.floor(step/length)+1)*length);state.result={cycle_day:step%length+1,next_period:next.toLocaleDateString(),note:'Estimates only; not a diagnosis or fertility tool.'};render();return}
+ if(id==='shadow'){state.result={suggestions:['What is one boundary I need today?','Where could I show myself compassion?','What belief am I ready to question?','What might restore my energy?']};render();return}
+ if(!state.online&&id==='life'){const n=fallbackLifePath(y,m,d);state.result={life_path_number:n,description:'Life Path '+n+' is a numerology symbol for reflection. The full interpretation library loads when the backend is connected.'};render();return}
+ if(!state.online){state.error='This feature needs the connected Spiritual Vibez backend. The interactive web design is working, but precise data is not available in the standalone preview.';render();return}
+ const routes={moon:()=>post('/astrology/moon-phase',{birth_date:dob,birth_time:birthTime}),natal:()=>post('/astrology/natal-chart',{birth_date:dob,birth_time:birthTime,chart_system:'placidus',latitude:Number(val('birth-lat')),longitude:Number(val('birth-lon'))}),draconic:()=>post('/astrology/natal-chart',{birth_date:dob,birth_time:birthTime,chart_system:'draconic',latitude:Number(val('birth-lat')),longitude:Number(val('birth-lon'))}),bazi:()=>post('/astrology/bazi',{birth_year:y,birth_month:m,birth_day:d,birth_hour:Number(birthTime.slice(0,2))}),houses:()=>api('/astrology/houses'),asteroids:()=>api('/astrology/asteroids'),calendar:()=>api('/astrology/lunar-calendar/1'),astro:()=>api('/astrology/astrocartography?city='+encodeURIComponent(val('city'))),life:()=>post('/synastry/life-path',{birth_year:y,birth_month:m,birth_day:d}),numbers:()=>api('/synastry/numerology-lessons'),love:()=>post('/synastry/compatibility',{partner_a_sign:val('sign-a'),partner_b_sign:val('sign-b')}),rituals:()=>api('/rituals/search?category='+encodeURIComponent(val('ritual-category'))+'&query='+encodeURIComponent(val('search'))),runes:()=>post('/divination/runes/cast',{rune_count:3}),pendulum:()=>post('/divination/pendulum',{question:val('search')||'What matters next?'}),oracle:()=>post('/oracle/chat',{message:val('search')||'What is a useful reflection today?'}),store:()=>api('/store/products')};
+ try{state.result=await routes[id]()}catch(ex){state.error=ex.message}render();}
+function quizFallback(){const c=state.cards[Math.floor(Math.random()*state.cards.length)];const good=c.upright.split(',')[0].trim();state.quiz={card_name:c.name,correct_answer:good,options:[good,'Stagnation','Certainty','Avoidance'].sort(()=>Math.random()-.5)};}
+async function askQuiz(){state.answer='';try{if(!state.online)throw Error('offline');state.quiz=await api('/tarot/study/quiz')}catch{quizFallback()}render()}
+async function transitFetch(){state.sign=val('transit-sign');try{state.transit=await api('/astrology/daily-transits?sign='+encodeURIComponent(state.sign));}catch{state.transit=null;alert('Connect the FastAPI backend for actual planetary data. No invented transits will be displayed.')}render()}
+document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action]');if(!b)return;ev.preventDefault();const a=b.dataset.action;if(a.startsWith('nav:'))return transition(a.slice(4));if(a.startsWith('tool:'))return transition('explore',a.slice(5));
+ if(a==='favorite'){const s=state.spreads.find(x=>x.title.toLowerCase()===b.dataset.name.toLowerCase());if(s)pickSpread(s);else{transition('spreads');alert('Please choose an available spread from the complete list.')}return}
+ if(a==='daily-card'){return dailyCard()}
+ if(a==='back-spreads'){state.selected=null;state.drawn={};return render()}
+ if(a==='select-spread'){return pickSpread(state.spreads.find(x=>x.id===b.dataset.id))}
+ if(a==='category'){state.category=b.dataset.category;return render()}
+ if(a==='draw'){return draw(Number(b.dataset.slot))}
+ if(a==='interpret'){return interpret()}
+ if(a==='reset-spread'){state.drawn={};state.reading='';return render()}
+ if(a==='share-reading')return share(state.selected.title+'\n\n'+state.reading);
+ if(a==='save-reading'){save(state.selected.title,state.reading);return alert('Saved to the Journal on this device.');}
+ if(a==='learn-filter'){state.filter=b.dataset.filter;return render()}
+ if(a==='card'){state.cardDetail=state.cards.find(x=>String(x.id)===b.dataset.card);render();document.querySelector('#selected-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+ if(a==='close-card'){state.cardDetail=null;return render()}
+ if(a==='quiz'){return askQuiz()}
+ if(a==='quiz-answer'){state.answer=b.dataset.answer===state.quiz.correct_answer?'Correct! ✨ You got it!':'Keep learning! The answer is '+state.quiz.correct_answer;state.quizProgress++;return render()}
+ if(a==='get-transit')return transitFetch()
+ if(a==='share-transit')return share(state.sign+': '+state.transit.forecast?.content)
+ if(a==='tool-back')return transition('explore')
+ if(a==='tool-run')return runTool()
+ if(a==='share-result')return share(JSON.stringify(state.result,null,2))
+ if(a==='save-note'){const t=val('journal-text').trim();if(!t)return alert('Write your reflection first.');save('Journal reflection',t);return render()}
+ if(a==='audio-play')return startAudio();if(a==='audio-stop')return stopAudio();});
+document.addEventListener('input',ev=>{if(ev.target.id==='spread-search'){state.search=ev.target.value;const pos=ev.target.selectionStart;render();const inp=$('#spread-search');inp?.focus();inp?.setSelectionRange(pos,pos)}});
+window.addEventListener('hashchange',()=>{const [p,sub]=decodeURIComponent(location.hash.slice(1)).split('/');if(['home','spreads','learn','cosmos','explore','journal'].includes(p)&&(p!==state.page||sub!==state.tool)){state.page=p;state.tool=p==='explore'?sub||null:null;render()}});
+window.addEventListener('beforeunload',stopAudio);
+async function boot(){const [p,sub]=location.hash.slice(1).split('/');if(['home','spreads','learn','cosmos','explore','journal'].includes(p)){state.page=p;state.tool=p==='explore'?sub||null:null}render();try{const data=await Promise.all([api('/tarot/cards'),api('/tarot/spreads')]);if(data[0].cards?.length===78&&data[1].spreads?.length){state.cards=data[0].cards;state.spreads=data[1].spreads;state.online=true}}catch{/* Local preview fallback is intentionally usable. */}render()}
+boot();
