@@ -72,3 +72,16 @@ def serve_frontend():
     if os.path.exists(frontend_path):
         return FileResponse(frontend_path, media_type="text/html")
     return JSONResponse(content=health_check())
+
+
+@app.get("/styles.css", include_in_schema=False)
+def serve_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "styles.css"), media_type="text/css")
+
+@app.get("/app.js", include_in_schema=False)
+def serve_app_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "app.js"), media_type="text/javascript")
+
+@app.get("/guide.svg", include_in_schema=False)
+def serve_guide_illustration():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
