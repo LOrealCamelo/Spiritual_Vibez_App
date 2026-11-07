@@ -2,7 +2,7 @@ import React from 'react';
 import TestRenderer,{act,ReactTestRenderer} from 'react-test-renderer';
 import {Image,Text,TextInput,TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen} from '../App';
+import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen} from '../App';
 import {IllustratedCard,UI_CARD_IMAGES} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
 
@@ -99,4 +99,36 @@ test('real tab navigator exposes six destinations and opens the independent lear
     await act(async()=>button.props.onPress({preventDefault:()=>{}}));
     expect(tree.root.findAllByType(IllustratedCard).some(x=>x.props.asset===asset)).toBe(true);
   }
+});
+
+test('connected spread artwork uses canonical API IDs and the full backend layout',async()=>{
+  const catalog=require('../../backend/data/master_data.json').masterSpreadsData;
+  globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({spreads:catalog})});
+  await render(<SpreadsScreen route={{params:{}}}/>);
+  await press('At a Crossroads');
+  expect(text()).toContain('CARD 10');
+});
+
+test.each([
+  ['moon','/astrology/moon-phase','POST'],['natal','/astrology/natal-chart','POST'],
+  ['draconic','/astrology/natal-chart','POST'],['bazi','/astrology/bazi','POST'],
+  ['houses','/astrology/houses','GET'],['asteroids','/astrology/asteroids','GET'],
+  ['astro','/astrology/astrocartography','GET'],['calendar','/astrology/lunar-calendar/1','GET'],
+  ['life','/synastry/life-path','POST'],['numbers','/synastry/numerology-lessons','GET'],
+  ['love','/synastry/compatibility','POST'],['sound','/rituals/frequencies','GET'],
+  ['rituals','/rituals/search','GET'],['shadow','/wellness/shadow-prompts','GET'],
+  ['runes','/divination/runes/cast','POST'],['pendulum','/divination/pendulum','POST'],
+  ['oracle','/oracle/chat','POST'],['store','/store/products','GET'],
+])('native %s action calls the correct backend method and path',async(tool,path,method)=>{
+  globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({connected:true})});
+  await render(<ExploreScreen route={{params:{tool}}} navigation={{goBack:jest.fn()}}/>);
+  const date=tree.root.findAllByType(TextInput).find(x=>x.props.placeholder==='1996-11-05');
+  if(date)await act(async()=>date.props.onChangeText('1996-11-05'));
+  const run=tree.root.findAllByType(TouchableOpacity).find(x=>x.findAllByType(Text).some(t=>t.props.children==='✨ Explore this feature'))!;
+  await act(async()=>run.props.onPress());
+  const [url,options]=(globalThis.fetch as jest.Mock).mock.calls.at(-1)!;
+  expect(String(url).replace(/^https?:\/\/[^/]+/,'').split('?')[0]).toBe('/api'+path);
+  expect(options?.method||'GET').toBe(method);
+  if(date)expect(JSON.parse(options.body)).toMatchObject(tool==='life'||tool==='bazi'?{birth_year:1996,birth_month:11,birth_day:5}:{birth_date:'1996-11-05',birth_time:'12:00'});
+  expect(text()).toContain('true');
 });

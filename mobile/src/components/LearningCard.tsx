@@ -8,7 +8,7 @@ type Props = {asset:LearningArt;label:string;completed:number;total:number;onPre
 /** Opaque native overlays hide the sample numbers and bars painted into the PNGs. */
 export function LearningCard({asset,label,completed,total,onPress}:Props){
   const {width}=useWindowDimensions();
-  const scale=Math.min(width-32,580)/600;
+  const scale=Math.min(width-24,580)/600;
   const percent=total?Math.min(100,Math.round(completed/total*100)):0;
   const journey=asset==='learn_progress';
   const left=asset==='learn_minor_arcana'?'39%':asset==='learn_reversed_cards'?'34%':'33%';

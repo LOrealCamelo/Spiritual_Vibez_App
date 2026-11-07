@@ -54,9 +54,10 @@ def test_new_css_js_and_illustration_are_served():
 
 
 def test_approved_illustrations():
-    for name in ["hero.webp", "hero-portrait.webp", "feature-spreads.webp", "spread-reset.webp"]:
+    for name in ["cartoon_me_transparent3.png", "ui_background.png", "home_shuffle_spread.png", "me_reset_your_energy.png"]:
         response=client.get("/assets/"+name)
         assert response.status_code == 200
-        assert response.headers["content-type"].startswith("image/webp")
+        assert response.headers["content-type"].startswith("image/png")
+        assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
     appjs=client.get("/app.js")
     assert appjs.status_code == 200 and "Spiritual Vibez" in appjs.text

@@ -35,7 +35,7 @@ export type CardArtName = keyof typeof UI_CARD_IMAGES;
 type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode};
 export function IllustratedCard({asset,width,label,onPress,style,children}:Props){
   const {width:screenWidth}=useWindowDimensions();
-  const w=width??Math.min(screenWidth-32,580);
+  const w=width??Math.min(screenWidth-24,580);
   const source=UI_CARD_IMAGES[asset];
   const size=Image.resolveAssetSource(source);
   const h=w*size.height/size.width;

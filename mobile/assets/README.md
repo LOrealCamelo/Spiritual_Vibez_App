@@ -10,8 +10,9 @@ progress bars are opaque native overlays that cover sample values in the artwork
 Learning counts reflect distinct cards studied this session, not backend account progress.
 Spread card counts are also native overlays over the three spread panels.
 
-Home combines `hero-skyline-background.png` with `hero-mystic-cutout.png`, keeping
-the headline and buttons as native text and controls. `footer-skyline-background.png`
+Native Home uses the standalone `home-hey-mystic-illustrated.png` greeting to
+match the supplied phone reference. The skyline and transparent character layers
+remain available and are composed separately in the web hero. `footer-skyline-background.png`
 is a decorative background. Reset Your Energy and Grounding use the two standalone
 4:3 illustrated PNGs. Images keep their original aspect ratios.
 

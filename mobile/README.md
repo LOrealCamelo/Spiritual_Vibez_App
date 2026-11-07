@@ -2,7 +2,8 @@
 
 This is a **bare React Native CLI** client with real Android and iOS host projects.
 It uses local PNG illustrations, without Expo. The web frontend and Python backend
-remain separate. The six tabs are Home, Spreads, Learn Tarot, Cosmos, Explore and Journal.
+remain separate. The four primary tabs are Home, Spreads, Learn Tarot and Journal. Cosmos and
+Explore remain independent screens opened from the Home and Journal cards.
 
 ## Requirements and installation
 
@@ -62,4 +63,5 @@ workflow now copies directory contents, preventing nested copies, and no longer
 converts obsolete web artwork into mobile assets.
 
 See [repair verification](../docs/verification/README.md) for evidence and remaining
-device checks. Backend calculations and behavior are outside this frontend repair.
+device checks. The expanded repair also fixes ritual search and replaces dead product URLs with
+the verified creator homepage. Existing astrology accuracy is not certified.

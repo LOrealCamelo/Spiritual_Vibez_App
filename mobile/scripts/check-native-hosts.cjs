@@ -21,3 +21,15 @@ for (const name of Object.keys({...pkg.dependencies, ...pkg.devDependencies})) {
   if (/^expo(?:$|[-/])/.test(name)) throw Error(`Expo dependency in bare native app: ${name}`);
 }
 console.log('Authoritative bare native hosts: mobile/android and mobile/ios. No Expo dependencies.');
+
+const project = fs.readFileSync(path.join(root,'ios/SpiritualVibez.xcodeproj/project.pbxproj'),'utf8');
+const info = fs.readFileSync(path.join(root,'ios/SpiritualVibez/Info.plist'),'utf8');
+for (const font of ['Pacifico-Regular.ttf','KaushanScript-Regular.ttf']) {
+  for (const dir of ['android/app/src/main/assets/fonts','ios/SpiritualVibez/Fonts']) {
+    if (!fs.existsSync(path.join(root,dir,font))) throw Error(`Missing bundled font: ${dir}/${font}`);
+  }
+  if (!project.includes(`${font} in Resources`) || !info.includes(`<string>${font}</string>`)) {
+    throw Error(`Font not linked into iOS resources/UIAppFonts: ${font}`);
+  }
+}
+console.log('Licensed display fonts are bundled in Android and iOS.');

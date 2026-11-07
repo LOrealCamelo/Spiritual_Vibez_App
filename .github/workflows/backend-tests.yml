@@ -22,3 +22,16 @@ jobs:
         run: pytest -q backend/tests
       - name: Syntax-check browser app
         run: node --check frontend/app.js
+
+      - name: Install browser test driver
+        run: pip install -r frontend/tests/requirements.txt
+      - name: Test connected web routes and reference layouts in Chrome
+        env:
+          BROWSER_EXECUTABLE: /usr/bin/google-chrome
+        run: python frontend/tests/browser_flows.py --screenshots "$RUNNER_TEMP/web-evidence"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spiritual-vibez-web-evidence
+          path: ${{ runner.temp }}/web-evidence
+          if-no-files-found: error
+          retention-days: 7
