@@ -1,7 +1,7 @@
-/**
- * AuraMystic Full-Stack TypeScript API Client for React Native (Expo) & Web
- */
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api';
+/** Spiritual Vibez: bare React Native API helpers (no Expo). */
+import {Platform} from 'react-native';
+// Emulator defaults. Replace with an HTTPS URL for production or a LAN IP on physical devices.
+export const API_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:8000/api' : 'http://localhost:8000/api';
 
 export async function fetchDailyTransits(sign: string = 'Scorpio') {
   const res = await fetch(`${API_BASE_URL}/astrology/daily-transits?sign=${encodeURIComponent(sign)}`);
