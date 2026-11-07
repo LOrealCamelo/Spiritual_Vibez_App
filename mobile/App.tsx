@@ -8,6 +8,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Home,Shuffle,BookOpen,Moon,Star,BookText,ChevronRight,ArrowLeft,ArrowRight,Search,Heart} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {API_BASE_URL} from './src/api/spiritualVibezClient';
+import {IllustratedCard,UI_CARD_IMAGES} from './src/components/IllustratedCard';
 
 const BACKEND = API_BASE_URL;
 const ARTWORK: Record<string, any> = {
@@ -45,12 +46,13 @@ const C={purple:'#6522B4',plum:'#3A156B',pink:'#F71C9F',lilac:'#BE6DEC',peach:'#
 const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const BOTTOM=['Home','Spreads','Learn','Cosmos','Explore','Journal'];
 const Tab=createBottomTabNavigator();
-const featureImages=[['feature-spreads.png','Spreads'],['feature-learn.png','Learn'],['feature-daily.png','Daily'],['feature-journal.png','Journal']];
-const favourite=[['Reset Your Energy','spread-reset-energy-illustrated.png'],['Trust Your Gut','spread-trust-your-gut-illustrated.png'],['The Next Phase','spread-next-phase-illustrated.png'],['Grounding','spread-grounding-illustrated.png']];
+const featureImages=[['home_daily_card','Daily'],['home_shuffle_spread','Spreads'],['home_learn_tarot','Learn'],['home_birth_chart','Birth']];
+const favourite=[['Trust Your Gut','spreads_trust_gut'],['At a Crossroads','spreads_crossroads'],['The Next Phase','spreads_next_phase'],['Reset Your Energy','spread-reset-energy-illustrated.png'],['Grounding','spread-grounding-illustrated.png']];
 const extra=[['Cosmos','more-cosmos.png'],['Birth Chart','more-birth.png'],['Numerology','more-numerology.png'],['Moon Phase','more-moon.png'],['Rituals','more-ritual.png'],['Saved Readings','more-readings.png']];
 const exampleSpreads=[
  {id:'reset-energy',title:'Reset Your Energy',category:'wellbeing',cardCount:4,questions:['What drains me?','What can I release?','What can restore me?','One small step forward'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
  {id:'trust-gut',title:'Trust Your Gut',category:'crossroads',cardCount:5,questions:['What do I know?','What causes doubt?','What deserves care?','What can I let go?','My next step'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
+ {id:'crossroads',title:'At a Crossroads',category:'decisions',cardCount:5,questions:['The choice before me','What pulls me one way','What pulls me another','What matters most','My next decision'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
  {id:'next-phase',title:'The Next Phase',category:'purpose',cardCount:6,questions:['An ending','A new opportunity','A resource','What I can release','My direction','The first action'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
  {id:'grounding',title:'Grounding',category:'wellbeing',cardCount:5,questions:['Body','Mind','Emotion','Support','Next action'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))}
 ];
@@ -76,8 +78,21 @@ function Info({children,warning=false}:{children:React.ReactNode,warning?:boolea
 function Panel({children}:{children:React.ReactNode}){return <View style={st.panel}>{children}</View>}
 function Input({title,value,onChange,placeholder='',keyboardType='default'}:{title:string,value:string,onChange:(s:string)=>void,placeholder?:string,keyboardType?:any}){return <View style={{marginBottom:13}}><Text style={st.formLabel}>{title}</Text><TextInput style={st.input} value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#9682A1" keyboardType={keyboardType}/></View>}
 function OptionRow({choices,value,onSelect}:{choices:string[],value:string,onSelect:(v:string)=>void}){return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,paddingVertical:8}}>{choices.map(x=><TouchableOpacity key={x} onPress={()=>onSelect(x)} style={[st.chip,x===value?st.chipActive:null]}><Text style={[st.chipText,x===value?{color:'#fff'}:null]}>{x}</Text></TouchableOpacity>)}</ScrollView>}
-function ArtTile({name,label,width,onPress}:{name:string,label:string,width:number,onPress:()=>void}){return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:10}}><Image style={{width,height:width*.44,borderRadius:19}} source={image(name)} resizeMode="stretch" /></TouchableOpacity>}
-function ArtSpread({name,label,width,onPress}:{name:string,label:string,width:number,onPress:()=>void}){return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:11}}><Image style={{width,height:width*.79,borderRadius:19}} source={image(name)} resizeMode="stretch" /></TouchableOpacity>}
+function ArtTile({name,label,width,onPress}:{name:string,label:string,width:number,onPress:()=>void}){return <IllustratedCard asset={name as keyof typeof UI_CARD_IMAGES} width={width} label={label} onPress={onPress}/>}
+function ArtSpread({name,label,width,onPress}:{name:string,label:string,width:number,onPress:()=>void}){return name.startsWith("spreads_")?<IllustratedCard asset={name as keyof typeof UI_CARD_IMAGES} width={width} label={label} onPress={onPress}/>:<TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:11}}><Image style={{width,height:width*.79,borderRadius:19}} source={image(name)} resizeMode="stretch" /></TouchableOpacity>}
+
+/** The painted filter artwork stays interactive: each visible chip has its own touch target. */
+function PaintedVibeFilter({value,onChange}:{value:string,onChange:(s:string)=>void}){
+ const {width}=useWindowDimensions();const w=Math.min(width-32,580);
+ const a=Image.resolveAssetSource(UI_CARD_IMAGES.spreads_filters);const h=w*a.height/a.width;
+ return <View style={{width:w,height:h,marginBottom:13}}>
+   <Image source={UI_CARD_IMAGES.spreads_filters} style={{width:w,height:h}} resizeMode="stretch"/>
+   <View style={{position:'absolute',left:w*.015,right:w*.015,bottom:h*.08,height:h*.42,flexDirection:'row'}}>
+    {['All','Love','Career','Growth'].map((x)=><TouchableOpacity key={x} accessibilityRole="button" accessibilityLabel={'Filter by '+x} onPress={()=>onChange(x)} style={{flex:1,borderRadius:22,borderWidth:value===x?2:0,borderColor:'#F526A3'}} />)}
+   </View>
+ </View>;
+}
+
 function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const contentW=Math.min(width-32,580);const tileW=(contentW-12)/2;
  return <Screen><Header/><ImageBackground source={image('hero-skyline-background.png')} style={st.homeHero} imageStyle={{borderRadius:24}} resizeMode="cover">
    <LinearGradient colors={['rgba(64,14,123,0.92)','rgba(71,17,123,0.53)','rgba(61,17,118,0.10)']} style={st.heroTint} pointerEvents="none"/>
@@ -88,32 +103,39 @@ function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const 
      <View style={st.heroActions}><Action text="Try a spread ✨" onPress={()=>navigation.navigate('Spreads')}/><Action text="Learn tarot" secondary onPress={()=>navigation.navigate('Learn')}/></View>
    </View>
   </ImageBackground>
- <Text style={st.section}>Pick your adventure 💫</Text><View style={st.twoCols}>{featureImages.map(([file,target])=><ArtTile key={file} name={file} label={target} width={tileW} onPress={()=>target==='Daily'?navigation.navigate('Learn',{daily:true}):navigation.navigate(target)}/>)}</View>
+ <Text style={st.section}>Pick your adventure 💫</Text><View style={st.twoCols}>{featureImages.map(([file,target])=><ArtTile key={file} name={file} label={target} width={tileW} onPress={()=>target==='Daily'?navigation.navigate('Learn',{daily:true}):target==='Birth'?navigation.navigate('Explore',{tool:'natal'}):navigation.navigate(target)}/>)}</View>
  <View style={st.sectionRow}><Text style={st.section}>Fan-favorite spreads ♡</Text><TouchableOpacity onPress={()=>navigation.navigate('Spreads')}><Text style={{color:'#fff',fontWeight:'900'}}>See all →</Text></TouchableOpacity></View>
  <View style={st.twoCols}>{favourite.map(([label,file])=><ArtSpread key={file} name={file} label={label} width={tileW} onPress={()=>navigation.navigate('Spreads',{favorite:label})}/>)}</View>
  <Text style={st.section}>More to explore ✨</Text><View style={st.moreGrid}>{extra.map(([label,file])=><TouchableOpacity key={file} accessibilityLabel={label} accessibilityRole="button" style={{width:(contentW-16)/3,marginBottom:8}} onPress={()=>label==='Saved Readings'?navigation.navigate('Journal'):label==='Cosmos'?navigation.navigate('Cosmos'):navigation.navigate('Explore',{tool:label==='Birth Chart'?'natal':label==='Numerology'?'life':label==='Moon Phase'?'moon':'rituals'})}><Image source={image(file)} style={{width:'100%',height:64,borderRadius:12}} resizeMode="stretch"/></TouchableOpacity>)}</View>
  <Image source={image('footer-skyline-background.png')} style={st.homeFooter} resizeMode="cover" accessibilityLabel="Illustrated skyline and crystals"/>
  </Screen>
 }
-function SpreadsScreen({route}:any){const [items,setItems]=useState<any[]>(exampleSpreads);const [selected,setSelected]=useState<any>(null);const [cards,setCards]=useState<Record<number,any>>({});const [reading,setReading]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [search,setSearch]=useState('');const [connected,setConnected]=useState(false);
+function SpreadsScreen({route}:any){const [items,setItems]=useState<any[]>(exampleSpreads);const [selected,setSelected]=useState<any>(null);const [cards,setCards]=useState<Record<number,any>>({});const [reading,setReading]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [search,setSearch]=useState('');const [vibe,setVibe]=useState('All');const [connected,setConnected]=useState(false);
  useEffect(()=>{get('/tarot/spreads').then(x=>{setItems(x.spreads||[]);setConnected(true)}).catch(()=>{})},[]);
  useEffect(()=>{const f=route.params?.favorite;if(f&&items.length){const found=items.find(x=>x.title?.toLowerCase()===f.toLowerCase());if(found){setSelected(found);setCards({});setReading('')}}},[route.params?.favorite,items]);
  const start=(s:any)=>{setSelected(s);setCards({});setReading('');setError('')};
+ const randomize=()=>{if(items.length)start(items[Math.floor(Math.random()*items.length)])};
+ const shown=items.filter(x=>x.title.toLowerCase().includes(search.toLowerCase())&&(vibe==='All'||(x.category+' '+x.title).toLowerCase().includes(vibe.toLowerCase())));
  const draw=async(slot:number)=>{if(!selected||busy||cards[slot])return;setBusy(true);setError('');try{const x=await post('/tarot/spreads/deal-slot',{spread_id:selected.id,slot_num:slot,exclude_card_ids:Object.values(cards).map((d:any)=>d.card.id)});setCards(old=>({...old,[slot]:x}))}catch{const existing=Object.values(cards).map((x:any)=>x.card.id);const pool=extendedCards.filter(x=>!existing.includes(x.id));const card=pool[Math.floor(Math.random()*pool.length)];setCards(old=>({...old,[slot]:{slot,card:{...card,orientation:'Upright',meaning:card.upright}}}))}finally{setBusy(false)}};
+ const saveReading=async()=>{if(!selected||!reading)return;try{const current=await AsyncStorage.getItem('sv_readings');const old=current?JSON.parse(current):[];const next=[{date:new Date().toLocaleDateString(),title:selected.title,text:reading},...old].slice(0,100);await AsyncStorage.setItem('sv_readings',JSON.stringify(next));Alert.alert('Saved','Reading saved on this device.')}catch{Alert.alert('Save failed','Could not save this reading.')}};
  const interpret=async()=>{if(!selected)return;setBusy(true);try{const r=await post('/tarot/spreads/synthesize',{spread_id:selected.id,drawn_cards:Object.values(cards).map((v:any)=>({slot:v.slot,card_id:v.card.id,orientation:v.card.orientation})),save_to_journal:false});setReading(r.synthesis)}catch{setReading('Your '+selected.title+' cards invite a reflection on '+Object.values(cards).map((d:any)=>d.card.name).join(', ')+'. Consider each question in the spread, notice patterns, and choose one practical next step. This is a reflective prompt, not a prediction.')}finally{setBusy(false)}};
- return <Screen><Header label="Spreads" subtitle="YOUR TAROT SPREAD STUDIO"/>{selected?<>
+ return <Screen><IllustratedCard asset="spreads_header" label="Spreads screen header"/>{selected?<>
  <TouchableOpacity style={{marginBottom:15}} onPress={()=>setSelected(null)}><Text style={st.back}>← Browse all spreads</Text></TouchableOpacity><Title eyebrow="The spread studio" title={selected.title} sub="Tap each numbered position to reveal its card."/>
  <LinearGradient colors={['#5422AA','#B72EC3','#FC7CAC']} style={st.readingBoard}><Text style={st.readingLabel}>✦ YOUR READING ✦</Text><View style={st.slotWrap}>{(selected.questions||[]).map((q:any)=><TouchableOpacity key={q.slot} onPress={()=>draw(q.slot)} disabled={!!cards[q.slot]||busy} style={[st.slot,cards[q.slot]?st.slotOpen:null]}><Text style={st.slotIcon}>{cards[q.slot]?cards[q.slot].card.icon||'🃏':'☀️'}</Text><Text style={[st.slotText,cards[q.slot]?{color:C.plum}:null]}>{cards[q.slot]?cards[q.slot].card.name:'CARD '+q.slot}</Text><Text style={st.slotHint}>{cards[q.slot]?cards[q.slot].card.orientation:'TAP TO REVEAL'}</Text></TouchableOpacity>)}</View></LinearGradient>
  {(selected.questions||[]).map((q:any)=><Panel key={q.slot}><Text style={st.panelTitle}>{q.slot}. {q.title||'Position '+q.slot}</Text><Text style={st.body}>{q.q}</Text>{cards[q.slot]?<Text style={st.meaning}>{cards[q.slot].card.name}: {cards[q.slot].card.meaning}</Text>:null}</Panel>)}
  {error?<Info warning>{error}</Info>:null}<Action text={busy?'Working…':'Interpret my reading ✨'} onPress={interpret} disabled={busy||Object.keys(cards).length!==(selected.questions||[]).length}/>
- {reading?<Panel><Text style={st.panelTitle}>💖 Your overall reading</Text><Text style={st.body}>{reading}</Text><Action text="Share reading" onPress={()=>Share.share({message:selected.title+'\n\n'+reading})}/></Panel>:null}<Action text="Shuffle again" secondary onPress={()=>start(selected)}/>
+ {reading?<Panel><Text style={st.panelTitle}>💖 Your overall reading</Text><Text style={st.body}>{reading}</Text><Action text="Share reading" onPress={()=>Share.share({message:selected.title+'\n\n'+reading})}/><Action text="Save reading" secondary onPress={saveReading}/></Panel>:null}<Action text="Shuffle again" secondary onPress={()=>start(selected)}/>
  </>:<>
- <View style={st.avatarStrip}><Image source={image('avatar-sunglasses-transparent.png')} style={st.stripAvatar} resizeMode="contain"/><View style={st.stripText}><Text style={st.stripHeading}>Trust your intuition ✨</Text><Text style={st.stripCopy}>Choose a layout and reveal each position, your way.</Text></View></View>
- <Title eyebrow="The spread studio" title="Spreads ✨" sub="A tarot layout for every mood, question or moment."/>
- <Image source={image('spread-trust-your-gut-three-card.png')} style={st.spreadPromo} resizeMode="contain" accessibilityLabel="Trust Your Gut illustrated three card inspiration"/>
- <Input title="Find your vibe" value={search} onChange={setSearch} placeholder="Search 48 tarot spreads"/>
+ <IllustratedCard asset="spreads_randomize" label="Randomize a Spread" onPress={randomize}/>
+ <PaintedVibeFilter value={vibe} onChange={setVibe}/>
+ <Title eyebrow="Your illustrated spread collection" title="Pick your spread ✨" sub="Each layout opens a real interactive card reading."/>
+ {([["Trust Your Gut","spreads_trust_gut"],["At a Crossroads","spreads_crossroads"],["The Next Phase","spreads_next_phase"]] as const).map(([title,art])=>{
+  const match=items.find(x=>x.title.toLowerCase()===title.toLowerCase());
+  return <IllustratedCard key={art} asset={art} label={title} onPress={match?()=>start(match):undefined}/>;
+ })}
+ <Input title="Find your vibe" value={search} onChange={setSearch} placeholder="Search tarot spreads"/>
  {!connected?<Info>Showing sample spread layouts. Connect your existing backend to load all 48.</Info>:null}
- {items.filter(x=>x.title.toLowerCase().includes(search.toLowerCase())).map((s,i)=><TouchableOpacity key={s.id} style={st.spreadRow} onPress={()=>start(s)}><LinearGradient colors={['#FF8FD1','#AA6BF0']} style={st.spreadIcon}><Text style={{fontSize:31}}>{['🔮','💗','🦋','🌙'][i%4]}</Text></LinearGradient><View style={{flex:1}}><Text style={st.spreadTitle}>{s.title}</Text><Text style={st.muted}>{s.cardCount} cards · {s.category}</Text></View><ChevronRight size={21} color={C.pink}/></TouchableOpacity>)}
+ {shown.map((s,i)=><TouchableOpacity key={s.id} style={st.spreadRow} onPress={()=>start(s)}><LinearGradient colors={['#FF8FD1','#AA6BF0']} style={st.spreadIcon}><Text style={{fontSize:31}}>{['🔮','💗','🦋','🌙'][i%4]}</Text></LinearGradient><View style={{flex:1}}><Text style={st.spreadTitle}>{s.title}</Text><Text style={st.muted}>{s.cardCount} cards · {s.category}</Text></View><ChevronRight size={21} color={C.pink}/></TouchableOpacity>)}
  </>}</Screen>
 }
 function LearnScreen({route}:any){const [all,setAll]=useState<any[]>(extendedCards);const [selected,setSelected]=useState<any>(null);const [mode,setMode]=useState('home');const [quiz,setQuiz]=useState<any>(null);const [answer,setAnswer]=useState('');const [search,setSearch]=useState('');const [progress,setProgress]=useState(0);const [online,setOnline]=useState(false);
@@ -121,9 +143,9 @@ function LearnScreen({route}:any){const [all,setAll]=useState<any[]>(extendedCar
  useEffect(()=>{if(route.params?.daily){setSelected(all[Math.floor(Math.random()*all.length)]);setMode('detail')}},[route.params?.daily]);
  const ask=async()=>{try{setQuiz(await get('/tarot/study/quiz'))}catch{const c=all[Math.floor(Math.random()*all.length)];const correct=c.upright.split(',')[0];setQuiz({card_name:c.name,prompt:'What idea does this card represent?',options:[correct,'Restlessness','Confusion','Isolation'],correct_answer:correct})}setMode('quiz');setAnswer('')};
  const choose=(opt:string)=>{setAnswer(opt===quiz.correct_answer?'Correct! ✨':'The answer is '+quiz.correct_answer);setProgress(x=>x+1)};
- return <Screen><Header label="Learn Tarot" subtitle="THE TAROT ACADEMY"/><Title eyebrow="Your learning journey" title="Learn Tarot 📚" sub="Build your knowledge, one fun lesson at a time. Separate from spreads."/>
- <View style={st.avatarStrip}><Image source={image('avatar-tarot-headphones-transparent.png')} style={st.stripAvatar} resizeMode="contain"/><View style={st.stripText}><Text style={st.stripHeading}>Every card has a story ✨</Text><Text style={st.stripCopy}>Learn your deck at your own pace.</Text></View></View><Panel><Text style={st.panelTitle}>🎓 Your Learning Journey</Text><View style={st.progressTrack}><View style={[st.progressFill,{width:Math.min(220,progress*11)}]}/></View><Text style={st.muted}>{progress} quiz answers this session</Text></Panel>
- {mode==='home'?<>{[['Major Arcana','The 22 big life themes','🌞'],['Minor Arcana','56 cards of everyday energy','💖'],['Card Meanings','Keywords, symbols and interpretations','📖'],['Reversed Cards','See cards from another angle','🃏'],['Quiz Me','Test your tarot knowledge','🎯']].map(([name,desc,ico])=><TouchableOpacity key={name} onPress={()=>name==='Quiz Me'?ask():setMode(name)} style={st.lessonRow}><Text style={{fontSize:36}}>{ico}</Text><View style={{flex:1}}><Text style={st.lessonTitle}>{name}</Text><Text style={st.muted}>{desc}</Text></View><ChevronRight color={C.pink}/></TouchableOpacity>)}</>:<>
+ return <Screen><IllustratedCard asset="learn_header" label="Learn Tarot academy header"/>
+ <IllustratedCard asset="learn_progress" label="Your Learning Journey illustrated progress card"/><Text style={[st.muted,{color:"#FFF0FC",marginBottom:11}]}>Live progress: {progress} quiz answers this session (the percentage in the artwork is illustrative).</Text>
+ {mode==='home'?<>{([['Major Arcana','learn_major_arcana'],['Minor Arcana','learn_minor_arcana'],['Card Meanings','learn_card_meanings'],['Reversed Cards','learn_reversed_cards'],['Quiz Me','learn_quiz_me']] as const).map(([name,asset])=><IllustratedCard key={name} asset={asset} label={name} onPress={()=>name==='Quiz Me'?ask():setMode(name)}/>)}</>:<>
  <TouchableOpacity onPress={()=>{setMode('home');setSelected(null)}}><Text style={st.back}>← Learning modules</Text></TouchableOpacity>
  {mode==='quiz'&&quiz?<Panel><Text style={st.panelTitle}>🎯 {quiz.card_name}</Text><Text style={st.body}>{quiz.prompt}</Text>{quiz.options.map((o:string)=><TouchableOpacity key={o} style={st.quizOption} onPress={()=>choose(o)}><Text style={{fontWeight:'900',color:C.plum}}>{o}</Text></TouchableOpacity>)}{answer?<Text style={st.meaning}>{answer}</Text>:null}<Action text="Next question" onPress={ask}/></Panel>:<>
  <Input title="Find a tarot card" value={search} onChange={setSearch} placeholder="Search the tarot deck"/>
@@ -165,15 +187,52 @@ function ExploreScreen({route}:any){const [tool,setTool]=useState<string|null>(n
  {result?<Panel><Text style={st.panelTitle}>Your {toolMap[tool]?.[2]} result</Text><Text selectable style={st.body}>{JSON.stringify(result,null,2)}</Text><Action text="Share result" onPress={()=>Share.share({message:JSON.stringify(result,null,2)})}/></Panel>:null}
  </>}</Screen>
 }
-function JournalScreen(){const [notes,setNotes]=useState<any[]>([]);const [draft,setDraft]=useState('');const [saved,setSaved]=useState('');
- useEffect(()=>{AsyncStorage.getItem('sv_journal').then(x=>{if(x)setNotes(JSON.parse(x))}).catch(()=>{})},[]);
- const save=async()=>{const msg=draft.trim();if(!msg)return;const next=[{date:new Date().toLocaleDateString(),text:msg},...notes].slice(0,100);try{await AsyncStorage.setItem('sv_journal',JSON.stringify(next));setNotes(next);setDraft('');setSaved('Saved privately on this device.')}catch{setSaved('Could not save on this device.')}};
- return <Screen><Header label="My Journal" subtitle="REFLECT, TRACK & GROW"/><Title eyebrow="Your private space" title="My Journal 💗" sub="Saved reflections, readings and intentions—your way."/>
- <Image source={image('home-hey-mystic-illustrated.png')} style={st.journalIntro} resizeMode="contain" accessibilityLabel="Hey Mystic illustrated tarot studio"/><LinearGradient colors={['#FFB8DB','#E9C3FF','#FFDFB5']} style={st.journalHero}><Text style={{fontSize:43}}>📔 💎 ✨</Text><Text style={st.journalHeroTitle}>Today's Journal ♡</Text><Text style={st.body}>A space for your reflections and personal discoveries.</Text></LinearGradient>
- <Panel><Text style={st.panelTitle}>Write a reflection</Text><TextInput multiline value={draft} onChangeText={setDraft} placeholder="What is on your mind today?" placeholderTextColor="#9781A0" style={[st.input,{minHeight:140,textAlignVertical:'top'}]}/><Action text="Save to my journal ✎" onPress={save}/>{saved?<Text style={st.meaning}>{saved}</Text>:null}</Panel>
- <Text style={st.section}>Saved reflections</Text>{notes.length?notes.map((x,i)=><Panel key={i}><Text style={st.muted}>{x.date}</Text><Text style={st.body}>{x.text}</Text></Panel>):<Info>No notes saved yet.</Info>}
- <Info warning>These journal notes are stored on this device using AsyncStorage, not the unauthenticated server database. Avoid shared devices for sensitive information.</Info>
- </Screen>
+function JournalScreen({navigation}:any){
+ const {width}=useWindowDimensions();const colWidth=(Math.min(width-32,580)-12)/2;
+ const [notes,setNotes]=useState<any[]>([]);const [readings,setReadings]=useState<any[]>([]);const [moods,setMoods]=useState<any[]>([]);
+ const [draft,setDraft]=useState('');const [saved,setSaved]=useState('');const [view,setView]=useState('home');
+ useEffect(()=>{AsyncStorage.multiGet(['sv_journal','sv_readings','sv_moods']).then(data=>{
+   const parse=(value:string|null)=>{try{return value?JSON.parse(value):[]}catch{return []}};
+   setNotes(parse(data[0][1]));setReadings(parse(data[1][1]));setMoods(parse(data[2][1]));
+ }).catch(()=>{})},[]);
+ const save=async()=>{const msg=draft.trim();if(!msg)return;const next=[{date:new Date().toLocaleDateString(),text:msg},...notes].slice(0,100);
+  try{await AsyncStorage.setItem('sv_journal',JSON.stringify(next));setNotes(next);setDraft('');setSaved('Saved on this device.')}catch{setSaved('Could not save on this device.')};
+ };
+ const openSaved=async()=>{try{const value=await AsyncStorage.getItem('sv_readings');setReadings(value?JSON.parse(value):[])}catch{}setView('saved')};
+ const saveMood=async(value:string)=>{const next=[{date:new Date().toLocaleDateString(),mood:value},...moods].slice(0,100);
+  try{await AsyncStorage.setItem('sv_moods',JSON.stringify(next));setMoods(next);setSaved('Mood saved on this device.')}catch{setSaved('Could not save your mood.')};
+ };
+ return <Screen>
+  <IllustratedCard asset="journal_header" label="My Journal screen header"/>
+  <IllustratedCard asset="journal_today" label="Open today's journal" onPress={()=>setView('entry')}/>
+  {view==='entry'?<Panel>
+    <Text style={st.panelTitle}>Today's Journal ♡</Text>
+    <TextInput multiline value={draft} onChangeText={setDraft} placeholder="What's on your mind today?" placeholderTextColor="#9781A0" style={[st.input,{minHeight:130,textAlignVertical:'top'}]}/>
+    <Action text="Save reflection ✎" onPress={save}/>{saved?<Text style={st.meaning}>{saved}</Text>:null}
+  </Panel>:null}
+  <View style={st.twoCols}>
+   <IllustratedCard asset="journal_saved_readings" width={colWidth} label="Saved Readings" onPress={openSaved}/>
+   <IllustratedCard asset="journal_mood_checkin" width={colWidth} label="Mood Check-In" onPress={()=>setView('mood')}/>
+   <IllustratedCard asset="journal_moon_phase" width={colWidth} label="Moon Phase" onPress={()=>navigation.navigate('Cosmos')}/>
+   <IllustratedCard asset="journal_numerology" width={colWidth} label="Numerology" onPress={()=>navigation.navigate('Explore',{tool:'life'})}/>
+  </View>
+  <IllustratedCard asset="journal_rituals" label="Ritual Finder" onPress={()=>navigation.navigate('Explore',{tool:'rituals'})}/>
+  {view==='saved'?<Panel>
+   <Text style={st.panelTitle}>🃏 Saved readings</Text>
+   {readings.length?readings.map((r:any,i:number)=><View key={i} style={{marginVertical:7}}><Text style={st.spreadTitle}>{r.title}</Text><Text style={st.muted}>{r.date}</Text><Text style={st.body}>{r.text}</Text></View>):<Text style={st.body}>No saved readings yet. Open a spread and save your first reading.</Text>}
+  </Panel>:null}
+  {view==='mood'?<Panel>
+   <Text style={st.panelTitle}>💖 How are you feeling?</Text>
+   <View style={{flexDirection:'row',justifyContent:'space-between',marginVertical:10}}>
+    {['😊','🥰','😐','😔','😴'].map(m=><TouchableOpacity key={m} accessibilityRole="button" accessibilityLabel={'Log mood '+m} onPress={()=>saveMood(m)}><Text style={{fontSize:35}}>{m}</Text></TouchableOpacity>)}
+   </View>
+   {moods[0]?<Text style={st.body}>Most recent check-in: {moods[0].mood} · {moods[0].date}</Text>:null}
+   {saved?<Text style={st.meaning}>{saved}</Text>:null}
+  </Panel>:null}
+  <Text style={st.section}>Your private reflections</Text>
+  {notes.length?notes.slice(0,3).map((x:any,i:number)=><Panel key={i}><Text style={st.muted}>{x.date}</Text><Text style={st.body}>{x.text}</Text></Panel>):<Info>Tap Today's Journal to start writing.</Info>}
+  <Info warning>Journal notes, saved readings and mood check-ins are stored locally on this device. Avoid storing sensitive information on shared devices.</Info>
+ </Screen>;
 }
 const ICONS:Record<string,any>={Home,Spreads:Shuffle,Learn:BookOpen,Cosmos:Moon,Explore:Star,Journal:BookText};
 export default function App(){return <NavigationContainer><Tab.Navigator id="main-tabs" screenOptions={({route}:any)=>({headerShown:false,tabBarActiveTintColor:C.pink,tabBarInactiveTintColor:'#9E829B',tabBarStyle:{height:76,paddingTop:8,paddingBottom:8,backgroundColor:'#FFF2FC',borderTopColor:'#FBC5EC'},tabBarLabelStyle:{fontSize:10,fontWeight:'900'},tabBarIcon:({color,size}:any)=>{const Icon=ICONS[route.name]||Star;return <Icon color={color} size={size} strokeWidth={2.4}/>}})}><Tab.Screen name="Home" component={HomeScreen}/><Tab.Screen name="Spreads" component={SpreadsScreen}/><Tab.Screen name="Learn" component={LearnScreen}/><Tab.Screen name="Cosmos" component={CosmosScreen}/><Tab.Screen name="Explore" component={ExploreScreen}/><Tab.Screen name="Journal" component={JournalScreen}/></Tab.Navigator></NavigationContainer>}
