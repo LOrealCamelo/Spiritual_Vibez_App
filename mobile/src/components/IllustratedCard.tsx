@@ -2,7 +2,7 @@
  *  Native accessibility and navigation remain in React Native; no Expo/WebView.
  */
 import React from 'react';
-import {Image,View,TouchableOpacity,useWindowDimensions} from 'react-native';
+import {Image,View,TouchableOpacity,useWindowDimensions,StyleProp,ViewStyle} from 'react-native';
 
 export const UI_CARD_IMAGES = {
   'home_birth_chart': require('../../assets/ui_cards/home_birth_chart.png'),
@@ -32,14 +32,14 @@ export const UI_CARD_IMAGES = {
 } as const;
 
 export type CardArtName = keyof typeof UI_CARD_IMAGES;
-type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:any};
-export function IllustratedCard({asset,width,label,onPress,style}:Props){
+type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode};
+export function IllustratedCard({asset,width,label,onPress,style,children}:Props){
   const {width:screenWidth}=useWindowDimensions();
   const w=width??Math.min(screenWidth-32,580);
   const source=UI_CARD_IMAGES[asset];
   const size=Image.resolveAssetSource(source);
   const h=w*size.height/size.width;
-  const content=<Image source={source} resizeMode="stretch" style={{width:w,height:h}} accessibilityLabel={label||asset} />;
+  const content=<><Image source={source} resizeMode="contain" style={{width:w,height:h}} accessible={!onPress&&!children} accessibilityLabel={label||asset} />{children}</>;
   if(onPress)return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label||asset} onPress={onPress} style={[{width:w,height:h,marginBottom:10},style]}>{content}</TouchableOpacity>;
   return <View style={[{width:w,height:h,marginBottom:10},style]}>{content}</View>;
 }

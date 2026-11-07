@@ -4,50 +4,79 @@ on:
     branches: [main]
     paths:
       - "mobile/**"
+      - "frontend/**"
       - ".github/workflows/bare-native-check.yml"
   pull_request:
     paths:
       - "mobile/**"
+      - "frontend/**"
       - ".github/workflows/bare-native-check.yml"
   workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   native:
-    runs-on: ubuntu-latest
+    name: PNG assets, UI tests, TypeScript and Metro
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: mobile
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: "22"
-      - name: Verify local PNG assets and native host projects
-        shell: bash
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Install locked bare React Native dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Resolve every local PNG reference and audit native hosts
         run: |
-          test -f mobile/ios/SpiritualVibez.xcodeproj/project.pbxproj
-          test -f mobile/android/gradle/wrapper/gradle-wrapper.jar
-          test -f mobile/android/app/build.gradle
-          # Verify the original art remains alongside the new individually exported panels.
-          test "$(find mobile/assets -maxdepth 1 -name '*.png' | wc -l)" -ge 13
-          test "$(find mobile/assets/ui_cards -maxdepth 1 -name '*.png' | wc -l)" -eq 24
-          for file in mobile/assets/ui_cards/*.png; do
-            name="${file##*/}"
-            test -s "$file"
-            grep -Fq "require('../../assets/ui_cards/$name')" mobile/src/components/IllustratedCard.tsx
-          done
-          grep -Fq "from './src/components/IllustratedCard'" mobile/App.tsx
-          for art in hero-mystic-cutout hero-skyline-background spread-reset-energy-illustrated spread-trust-your-gut-illustrated spread-next-phase-illustrated spread-grounding-illustrated footer-skyline-background spread-trust-your-gut-three-card home-hey-mystic-illustrated avatar-sunglasses-transparent avatar-tarot-headphones-transparent; do
-            test -s "mobile/assets/$art.png"
-            grep -Fq "'$art.png': require('./assets/$art.png')" mobile/App.tsx
-          done
-          if grep -E '"expo"|"expo-status-bar"|"expo-linear-gradient"' mobile/package.json; then
-            echo "Expo package found in bare React Native app" >&2
-            exit 1
-          fi
-          if grep -E "from ['\"]expo" mobile/App.tsx; then
-            echo "Expo import found" >&2
-            exit 1
-          fi
-      - name: Install dependencies (no Expo)
-        working-directory: mobile
-        run: npm install --legacy-peer-deps --no-audit --no-fund
+          npm run check:assets
+          npm run check:native
+      - name: Asset validator regression tests
+        run: npm run test:assets
+      - name: Verify web frontend uses uploaded PNGs
+        run: node --test ../frontend/tests/assets.test.cjs
       - name: Type-check all React Native screens
-        working-directory: mobile
         run: npm run typecheck
+      - name: Test card actions, progress, journal and tab navigation
+        run: npm test -- --runInBand
+      - name: Metro production bundles (Android and iOS)
+        run: |
+          npm run bundle:android -- --bundle-output "$RUNNER_TEMP/sv.android.bundle" --assets-dest "$RUNNER_TEMP/sv-android-assets"
+          npx react-native bundle --platform ios --dev false --entry-file index.js --max-workers 2 --bundle-output "$RUNNER_TEMP/sv.ios.bundle" --assets-dest "$RUNNER_TEMP/sv-ios-assets"
+          test -s "$RUNNER_TEMP/sv.android.bundle"
+          test -s "$RUNNER_TEMP/sv.ios.bundle"
+  android:
+    name: Android assembleDebug (arm64)
+    needs: native
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install locked dependencies
+        working-directory: mobile
+        run: npm ci --no-audit --no-fund
+      - name: Compile native Android debug app
+        working-directory: mobile/android
+        run: ./gradlew :app:assembleDebug --no-daemon --max-workers=2 -PreactNativeArchitectures=arm64-v8a
+      - uses: actions/upload-artifact@v7
+        with:
+          name: spiritual-vibez-android-debug
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

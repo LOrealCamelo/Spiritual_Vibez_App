@@ -1,6 +1,6 @@
-# AuraMystic — Full-Stack Spiritual Sanctuary & Solar Astrology Portal (`NeuroSpicy Mystic`)
+# Spiritual Vibez — Zodiac, Tarot & More
 
-Production-ready Git repository containing the complete **FastAPI Backend**, **SQLite Persistence Layer**, **Astronomical/Ephemeris Calculation Engine**, **Interactive Web Application**, and **React Native (Expo) Mobile Client** for **AuraMystic** by **NeuroSpicy Mystic** ([neurospicymystic.com](https://www.neurospicymystic.com)).
+Production-ready Git repository containing the complete **FastAPI Backend**, **SQLite Persistence Layer**, **Astronomical/Ephemeris Calculation Engine**, **Interactive Web Application**, and **Bare React Native CLI Mobile Client (no Expo)** for **AuraMystic** by **NeuroSpicy Mystic** ([neurospicymystic.com](https://www.neurospicymystic.com)).
 
 ## Repository Structure
 
@@ -29,9 +29,9 @@ auramystic-repo/
 ├── frontend/
 │   └── index.html                   # Self-contained interactive web app with all 9 clickable tabs + Store
 ├── mobile/
-│   ├── App.tsx                      # React Native (Expo) 9-tab mobile navigation client
-│   ├── package.json                 # Expo dependencies
-│   └── src/api/auramysticClient.ts  # TypeScript API client wired to the FastAPI backend
+│   ├── App.tsx                      # Bare React Native CLI 6-tab mobile navigation client
+│   ├── package.json                 # React Native CLI dependencies
+│   └── src/api/spiritualVibezClient.ts  # TypeScript API client wired to the FastAPI backend
 ├── Dockerfile                       # Production container build
 ├── docker-compose.yml               # Local Docker Compose orchestration with persistent SQLite volume
 ├── render.yaml                      # 1-Click Render deployment blueprint
@@ -63,3 +63,5 @@ python3 backend/tests/test_all_endpoints.py
 1. Push this repository to GitHub (`git init && git add . && git commit -m "Initial commit"`).
 2. In Render, click **New +** -> **Blueprint** and connect this repository (`render.yaml` is pre-configured).
 # Spiritual_Vibez_App
+
+For the bare Android/iOS client, installation and build checks, see [mobile/README.md](mobile/README.md).

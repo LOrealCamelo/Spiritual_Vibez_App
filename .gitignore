@@ -10,3 +10,9 @@ node_modules/
 .expo/
 dist/
 .DS_Store
+
+# Native build outputs and local SDK configuration
+.gradle/
+build/
+local.properties
+Pods/

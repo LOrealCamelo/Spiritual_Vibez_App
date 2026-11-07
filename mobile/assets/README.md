@@ -1,19 +1,24 @@
-# Spiritual Vibez — Native illustration assets
+# Spiritual Vibez — native PNG artwork
 
-These eleven newly generated standalone PNG illustrations are saved locally inside `mobile/assets/`. The source is independent image artwork, not a crop of the full web app interface. The React Native code uses static `require` imports, with no Expo and no remote WebP image requests.
+All React Native artwork is bundled from local PNG files. Android and iOS use
+these same sources; there are no WebP imports, remote image requests or Expo dependencies.
 
-| PNG asset | Screen / purpose |
-| --- | --- |
-| hero-mystic-cutout.png | Home: transparent character foreground |
-| hero-skyline-background.png | Home: environmental background |
-| spread-reset-energy-illustrated.png | Favorite spread |
-| spread-trust-your-gut-illustrated.png | Favorite spread |
-| spread-next-phase-illustrated.png | Favorite spread |
-| spread-grounding-illustrated.png | Favorite spread |
-| footer-skyline-background.png | Home: background strip |
-| spread-trust-your-gut-three-card.png | Spreads: noninteractive illustrative banner |
-| home-hey-mystic-illustrated.png | Journal: illustrated greeting |
-| avatar-sunglasses-transparent.png | Spreads: transparent character |
-| avatar-tarot-headphones-transparent.png | Learn: transparent character |
+`ui_cards/` contains 24 separate illustrated panels mapped by name in
+`src/components/IllustratedCard.tsx`. Home, Spreads, Learn Tarot and Journal use
+these panels in native touch targets. The filter chips, learning counts and
+progress bars are opaque native overlays that cover sample values in the artwork.
+Learning counts reflect distinct cards studied this session, not backend account progress.
+Spread card counts are also native overlays over the three spread panels.
 
-The former cropped assets remain on disk for compatibility; they are no longer referenced for the Home hero or featured spread cards. Other feature tile images still use their existing files.
+Home combines `hero-skyline-background.png` with `hero-mystic-cutout.png`, keeping
+the headline and buttons as native text and controls. `footer-skyline-background.png`
+is a decorative background. Reset Your Energy and Grounding use the two standalone
+4:3 illustrated PNGs. Images keep their original aspect ratios.
+
+The other standalone illustrations and transparent avatars remain available on
+disk. The obsolete `ARTWORK` map and all references to deleted legacy crops were
+removed. No deleted crop was restored and no phone screenshot was cropped into an asset.
+
+Run `npm run check:assets` from `mobile/` to resolve every static local PNG
+require/import relative to its source, validate PNG headers, and confirm that
+all 24 panels remain mapped. Static WebP image references fail this check.
