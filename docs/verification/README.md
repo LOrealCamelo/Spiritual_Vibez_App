@@ -16,16 +16,16 @@ from the search icon and feature tiles.
 | --- | --- |
 | Mobile PNG resolution | Pass: all 28 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
 | Asset-validator regressions | Six pass, including newly introduced missing requires, case mismatches, empty PNGs, WebP imports, absent panel mappings and nonzero CLI exits. |
-| Web assets and typography | Four checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Decorative web feature icons use inline SVG with live text. |
+| Web assets and typography | Five checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Decorative web feature icons use inline SVG with live text. |
 | TypeScript | Pass, including the native interaction tests. |
-| Native interactions and API routes | 25 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and all 18 network-backed native tool methods/paths. |
+| Native interactions and API routes | 25 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and all 17 network-backed native tool methods/paths plus the direct store link. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
 | Native Android | The first PR revision passed arm64 assembleDebug in hosted CI. The latest revision repeats that job and retains the debug APK for seven days. Consult the latest PR check before relying on its result. |
 | Backend | The existing 28-check script and all 15 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
-| Connected web flows | 17 backend-backed tools pass, plus cycle estimates, learning modules, quiz, a full spread, synthesis, saved readings, journal notes, moods and transits. No API failures or JavaScript errors were observed. |
+| Connected web flows | 16 backend-backed tools pass, plus cycle estimates, learning modules, quiz, a full spread, synthesis, saved readings, journal notes, moods and transits. No API failures or JavaScript errors were observed. |
 | Browser layouts | Home, Spreads, Learn Tarot and Journal pass at 1448px and 390px with every displayed image loaded and no horizontal overflow. |
-| Native iOS build / simulator | Unavailable on this Linux workspace. iOS Metro validation and resource checks do not replace Xcode compilation. |
-| Device visuals and behavior | Still require Android/iOS device or simulator checks, including fonts, safe areas, touch targets, keyboard behavior and connectivity. Exact native visual equivalence is not verified. |
+| Native iOS build / simulator | The cloud macOS/Xcode job built the Release app, launched it on iPhone 16 / iOS 18.5 and captured the native Home screen. Check the latest CI result for the current revision. |
+| Device visuals and behavior | Still require Android/iOS device or simulator checks, including fonts, safe areas, touch targets, keyboard behavior and connectivity. The native Home screenshot was inspected; full device/interaction equivalence is not certified. |
 
 Run `python frontend/tests/browser_flows.py --screenshots work/browser-evidence`
 after installing `frontend/tests/requirements.txt`. It starts FastAPI against a
@@ -56,10 +56,9 @@ Ritual search formerly read a nonexistent `tools` field although the source data
 stores materials under `items`. It now normalizes that field and safely searches
 optional fields. Browser testing found this failure after the older suite passed.
 
-All four product deep links in the original catalog returned HTTP 404. The creator
-homepage, https://neurospicymystic.com/, returned HTTP 200. Product buttons now say
-"Visit creator store" and use that working homepage until real product URLs are
-supplied. This does not establish that any checkout or purchase completes.
+The owner wants products and checkout on https://neurospicymystic.com/ only.
+Both apps expose one **Visit my store** link and no product listings, prices or
+per-product buttons. The link works without calling the backend catalog endpoint.
 
 Existing astrology calculations remain approximate; timezone and scientific
 accuracy have not been certified by this UI/route repair. No paid AI, payment
