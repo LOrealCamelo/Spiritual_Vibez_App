@@ -80,3 +80,61 @@ jobs:
           path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+  ios:
+    name: iOS Release build and iPhone simulator launch
+    needs: native
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          working-directory: mobile
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install locked JavaScript and native iOS dependencies
+        working-directory: mobile
+        run: |
+          npm ci --no-audit --no-fund
+          bundle config set --local path vendor/bundle
+          bundle install --jobs 4 --retry 3
+          cd ios
+          bundle exec pod install
+      - name: Compile the actual iOS app with its bundled JavaScript and PNGs
+        working-directory: mobile/ios
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -workspace SpiritualVibez.xcworkspace -scheme SpiritualVibez -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/sv-ios-build" -jobs 3 CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=YES ARCHS="$(uname -m)" build 2>&1 | tee "$RUNNER_TEMP/sv-ios-build.log"
+      - name: Start the backend for the simulator
+        run: |
+          python -m pip install -r backend/requirements.txt
+          python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/sv-ios-backend.log" 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/api/health > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/sv-ios-backend.log"
+          exit 1
+      - name: Boot an iPhone, install and launch the app, and capture its screen
+        run: bash mobile/scripts/ios-simulator-smoke.sh "$RUNNER_TEMP/sv-ios-build/Build/Products/Release-iphonesimulator/SpiritualVibez.app" "$RUNNER_TEMP/sv-ios-evidence"
+      - name: Upload iPhone simulator evidence and build logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: spiritual-vibez-ios-simulator
+          path: |
+            ${{ runner.temp }}/sv-ios-evidence
+            ${{ runner.temp }}/sv-ios-build.log
+            ${{ runner.temp }}/sv-ios-backend.log
+          if-no-files-found: warn
+          retention-days: 7

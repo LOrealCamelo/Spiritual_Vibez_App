@@ -1,6 +1,6 @@
 import React from 'react';
 import TestRenderer,{act,ReactTestRenderer} from 'react-test-renderer';
-import {Image,Text,TextInput,TouchableOpacity} from 'react-native';
+import {Image,Text,TextInput,TouchableOpacity,Linking} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen} from '../App';
 import {IllustratedCard,UI_CARD_IMAGES} from '../src/components/IllustratedCard';
@@ -118,7 +118,7 @@ test.each([
   ['love','/synastry/compatibility','POST'],['sound','/rituals/frequencies','GET'],
   ['rituals','/rituals/search','GET'],['shadow','/wellness/shadow-prompts','GET'],
   ['runes','/divination/runes/cast','POST'],['pendulum','/divination/pendulum','POST'],
-  ['oracle','/oracle/chat','POST'],['store','/store/products','GET'],
+  ['oracle','/oracle/chat','POST'],
 ])('native %s action calls the correct backend method and path',async(tool,path,method)=>{
   globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({connected:true})});
   await render(<ExploreScreen route={{params:{tool}}} navigation={{goBack:jest.fn()}}/>);
@@ -131,4 +131,13 @@ test.each([
   expect(options?.method||'GET').toBe(method);
   if(date)expect(JSON.parse(options.body)).toMatchObject(tool==='life'||tool==='bazi'?{birth_year:1996,birth_month:11,birth_day:5}:{birth_date:'1996-11-05',birth_time:'12:00'});
   expect(text()).toContain('true');
+});
+
+test('store shows one website link without loading a product catalog',async()=>{
+  const open=jest.spyOn(Linking,'openURL').mockResolvedValue(true);
+  await render(<ExploreScreen route={{params:{tool:'store'}}} navigation={{goBack:jest.fn()}}/>);
+  const button=tree.root.findAllByType(TouchableOpacity).find(x=>x.findAllByType(Text).some(t=>t.props.children==='Visit my store ↗'))!;
+  await act(async()=>button.props.onPress());
+  expect(open).toHaveBeenCalledWith('https://neurospicymystic.com/');
+  expect(globalThis.fetch).not.toHaveBeenCalled();
 });

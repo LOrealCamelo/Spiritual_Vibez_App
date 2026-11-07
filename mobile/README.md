@@ -65,3 +65,15 @@ converts obsolete web artwork into mobile assets.
 See [repair verification](../docs/verification/README.md) for evidence and remaining
 device checks. The expanded repair also fixes ritual search and replaces dead product URLs with
 the verified creator homepage. Existing astrology accuracy is not certified.
+
+## iOS verification without owning a Mac
+
+The PR workflow uses a macOS 15 GitHub runner with Xcode 16.4 to install CocoaPods,
+build an unsigned **Release app for the iPhone simulator**, boot an iPhone 16 on
+iOS 18.5, launch the app against a local backend and retain a screenshot and logs.
+This check needs no Apple Developer signing credentials. Check its result before
+calling native iOS verified; a running simulator does not certify a physical device.
+
+The iOS `.app` produced for a simulator cannot be installed on a real iPhone.
+TestFlight/App Store distribution requires paid Apple Developer Program membership
+and signing setup. Flutter and FlutterFlow are not required for this React Native app.

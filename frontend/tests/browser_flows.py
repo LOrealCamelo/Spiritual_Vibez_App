@@ -35,7 +35,7 @@ def exercise(base_url, screenshots):
    page.get_by_role('button',name='Open '+title+' spread',exact=True).click()
    assert page.evaluate('state.selected.id')==spread_id,(title,spread_id)
    page.get_by_role('button',name='← All spreads',exact=True).click()
-  for tool in ['natal','draconic','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle','store']:
+  for tool in ['natal','draconic','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
    if page.locator('#search').count():page.locator('#search').fill('clarity')
@@ -43,6 +43,9 @@ def exercise(base_url, screenshots):
    page.wait_for_function('state.result!==null||state.error!==""')
    error=page.evaluate('state.error');assert not error,(tool,error)
    requests.append(tool)
+  page.evaluate('transition("explore","store")')
+  assert page.get_by_role('link',name='Visit my store ↗',exact=True).get_attribute('href')=='https://neurospicymystic.com/'
+  assert page.locator('[data-action="tool-run"]').count()==0
   # Cycle is intentionally local and sound is synthesized locally.
   page.evaluate('transition("explore","cycle")');page.locator('#period-date').fill('2026-10-22');page.locator('[data-action="tool-run"]').click();assert page.locator('.result').count()==1
   page.evaluate('transition("learn")');page.get_by_role('button',name='Major Arcana',exact=True).click();page.locator('[data-action="card"]').first.click();assert page.locator('#selected-card').count()==1

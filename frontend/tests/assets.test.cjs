@@ -68,3 +68,11 @@ test('illustrated spread names retain the real backend IDs and card counts',()=>
     assert.equal(spread?.id,id);assert.equal(spread?.cardCount,count);
   }
 });
+
+test('store has one external website link and no product catalog',()=>{
+  const {context}=appContext();
+  const html=vm.runInContext('state.tool="store";explorePage()',context);
+  assert.equal((html.match(/href="https:\/\/neurospicymystic.com\/"/g)||[]).length,1);
+  assert.ok(html.includes('Visit my store'));
+  assert.ok(!html.includes('data-action="tool-run"'));
+});

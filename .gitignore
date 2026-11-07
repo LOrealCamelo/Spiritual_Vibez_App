@@ -16,3 +16,7 @@ dist/
 build/
 local.properties
 Pods/
+
+# Local CocoaPods/Bundler installs
+.bundle/
+mobile/vendor/

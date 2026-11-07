@@ -88,3 +88,19 @@ copies directory contents and no longer regenerates old mobile images.
 Official checkout v7, setup-node v7, setup-java v6, setup-python v7 and
 upload-artifact v7 were checked for Node 24 support. CI uses Ubuntu 24.04,
 Node 24 and the committed npm lockfile. RN screens is pinned to 4.25.2 for RN 0.83.
+
+## Store and iOS follow-up
+
+The owner confirmed that products and checkout belong on neurospicymystic.com.
+Both apps now expose a single **Visit my store** link. They do not fetch or display
+the legacy backend product catalog, prices or per-product buttons.
+
+A new macOS/Xcode CI job attempts a real Release simulator build and launches it
+on an iPhone with a backend running on the same runner. It retains an actual native
+Home screenshot and logs. This extends the earlier Metro-only iOS checks; consult
+the newest CI result for whether the native build and launch passed.
+
+The web app can be tested without a mobile SDK: from the updated repository root,
+install backend/requirements.txt, run `python -m uvicorn backend.main:app --port 8000`,
+and open http://localhost:8000 on the same computer. Render can host this Python
+service and its web frontend using render.yaml. It cannot host an iOS simulator.
