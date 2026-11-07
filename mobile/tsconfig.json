@@ -1,1 +1,11 @@
-{ "extends": "@react-native/typescript-config/tsconfig.json", "compilerOptions": { "skipLibCheck": true, "strict": false }, "include": ["**/*.ts", "**/*.tsx"] }
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "strict": false
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+}
