@@ -28,14 +28,14 @@ const ARTWORK: Record<string, any> = {
   'more-ritual.png': require('./assets/more-ritual.png'),
   'more-readings.png': require('./assets/more-readings.png'),
 };
-const image=(name:string)=>ARTWORK[name.replace('.webp','.png')];
+const image=(name:string)=>ARTWORK[name];
 const C={purple:'#6522B4',plum:'#3A156B',pink:'#F71C9F',lilac:'#BE6DEC',peach:'#FFD0AE',cream:'#FFF1FC',aqua:'#84EAE6',ink:'#291345',white:'#FFFFFF'};
 const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const BOTTOM=['Home','Spreads','Learn','Cosmos','Explore','Journal'];
 const Tab=createBottomTabNavigator();
-const featureImages=[['feature-spreads.webp','Spreads'],['feature-learn.webp','Learn'],['feature-daily.webp','Daily'],['feature-journal.webp','Journal']];
-const favourite=[['Reset Your Energy','spread-reset.webp'],['Trust Your Gut','spread-gut.webp'],['The Next Phase','spread-next.webp'],['Grounding','spread-ground.webp']];
-const extra=[['Cosmos','more-cosmos.webp'],['Birth Chart','more-birth.webp'],['Numerology','more-numerology.webp'],['Moon Phase','more-moon.webp'],['Rituals','more-ritual.webp'],['Saved Readings','more-readings.webp']];
+const featureImages=[['feature-spreads.png','Spreads'],['feature-learn.png','Learn'],['feature-daily.png','Daily'],['feature-journal.png','Journal']];
+const favourite=[['Reset Your Energy','spread-reset.png'],['Trust Your Gut','spread-gut.png'],['The Next Phase','spread-next.png'],['Grounding','spread-ground.png']];
+const extra=[['Cosmos','more-cosmos.png'],['Birth Chart','more-birth.png'],['Numerology','more-numerology.png'],['Moon Phase','more-moon.png'],['Rituals','more-ritual.png'],['Saved Readings','more-readings.png']];
 const exampleSpreads=[
  {id:'reset-energy',title:'Reset Your Energy',category:'wellbeing',cardCount:4,questions:['What drains me?','What can I release?','What can restore me?','One small step forward'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
  {id:'trust-gut',title:'Trust Your Gut',category:'crossroads',cardCount:5,questions:['What do I know?','What causes doubt?','What deserves care?','What can I let go?','My next step'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
@@ -70,7 +70,7 @@ function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const 
  return <Screen><Header/><LinearGradient colors={['#7C29CD','#C942BF','#FF89B2']} style={st.homeHero}>
    <Text style={st.heroTitle}>Zero boring.</Text><Text style={st.heroSub}>Explore cards, learn tarot, and discover something about yourself—your way.</Text>
    <View style={st.heroActions}><Action text="Try a spread ✨" onPress={()=>navigation.navigate('Spreads')}/><Action text="Learn tarot" secondary onPress={()=>navigation.navigate('Learn')}/></View>
-   <Image source={image('hero-portrait.webp')} style={st.heroArt} resizeMode="cover"/>
+   <Image source={image('hero-portrait.png')} style={st.heroArt} resizeMode="cover"/>
  </LinearGradient>
  <Text style={st.section}>Pick your adventure 💫</Text><View style={st.twoCols}>{featureImages.map(([file,target])=><ArtTile key={file} name={file} label={target} width={tileW} onPress={()=>target==='Daily'?navigation.navigate('Learn',{daily:true}):navigation.navigate(target)}/>)}</View>
  <View style={st.sectionRow}><Text style={st.section}>Fan-favorite spreads ♡</Text><TouchableOpacity onPress={()=>navigation.navigate('Spreads')}><Text style={{color:'#fff',fontWeight:'900'}}>See all →</Text></TouchableOpacity></View>
