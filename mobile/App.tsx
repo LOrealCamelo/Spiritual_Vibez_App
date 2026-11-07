@@ -80,6 +80,19 @@ function Input({title,value,onChange,placeholder='',keyboardType='default'}:{tit
 function OptionRow({choices,value,onSelect}:{choices:string[],value:string,onSelect:(v:string)=>void}){return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,paddingVertical:8}}>{choices.map(x=><TouchableOpacity key={x} onPress={()=>onSelect(x)} style={[st.chip,x===value?st.chipActive:null]}><Text style={[st.chipText,x===value?{color:'#fff'}:null]}>{x}</Text></TouchableOpacity>)}</ScrollView>}
 function ArtTile({name,label,width,onPress}:{name:string,label:string,width:number,onPress:()=>void}){return <IllustratedCard asset={name as keyof typeof UI_CARD_IMAGES} width={width} label={label} onPress={onPress}/>}
 function ArtSpread({name,label,width,onPress}:{name:string,label:string,width:number,onPress:()=>void}){return name.startsWith("spreads_")?<IllustratedCard asset={name as keyof typeof UI_CARD_IMAGES} width={width} label={label} onPress={onPress}/>:<TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:11}}><Image style={{width,height:width*.79,borderRadius:19}} source={image(name)} resizeMode="stretch" /></TouchableOpacity>}
+
+/** The painted filter artwork stays interactive: each visible chip has its own touch target. */
+function PaintedVibeFilter({value,onChange}:{value:string,onChange:(s:string)=>void}){
+ const {width}=useWindowDimensions();const w=Math.min(width-32,580);
+ const a=Image.resolveAssetSource(UI_CARD_IMAGES.spreads_filters);const h=w*a.height/a.width;
+ return <View style={{width:w,height:h,marginBottom:13}}>
+   <Image source={UI_CARD_IMAGES.spreads_filters} style={{width:w,height:h}} resizeMode="stretch"/>
+   <View style={{position:'absolute',left:w*.015,right:w*.015,bottom:h*.08,height:h*.42,flexDirection:'row'}}>
+    {['All','Love','Career','Growth'].map((x)=><TouchableOpacity key={x} accessibilityRole="button" accessibilityLabel={'Filter by '+x} onPress={()=>onChange(x)} style={{flex:1,borderRadius:22,borderWidth:value===x?2:0,borderColor:'#F526A3'}} />)}
+   </View>
+ </View>;
+}
+
 function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const contentW=Math.min(width-32,580);const tileW=(contentW-12)/2;
  return <Screen><Header/><ImageBackground source={image('hero-skyline-background.png')} style={st.homeHero} imageStyle={{borderRadius:24}} resizeMode="cover">
    <LinearGradient colors={['rgba(64,14,123,0.92)','rgba(71,17,123,0.53)','rgba(61,17,118,0.10)']} style={st.heroTint} pointerEvents="none"/>
@@ -97,25 +110,31 @@ function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const 
  <Image source={image('footer-skyline-background.png')} style={st.homeFooter} resizeMode="cover" accessibilityLabel="Illustrated skyline and crystals"/>
  </Screen>
 }
-function SpreadsScreen({route}:any){const [items,setItems]=useState<any[]>(exampleSpreads);const [selected,setSelected]=useState<any>(null);const [cards,setCards]=useState<Record<number,any>>({});const [reading,setReading]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [search,setSearch]=useState('');const [connected,setConnected]=useState(false);
+function SpreadsScreen({route}:any){const [items,setItems]=useState<any[]>(exampleSpreads);const [selected,setSelected]=useState<any>(null);const [cards,setCards]=useState<Record<number,any>>({});const [reading,setReading]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [search,setSearch]=useState('');const [vibe,setVibe]=useState('All');const [connected,setConnected]=useState(false);
  useEffect(()=>{get('/tarot/spreads').then(x=>{setItems(x.spreads||[]);setConnected(true)}).catch(()=>{})},[]);
  useEffect(()=>{const f=route.params?.favorite;if(f&&items.length){const found=items.find(x=>x.title?.toLowerCase()===f.toLowerCase());if(found){setSelected(found);setCards({});setReading('')}}},[route.params?.favorite,items]);
  const start=(s:any)=>{setSelected(s);setCards({});setReading('');setError('')};
+ const randomize=()=>{if(items.length)start(items[Math.floor(Math.random()*items.length)])};
+ const shown=items.filter(x=>x.title.toLowerCase().includes(search.toLowerCase())&&(vibe==='All'||(x.category+' '+x.title).toLowerCase().includes(vibe.toLowerCase())));
  const draw=async(slot:number)=>{if(!selected||busy||cards[slot])return;setBusy(true);setError('');try{const x=await post('/tarot/spreads/deal-slot',{spread_id:selected.id,slot_num:slot,exclude_card_ids:Object.values(cards).map((d:any)=>d.card.id)});setCards(old=>({...old,[slot]:x}))}catch{const existing=Object.values(cards).map((x:any)=>x.card.id);const pool=extendedCards.filter(x=>!existing.includes(x.id));const card=pool[Math.floor(Math.random()*pool.length)];setCards(old=>({...old,[slot]:{slot,card:{...card,orientation:'Upright',meaning:card.upright}}}))}finally{setBusy(false)}};
  const interpret=async()=>{if(!selected)return;setBusy(true);try{const r=await post('/tarot/spreads/synthesize',{spread_id:selected.id,drawn_cards:Object.values(cards).map((v:any)=>({slot:v.slot,card_id:v.card.id,orientation:v.card.orientation})),save_to_journal:false});setReading(r.synthesis)}catch{setReading('Your '+selected.title+' cards invite a reflection on '+Object.values(cards).map((d:any)=>d.card.name).join(', ')+'. Consider each question in the spread, notice patterns, and choose one practical next step. This is a reflective prompt, not a prediction.')}finally{setBusy(false)}};
- return <Screen><Header label="Spreads" subtitle="YOUR TAROT SPREAD STUDIO"/>{selected?<>
+ return <Screen><IllustratedCard asset="spreads_header" label="Spreads screen header"/>{selected?<>
  <TouchableOpacity style={{marginBottom:15}} onPress={()=>setSelected(null)}><Text style={st.back}>← Browse all spreads</Text></TouchableOpacity><Title eyebrow="The spread studio" title={selected.title} sub="Tap each numbered position to reveal its card."/>
  <LinearGradient colors={['#5422AA','#B72EC3','#FC7CAC']} style={st.readingBoard}><Text style={st.readingLabel}>✦ YOUR READING ✦</Text><View style={st.slotWrap}>{(selected.questions||[]).map((q:any)=><TouchableOpacity key={q.slot} onPress={()=>draw(q.slot)} disabled={!!cards[q.slot]||busy} style={[st.slot,cards[q.slot]?st.slotOpen:null]}><Text style={st.slotIcon}>{cards[q.slot]?cards[q.slot].card.icon||'🃏':'☀️'}</Text><Text style={[st.slotText,cards[q.slot]?{color:C.plum}:null]}>{cards[q.slot]?cards[q.slot].card.name:'CARD '+q.slot}</Text><Text style={st.slotHint}>{cards[q.slot]?cards[q.slot].card.orientation:'TAP TO REVEAL'}</Text></TouchableOpacity>)}</View></LinearGradient>
  {(selected.questions||[]).map((q:any)=><Panel key={q.slot}><Text style={st.panelTitle}>{q.slot}. {q.title||'Position '+q.slot}</Text><Text style={st.body}>{q.q}</Text>{cards[q.slot]?<Text style={st.meaning}>{cards[q.slot].card.name}: {cards[q.slot].card.meaning}</Text>:null}</Panel>)}
  {error?<Info warning>{error}</Info>:null}<Action text={busy?'Working…':'Interpret my reading ✨'} onPress={interpret} disabled={busy||Object.keys(cards).length!==(selected.questions||[]).length}/>
  {reading?<Panel><Text style={st.panelTitle}>💖 Your overall reading</Text><Text style={st.body}>{reading}</Text><Action text="Share reading" onPress={()=>Share.share({message:selected.title+'\n\n'+reading})}/></Panel>:null}<Action text="Shuffle again" secondary onPress={()=>start(selected)}/>
  </>:<>
- <View style={st.avatarStrip}><Image source={image('avatar-sunglasses-transparent.png')} style={st.stripAvatar} resizeMode="contain"/><View style={st.stripText}><Text style={st.stripHeading}>Trust your intuition ✨</Text><Text style={st.stripCopy}>Choose a layout and reveal each position, your way.</Text></View></View>
- <Title eyebrow="The spread studio" title="Spreads ✨" sub="A tarot layout for every mood, question or moment."/>
- <Image source={image('spread-trust-your-gut-three-card.png')} style={st.spreadPromo} resizeMode="contain" accessibilityLabel="Trust Your Gut illustrated three card inspiration"/>
- <Input title="Find your vibe" value={search} onChange={setSearch} placeholder="Search 48 tarot spreads"/>
+ <IllustratedCard asset="spreads_randomize" label="Randomize a Spread" onPress={randomize}/>
+ <PaintedVibeFilter value={vibe} onChange={setVibe}/>
+ <Title eyebrow="Your illustrated spread collection" title="Pick your spread ✨" sub="Each layout opens a real interactive card reading."/>
+ {([["Trust Your Gut","spreads_trust_gut"],["At a Crossroads","spreads_crossroads"],["The Next Phase","spreads_next_phase"]] as const).map(([title,art])=>{
+  const match=items.find(x=>x.title.toLowerCase()===title.toLowerCase());
+  return <IllustratedCard key={art} asset={art} label={title} onPress={match?()=>start(match):undefined}/>;
+ })}
+ <Input title="Find your vibe" value={search} onChange={setSearch} placeholder="Search tarot spreads"/>
  {!connected?<Info>Showing sample spread layouts. Connect your existing backend to load all 48.</Info>:null}
- {items.filter(x=>x.title.toLowerCase().includes(search.toLowerCase())).map((s,i)=><TouchableOpacity key={s.id} style={st.spreadRow} onPress={()=>start(s)}><LinearGradient colors={['#FF8FD1','#AA6BF0']} style={st.spreadIcon}><Text style={{fontSize:31}}>{['🔮','💗','🦋','🌙'][i%4]}</Text></LinearGradient><View style={{flex:1}}><Text style={st.spreadTitle}>{s.title}</Text><Text style={st.muted}>{s.cardCount} cards · {s.category}</Text></View><ChevronRight size={21} color={C.pink}/></TouchableOpacity>)}
+ {shown.map((s,i)=><TouchableOpacity key={s.id} style={st.spreadRow} onPress={()=>start(s)}><LinearGradient colors={['#FF8FD1','#AA6BF0']} style={st.spreadIcon}><Text style={{fontSize:31}}>{['🔮','💗','🦋','🌙'][i%4]}</Text></LinearGradient><View style={{flex:1}}><Text style={st.spreadTitle}>{s.title}</Text><Text style={st.muted}>{s.cardCount} cards · {s.category}</Text></View><ChevronRight size={21} color={C.pink}/></TouchableOpacity>)}
  </>}</Screen>
 }
 function LearnScreen({route}:any){const [all,setAll]=useState<any[]>(extendedCards);const [selected,setSelected]=useState<any>(null);const [mode,setMode]=useState('home');const [quiz,setQuiz]=useState<any>(null);const [answer,setAnswer]=useState('');const [search,setSearch]=useState('');const [progress,setProgress]=useState(0);const [online,setOnline]=useState(false);
