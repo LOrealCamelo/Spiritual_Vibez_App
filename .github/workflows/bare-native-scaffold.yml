@@ -1,7 +1,5 @@
 name: Scaffold bare React Native iOS / Android
 on:
-  push:
-    branches: [feature/spiritual-vibez-bare-react-native]
   workflow_dispatch:
 permissions:
   contents: write
