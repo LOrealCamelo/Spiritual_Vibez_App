@@ -7,8 +7,9 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Home,Shuffle,BookOpen,Moon,Star,BookText,ChevronRight,ArrowLeft,ArrowRight,Search,Heart} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {API_BASE_URL} from './src/api/spiritualVibezClient';
 
-const BACKEND = Platform.OS === 'android' ? 'http://10.0.2.2:8000/api' : 'http://localhost:8000/api';
+const BACKEND = API_BASE_URL;
 const ARTWORK: Record<string, any> = {
   'feature-spreads.png': require('./assets/feature-spreads.png'),
   'feature-learn.png': require('./assets/feature-learn.png'),
@@ -155,7 +156,7 @@ function JournalScreen(){const [notes,setNotes]=useState<any[]>([]);const [draft
  </Screen>
 }
 const ICONS:Record<string,any>={Home,Spreads:Shuffle,Learn:BookOpen,Cosmos:Moon,Explore:Star,Journal:BookText};
-export default function App(){return <NavigationContainer><Tab.Navigator screenOptions={({route}:any)=>({headerShown:false,tabBarActiveTintColor:C.pink,tabBarInactiveTintColor:'#9E829B',tabBarStyle:{height:76,paddingTop:8,paddingBottom:8,backgroundColor:'#FFF2FC',borderTopColor:'#FBC5EC'},tabBarLabelStyle:{fontSize:10,fontWeight:'900'},tabBarIcon:({color,size}:any)=>{const Icon=ICONS[route.name]||Star;return <Icon color={color} size={size} strokeWidth={2.4}/>}})}><Tab.Screen name="Home" component={HomeScreen}/><Tab.Screen name="Spreads" component={SpreadsScreen}/><Tab.Screen name="Learn" component={LearnScreen}/><Tab.Screen name="Cosmos" component={CosmosScreen}/><Tab.Screen name="Explore" component={ExploreScreen}/><Tab.Screen name="Journal" component={JournalScreen}/></Tab.Navigator></NavigationContainer>}
+export default function App(){return <NavigationContainer><Tab.Navigator id="main-tabs" screenOptions={({route}:any)=>({headerShown:false,tabBarActiveTintColor:C.pink,tabBarInactiveTintColor:'#9E829B',tabBarStyle:{height:76,paddingTop:8,paddingBottom:8,backgroundColor:'#FFF2FC',borderTopColor:'#FBC5EC'},tabBarLabelStyle:{fontSize:10,fontWeight:'900'},tabBarIcon:({color,size}:any)=>{const Icon=ICONS[route.name]||Star;return <Icon color={color} size={size} strokeWidth={2.4}/>}})}><Tab.Screen name="Home" component={HomeScreen}/><Tab.Screen name="Spreads" component={SpreadsScreen}/><Tab.Screen name="Learn" component={LearnScreen}/><Tab.Screen name="Cosmos" component={CosmosScreen}/><Tab.Screen name="Explore" component={ExploreScreen}/><Tab.Screen name="Journal" component={JournalScreen}/></Tab.Navigator></NavigationContainer>}
 const st=StyleSheet.create({
  safe:{flex:1,backgroundColor:'#7427BD'},page:{paddingHorizontal:16,paddingBottom:28,maxWidth:600,width:'100%',alignSelf:'center'},header:{paddingTop:8,paddingBottom:13,alignItems:'center'},brand:{fontSize:29,fontWeight:'900',color:'#fff',textShadowColor:'#EF2A9B',textShadowRadius:10},tagline:{fontSize:10,letterSpacing:2,color:'#FFE5AA',fontWeight:'900'},
  homeHero:{borderRadius:24,minHeight:465,overflow:'hidden',padding:18,borderWidth:2,borderColor:'#FFD7EF'},heroTitle:{fontSize:41,color:'#fff',fontWeight:'900',fontStyle:'italic',textShadowColor:'#EE188C',textShadowRadius:12},heroSub:{fontSize:14,fontWeight:'800',color:'#fff',lineHeight:21,marginTop:10,maxWidth:285},heroActions:{flexDirection:'row',gap:7,marginTop:12,zIndex:3},heroArt:{position:'absolute',bottom:0,right:0,left:0,width:'100%',height:266},action:{backgroundColor:C.pink,borderWidth:2,borderColor:'#FFE3FA',borderRadius:28,paddingVertical:11,paddingHorizontal:13,flexDirection:'row',gap:8,alignItems:'center',justifyContent:'center',alignSelf:'flex-start',marginTop:10,marginBottom:8},actionSecondary:{backgroundColor:'#FFF3FD'},actionLabel:{color:'#fff',fontSize:13,fontWeight:'900'},
