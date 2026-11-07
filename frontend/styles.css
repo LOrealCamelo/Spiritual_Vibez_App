@@ -49,3 +49,5 @@
 html{scroll-padding-top:100px;scroll-padding-bottom:140px}.main-page:has(.art-page){padding-bottom:150px}button,a,input,textarea{scroll-margin-top:110px;scroll-margin-bottom:140px}
 
 .feature-grid .feature-icon,.feature-grid .feature--journal .feature-icon{height:100px;overflow:visible;flex-basis:110px}.feature-icon svg{display:block;width:100%;height:100%;filter:drop-shadow(0 3px 1px #fff8)}@media(max-width:1000px){.feature-grid .feature-icon{flex-basis:80px}}@media(max-width:750px){.feature-grid .feature-icon,.feature-grid .feature--journal .feature-icon{height:68px;margin-bottom:6px}}
+
+.navicon svg{display:block;width:23px;height:23px}.bottomdock button span svg{display:block;width:27px;height:27px;margin:0 auto}.avatar-chip{overflow:hidden;padding:0}.avatar-chip img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.9);transform-origin:center top}@media(min-width:1000px){.section-heading--more,.more-grid{display:none}}
