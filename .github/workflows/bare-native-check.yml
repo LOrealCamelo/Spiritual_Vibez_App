@@ -24,7 +24,15 @@ jobs:
           test -f mobile/ios/SpiritualVibez.xcodeproj/project.pbxproj
           test -f mobile/android/gradle/wrapper/gradle-wrapper.jar
           test -f mobile/android/app/build.gradle
-          test "$(find mobile/assets -maxdepth 1 -name '*.png' | wc -l)" -ge 28
+          # Verify the original art remains alongside the new individually exported panels.
+          test "$(find mobile/assets -maxdepth 1 -name '*.png' | wc -l)" -ge 13
+          test "$(find mobile/assets/ui_cards -maxdepth 1 -name '*.png' | wc -l)" -eq 24
+          for file in mobile/assets/ui_cards/*.png; do
+            name="${file##*/}"
+            test -s "$file"
+            grep -Fq "require('../../assets/ui_cards/$name')" mobile/src/components/IllustratedCard.tsx
+          done
+          grep -Fq "from './src/components/IllustratedCard'" mobile/App.tsx
           for art in hero-mystic-cutout hero-skyline-background spread-reset-energy-illustrated spread-trust-your-gut-illustrated spread-next-phase-illustrated spread-grounding-illustrated footer-skyline-background spread-trust-your-gut-three-card home-hey-mystic-illustrated avatar-sunglasses-transparent avatar-tarot-headphones-transparent; do
             test -s "mobile/assets/$art.png"
             grep -Fq "'$art.png': require('./assets/$art.png')" mobile/App.tsx
