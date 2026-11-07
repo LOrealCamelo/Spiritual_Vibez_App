@@ -1,5 +1,10 @@
 name: Bare React Native build checks
 on:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/bare-native-check.yml"
   pull_request:
     paths:
       - "mobile/**"
@@ -19,7 +24,11 @@ jobs:
           test -f mobile/ios/SpiritualVibez.xcodeproj/project.pbxproj
           test -f mobile/android/gradle/wrapper/gradle-wrapper.jar
           test -f mobile/android/app/build.gradle
-          test "$(find mobile/assets -maxdepth 1 -name '*.png' | wc -l)" -ge 17
+          test "$(find mobile/assets -maxdepth 1 -name '*.png' | wc -l)" -ge 28
+          for art in hero-mystic-cutout hero-skyline-background spread-reset-energy-illustrated spread-trust-your-gut-illustrated spread-next-phase-illustrated spread-grounding-illustrated footer-skyline-background spread-trust-your-gut-three-card home-hey-mystic-illustrated avatar-sunglasses-transparent avatar-tarot-headphones-transparent; do
+            test -s "mobile/assets/$art.png"
+            grep -Fq "'$art.png': require('./assets/$art.png')" mobile/App.tsx
+          done
           if grep -E '"expo"|"expo-status-bar"|"expo-linear-gradient"' mobile/package.json; then
             echo "Expo package found in bare React Native app" >&2
             exit 1
