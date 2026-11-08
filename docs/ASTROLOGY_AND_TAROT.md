@@ -72,13 +72,30 @@ numerical validation described here.
 ## Deck provenance and packaging
 
 The owner supplied the [78-PNG Drive folder](https://drive.google.com/drive/folders/1MLC_nQ5YPfuGH0wOwq76xSW0T4ciCwWJ).
-The original PNGs are copied to `mobile/assets/tarot/` with stable, case-sensitive
-names. `backend/data/tarot_images.json` maps canonical IDs 0–77 to those files and
-records their original names. Numeric minor-card filenames from Drive map to the
-written ranks in the catalog; Pentacles images also match the catalog's Coins suit.
-The original files total about 232 MiB. They have not been cropped, regenerated
-or resized. The complete source ZIP is consequently larger than the earlier UI
-repair ZIP.
+The app bundles 648 × 1080 PNG display copies in `mobile/assets/tarot/`, using
+stable, case-sensitive filenames. The original 1086 × 1810 files in Drive and
+our separate source directory remain unchanged. The full card frame, borders,
+labels and artwork are preserved. Lanczos downsampling retains full RGB color;
+there is no cropping or palette reduction.
+
+The deck decreased from **231.7 MiB to 95.7 MiB (58.7% smaller)**. Web, iOS and
+Android all use these same display copies. `backend/data/tarot_images.json` maps
+canonical IDs 0–77 to the app assets and records each original filename,
+source/display dimensions, byte sizes and SHA-256 hashes. Numeric minor-card
+filenames from Drive map to written ranks; Pentacles images also match the
+catalog's Coins suit.
+
+To regenerate the display copies from a separate folder containing the originals,
+install Pillow in a development environment and run:
+
+```sh
+python mobile/scripts/prepare-tarot-images.py --source-dir /path/to/originals
+```
+
+The script reads originals without modifying them and updates the app's display
+copies and provenance manifest. Pillow is not required to run the application.
+The earlier full-resolution app assets also remain available in Git history at
+commit `464e60e`.
 
 The backend mounts this same directory at `/assets/tarot/`; the browser requests
 those PNGs, and Metro uses 78 explicit static requires for both native platforms.

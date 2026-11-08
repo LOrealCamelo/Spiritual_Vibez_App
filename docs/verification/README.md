@@ -34,7 +34,7 @@ and captures evidence. CI runs it too.
 
 ## New astrology and tarot checks
 
-The current repair adds all 78 uploaded PNGs to both native bundles and the web server. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. The latest backend CI run retains chart/sky/tarot evidence. Review the [chart wheel](web-desktop-birth-chart.png), [phone-width chart](web-mobile-birth-chart.png), [daily sky](web-daily-sky.png), [tarot reading](web-tarot-reading.png) and [13-page sample report](birth-chart-report.pdf).
+The current repair adds all 78 uploaded card images to both native bundles and the web server. With the owner’s approval, the app now uses 648 × 1080 PNG display copies: 95.7 MiB versus 231.7 MiB for the untouched originals. All card borders and labels are preserved. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. The latest backend CI run retains chart/sky/tarot evidence. Review the [chart wheel](web-desktop-birth-chart.png), [phone-width chart](web-mobile-birth-chart.png), [daily sky](web-daily-sky.png), [tarot reading](web-tarot-reading.png) and [13-page sample report](birth-chart-report.pdf).
 
 ## Screenshots
 

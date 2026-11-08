@@ -64,7 +64,7 @@ converts obsolete web artwork into mobile assets.
 
 See [repair verification](../docs/verification/README.md) for evidence and remaining
 device checks. The expanded repair also fixes ritual search and replaces dead product URLs with
-the verified creator homepage. See [astronomy methods and tarot deck](../docs/ASTROLOGY_AND_TAROT.md) for the new city-based charts, daily sky, original PNG deck and numerical verification.
+the verified creator homepage. See [astronomy methods and tarot deck](../docs/ASTROLOGY_AND_TAROT.md) for the new city-based charts, daily sky, PNG display deck, unchanged Drive originals and numerical verification.
 
 ## iOS verification without owning a Mac
 

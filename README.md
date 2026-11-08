@@ -38,7 +38,7 @@ The updated work is on `fix/mobile-assets-metro-ci` in [PR #7](https://github.co
 
 The mobile app has four primary tabs: Home, Spreads, Learn and Journal. Cosmos and Explore remain separate destinations. The store UI contains one link to [neurospicymystic.com](https://neurospicymystic.com/).
 
-Birth charts now accept a selected city and local birth time, resolve historical timezones, and show a chart wheel and detailed report with Tropical/Sidereal choices. Cosmos loads automatically with date-aware Moon phases, ten planets and retrogrades. Spreads, lessons and quizzes display the actual uploaded tarot cards. See [methods, deck provenance and testing](docs/ASTROLOGY_AND_TAROT.md). The complete source now includes about 232 MiB of original tarot PNGs.
+Birth charts now accept a selected city and local birth time, resolve historical timezones, and show a chart wheel and detailed report with Tropical/Sidereal choices. Cosmos loads automatically with date-aware Moon phases, ten planets and retrogrades. Spreads, lessons and quizzes display the actual uploaded tarot cards. See [methods, deck provenance and testing](docs/ASTROLOGY_AND_TAROT.md). The app uses 648 × 1080 PNG display copies totaling about 96 MiB; your full-resolution Drive originals remain unchanged.
 
 ## Browser hosting
 
