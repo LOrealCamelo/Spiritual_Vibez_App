@@ -1,67 +1,52 @@
 # Spiritual Vibez — Zodiac, Tarot & More
 
-Production-ready Git repository containing the complete **FastAPI Backend**, **SQLite Persistence Layer**, **Astronomical/Ephemeris Calculation Engine**, **Interactive Web Application**, and **Bare React Native CLI Mobile Client (no Expo)** for **AuraMystic** by **NeuroSpicy Mystic** ([neurospicymystic.com](https://www.neurospicymystic.com)).
+This repository contains the actual web application, Python backend, and bare React Native Android/iOS source. CI evidence ZIPs contain screenshots and logs; they are **not the application download**.
 
-## Repository Structure
+## Download and run the web app on Windows
 
-```text
-auramystic-repo/
-├── backend/
-│   ├── main.py                      # FastAPI server entry point, CORS, health check & static hosting
-│   ├── database.py                  # SQLite schema & persistence (journals, readings, cycles, streaks, cart)
-│   ├── models.py                    # Pydantic v2 request/response validation schemas
-│   ├── requirements.txt             # Python dependencies
-│   ├── data/
-│   │   └── master_data.json         # Complete 78 Tarot cards, 48 spreads, rituals, frequencies, houses & asteroids
-│   ├── services/
-│   │   └── ephemeris_engine.py      # Real Julian Day, lunar phase, Placidus/Draconic, 13-Moon, BaZi & Astrocartography engine
-│   ├── routers/
-│   │   ├── astrology.py             # /api/astrology/* (Transits, Moon Phase, Natal/Placidus/Draconic, 13-Moon, BaZi, Relocation)
-│   │   ├── synastry.py              # /api/synastry/* (Life Path, Master Numbers 11/22/33, Love Compatibility & 4 Sub-scores)
-│   │   ├── tarot.py                 # /api/tarot/* (78-Card Encyclopedia, Study Quiz, Peek, 48 Spreads, Reset Your Energy)
-│   │   ├── rituals.py               # /api/rituals/* (8 Solfeggio Frequencies, Ritual Finder, Eugen Jonas Lunar Fertility)
-│   │   ├── wellness.py              # /api/wellness/* (Lunar Menstrual Cycle Tracker & Private Shadow Work Journal CRUD)
-│   │   ├── divination.py            # /api/divination/* (Amethyst Crystal Pendulum Dowsing & Elder Futhark 3-Rune Casting)
-│   │   ├── oracle_ai.py             # /api/oracle/* (The AuraMystic AI Oracle Synthesis Engine & Chat History)
-│   │   └── store.py                 # /api/store/* (NeuroSpicy Mystic Storefront Catalog & Shopping Bag)
-│   └── tests/
-│       └── test_all_endpoints.py    # Automated verification test suite covering all 8 routers
-├── frontend/
-│   └── index.html                   # Self-contained interactive web app with all 9 clickable tabs + Store
-├── mobile/
-│   ├── App.tsx                      # Bare React Native CLI 6-tab mobile navigation client
-│   ├── package.json                 # React Native CLI dependencies
-│   └── src/api/spiritualVibezClient.ts  # TypeScript API client wired to the FastAPI backend
-├── Dockerfile                       # Production container build
-├── docker-compose.yml               # Local Docker Compose orchestration with persistent SQLite volume
-├── render.yaml                      # 1-Click Render deployment blueprint
-├── .env.example                     # Environment variable template
-└── .gitignore                       # Git ignore rules
+1. [Download the complete updated project ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_App/archive/refs/heads/fix/mobile-assets-metro-ci.zip).
+2. Right-click the ZIP and choose **Extract All**. Do not run a file from inside the ZIP.
+3. In the extracted project folder, double-click **START_WEB_WINDOWS.cmd**.
+4. The launcher installs backend packages in a private `.venv-web` folder and opens the app in your browser. Keep its window open while testing; press Ctrl+C to stop.
+
+Install [Python 3.11 or newer](https://www.python.org/downloads/windows/) first if the launcher reports that Python is missing. The first start needs internet to install packages. Node, Xcode, Android Studio, Flutter and Expo are not needed to test the **web app**.
+
+The launcher starts the web UI and backend together. It chooses an available local port so an older server cannot accidentally display a previous copy of the app.
+
+On macOS/Linux, run this from the extracted project folder:
+
+```sh
+python3 run_web.py
 ```
 
-## Quick Start (Local Development)
+The updated work is on `fix/mobile-assets-metro-ci` in [PR #7](https://github.com/LOrealCamelo/Spiritual_Vibez_App/pull/7). Until it is merged, the `main` branch and any ZIP you previously downloaded from `main` retain their older files. Updating GitHub does not automatically update an existing Windows folder.
 
-### 1. Run the FastAPI Backend & Web App
+## Where the application code lives
 
-```bash
-pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload --port 8000
-```
+| File/folder | Purpose |
+| --- | --- |
+| `frontend/index.html` | Small HTML entry point that loads the web JavaScript and stylesheet |
+| `frontend/app.js` | Web screens, navigation, buttons and backend requests |
+| `frontend/styles.css` | Web layout, colors, fonts, backgrounds and responsive styles |
+| `frontend/assets/` | Web PNG artwork and locally bundled fonts |
+| `backend/` | FastAPI server, data and eight API router groups |
+| `mobile/App.tsx` | Native mobile screens and navigation |
+| `mobile/src/components/` | Illustrated native card components and live overlays |
+| `mobile/assets/` | The 24 clean UI panels and standalone artwork |
+| `mobile/android`, `mobile/ios` | Authoritative native host projects |
 
-- **Web App UI**: Open `http://localhost:8000/`
-- **Interactive Swagger API Docs**: Open `http://localhost:8000/docs`
-- **Health Check**: Open `http://localhost:8000/api/health`
+The mobile app has four primary tabs: Home, Spreads, Learn and Journal. Cosmos and Explore remain separate destinations. The store UI contains one link to [neurospicymystic.com](https://neurospicymystic.com/).
 
-### 2. Run Automated Backend Tests
+## Browser hosting
 
-```bash
-python3 backend/tests/test_all_endpoints.py
-```
+[Open Render deployment setup for the updated branch](https://render.com/deploy?repo=https://github.com/LOrealCamelo/Spiritual_Vibez_App/tree/fix/mobile-assets-metro-ci).
 
-### 3. Deploy to Render (1-Click Blueprint)
+The existing `render.yaml` starts the web UI and backend together. This link opens deployment setup in your own Render account; it does not indicate that a public service has already been created. A hosted browser app does not run the native iOS binary.
 
-1. Push this repository to GitHub (`git init && git add . && git commit -m "Initial commit"`).
-2. In Render, click **New +** -> **Blueprint** and connect this repository (`render.yaml` is pre-configured).
-# Spiritual_Vibez_App
+## Native app and verification
 
-For the bare Android/iOS client, installation and build checks, see [mobile/README.md](mobile/README.md).
+See [mobile/README.md](mobile/README.md) for Android/iOS prerequisites and commands, and [verification evidence](docs/verification/README.md) for screenshots and limits.
+
+CI validates asset resolution, TypeScript, native component actions/API routes, both Metro bundles, Android compilation, and a native iOS Release build/launch on a cloud iPhone simulator. Another check creates a complete project ZIP, extracts it and starts the application on Windows and Linux.
+
+Simulator screenshots and logs are evidence of a test, not installable iPhone software. Real-device testing and App Store/TestFlight distribution require separate signing setup; TestFlight/App Store distribution requires active paid Apple Developer Program membership. Existing astrology calculations and production authentication/privacy are not certified by these UI checks.

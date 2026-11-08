@@ -20,3 +20,6 @@ Pods/
 # Local CocoaPods/Bundler installs
 .bundle/
 mobile/vendor/
+
+# Web launcher private environment
+.venv-web/
