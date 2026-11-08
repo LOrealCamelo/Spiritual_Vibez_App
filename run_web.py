@@ -39,7 +39,7 @@ def prepare_python():
         print('First start: creating a private Python environment in .venv-web...', flush=True)
         venv.EnvBuilder(with_pip=True).create(environment)
     ready = subprocess.run(
-        [str(executable), '-c', 'import fastapi, uvicorn, httpx, dateutil'],
+        [str(executable), '-c', 'import fastapi, uvicorn, httpx, dateutil, astronomy, geonamescache'],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     ).returncode == 0
     if not ready or not marker.is_file() or marker.read_text().strip() != expected:

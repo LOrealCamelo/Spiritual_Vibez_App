@@ -1,0 +1,470 @@
+[
+  {
+    "id": 0,
+    "name": "The Fool",
+    "file": "00-the-fool.png",
+    "source_file": "The Fool.png"
+  },
+  {
+    "id": 1,
+    "name": "The Magician",
+    "file": "01-the-magician.png",
+    "source_file": "The Magician.png"
+  },
+  {
+    "id": 2,
+    "name": "The High Priestess",
+    "file": "02-the-high-priestess.png",
+    "source_file": "The High Priestess.png"
+  },
+  {
+    "id": 3,
+    "name": "The Empress",
+    "file": "03-the-empress.png",
+    "source_file": "The Empress.png"
+  },
+  {
+    "id": 4,
+    "name": "The Emperor",
+    "file": "04-the-emperor.png",
+    "source_file": "The Emperor.png"
+  },
+  {
+    "id": 5,
+    "name": "The Hierophant",
+    "file": "05-the-hierophant.png",
+    "source_file": "The Hierophant.png"
+  },
+  {
+    "id": 6,
+    "name": "The Lovers",
+    "file": "06-the-lovers.png",
+    "source_file": "The Lovers.png"
+  },
+  {
+    "id": 7,
+    "name": "The Chariot",
+    "file": "07-the-chariot.png",
+    "source_file": "The Chariot.png"
+  },
+  {
+    "id": 8,
+    "name": "Strength",
+    "file": "08-strength.png",
+    "source_file": "Strength.png"
+  },
+  {
+    "id": 9,
+    "name": "The Hermit",
+    "file": "09-the-hermit.png",
+    "source_file": "The Hermit.png"
+  },
+  {
+    "id": 10,
+    "name": "Wheel of Fortune",
+    "file": "10-wheel-of-fortune.png",
+    "source_file": "Wheel of Fortune.png"
+  },
+  {
+    "id": 11,
+    "name": "Justice",
+    "file": "11-justice.png",
+    "source_file": "Justice.png"
+  },
+  {
+    "id": 12,
+    "name": "The Hanged Man",
+    "file": "12-the-hanged-man.png",
+    "source_file": "The Hanged Man.png"
+  },
+  {
+    "id": 13,
+    "name": "Death",
+    "file": "13-death.png",
+    "source_file": "Death.png"
+  },
+  {
+    "id": 14,
+    "name": "Temperance",
+    "file": "14-temperance.png",
+    "source_file": "Temperance.png"
+  },
+  {
+    "id": 15,
+    "name": "The Devil",
+    "file": "15-the-devil.png",
+    "source_file": "The Devil.png"
+  },
+  {
+    "id": 16,
+    "name": "The Tower",
+    "file": "16-the-tower.png",
+    "source_file": "The Tower.png"
+  },
+  {
+    "id": 17,
+    "name": "The Star",
+    "file": "17-the-star.png",
+    "source_file": "The Star.png"
+  },
+  {
+    "id": 18,
+    "name": "The Moon",
+    "file": "18-the-moon.png",
+    "source_file": "The Moon.png"
+  },
+  {
+    "id": 19,
+    "name": "The Sun",
+    "file": "19-the-sun.png",
+    "source_file": "The Sun.png"
+  },
+  {
+    "id": 20,
+    "name": "Judgement",
+    "file": "20-judgement.png",
+    "source_file": "Judgement.png"
+  },
+  {
+    "id": 21,
+    "name": "The World",
+    "file": "21-the-world.png",
+    "source_file": "The World.png"
+  },
+  {
+    "id": 22,
+    "name": "Ace of Wands",
+    "file": "22-ace-of-wands.png",
+    "source_file": "Ace of Wands.png"
+  },
+  {
+    "id": 23,
+    "name": "Two of Wands",
+    "file": "23-two-of-wands.png",
+    "source_file": "2 of Wands.png"
+  },
+  {
+    "id": 24,
+    "name": "Three of Wands",
+    "file": "24-three-of-wands.png",
+    "source_file": "3 of Wands.png"
+  },
+  {
+    "id": 25,
+    "name": "Four of Wands",
+    "file": "25-four-of-wands.png",
+    "source_file": "4 of Wands.png"
+  },
+  {
+    "id": 26,
+    "name": "Five of Wands",
+    "file": "26-five-of-wands.png",
+    "source_file": "5 of Wands.png"
+  },
+  {
+    "id": 27,
+    "name": "Six of Wands",
+    "file": "27-six-of-wands.png",
+    "source_file": "6 of Wands.png"
+  },
+  {
+    "id": 28,
+    "name": "Seven of Wands",
+    "file": "28-seven-of-wands.png",
+    "source_file": "7 of Wands.png"
+  },
+  {
+    "id": 29,
+    "name": "Eight of Wands",
+    "file": "29-eight-of-wands.png",
+    "source_file": "8 of Wands.png"
+  },
+  {
+    "id": 30,
+    "name": "Nine of Wands",
+    "file": "30-nine-of-wands.png",
+    "source_file": "9 of Wands.png"
+  },
+  {
+    "id": 31,
+    "name": "Ten of Wands",
+    "file": "31-ten-of-wands.png",
+    "source_file": "10 of Wands.png"
+  },
+  {
+    "id": 32,
+    "name": "Page of Wands",
+    "file": "32-page-of-wands.png",
+    "source_file": "Page of Wands.png"
+  },
+  {
+    "id": 33,
+    "name": "Knight of Wands",
+    "file": "33-knight-of-wands.png",
+    "source_file": "Knight of Wands.png"
+  },
+  {
+    "id": 34,
+    "name": "Queen of Wands",
+    "file": "34-queen-of-wands.png",
+    "source_file": "Queen of Wands.png"
+  },
+  {
+    "id": 35,
+    "name": "King of Wands",
+    "file": "35-king-of-wands.png",
+    "source_file": "King of Wands.png"
+  },
+  {
+    "id": 36,
+    "name": "Ace of Cups",
+    "file": "36-ace-of-cups.png",
+    "source_file": "Ace of Cups.png"
+  },
+  {
+    "id": 37,
+    "name": "Two of Cups",
+    "file": "37-two-of-cups.png",
+    "source_file": "2 of Cups.png"
+  },
+  {
+    "id": 38,
+    "name": "Three of Cups",
+    "file": "38-three-of-cups.png",
+    "source_file": "3 of Cups.png"
+  },
+  {
+    "id": 39,
+    "name": "Four of Cups",
+    "file": "39-four-of-cups.png",
+    "source_file": "4 of Cups.png"
+  },
+  {
+    "id": 40,
+    "name": "Five of Cups",
+    "file": "40-five-of-cups.png",
+    "source_file": "5 of Cups.png"
+  },
+  {
+    "id": 41,
+    "name": "Six of Cups",
+    "file": "41-six-of-cups.png",
+    "source_file": "6 of Cups.png"
+  },
+  {
+    "id": 42,
+    "name": "Seven of Cups",
+    "file": "42-seven-of-cups.png",
+    "source_file": "7 of Cups.png"
+  },
+  {
+    "id": 43,
+    "name": "Eight of Cups",
+    "file": "43-eight-of-cups.png",
+    "source_file": "8 of Cups.png"
+  },
+  {
+    "id": 44,
+    "name": "Nine of Cups",
+    "file": "44-nine-of-cups.png",
+    "source_file": "9 of Cups.png"
+  },
+  {
+    "id": 45,
+    "name": "Ten of Cups",
+    "file": "45-ten-of-cups.png",
+    "source_file": "10 of cups.png"
+  },
+  {
+    "id": 46,
+    "name": "Page of Cups",
+    "file": "46-page-of-cups.png",
+    "source_file": "Page of Cups.png"
+  },
+  {
+    "id": 47,
+    "name": "Knight of Cups",
+    "file": "47-knight-of-cups.png",
+    "source_file": "Knight of Cups.png"
+  },
+  {
+    "id": 48,
+    "name": "Queen of Cups",
+    "file": "48-queen-of-cups.png",
+    "source_file": "Queen of Cups.png"
+  },
+  {
+    "id": 49,
+    "name": "King of Cups",
+    "file": "49-king-of-cups.png",
+    "source_file": "King of Cups.png"
+  },
+  {
+    "id": 50,
+    "name": "Ace of Swords",
+    "file": "50-ace-of-swords.png",
+    "source_file": "Ace of Swords.png"
+  },
+  {
+    "id": 51,
+    "name": "Two of Swords",
+    "file": "51-two-of-swords.png",
+    "source_file": "2 of Swords.png"
+  },
+  {
+    "id": 52,
+    "name": "Three of Swords",
+    "file": "52-three-of-swords.png",
+    "source_file": "3 of Swords.png"
+  },
+  {
+    "id": 53,
+    "name": "Four of Swords",
+    "file": "53-four-of-swords.png",
+    "source_file": "4 of Swords.png"
+  },
+  {
+    "id": 54,
+    "name": "Five of Swords",
+    "file": "54-five-of-swords.png",
+    "source_file": "5 of Swords.png"
+  },
+  {
+    "id": 55,
+    "name": "Six of Swords",
+    "file": "55-six-of-swords.png",
+    "source_file": "6 of Swords.png"
+  },
+  {
+    "id": 56,
+    "name": "Seven of Swords",
+    "file": "56-seven-of-swords.png",
+    "source_file": "7 of Swords.png"
+  },
+  {
+    "id": 57,
+    "name": "Eight of Swords",
+    "file": "57-eight-of-swords.png",
+    "source_file": "8 of Swords.png"
+  },
+  {
+    "id": 58,
+    "name": "Nine of Swords",
+    "file": "58-nine-of-swords.png",
+    "source_file": "9 of Swords.png"
+  },
+  {
+    "id": 59,
+    "name": "Ten of Swords",
+    "file": "59-ten-of-swords.png",
+    "source_file": "10 of swords.png"
+  },
+  {
+    "id": 60,
+    "name": "Page of Swords",
+    "file": "60-page-of-swords.png",
+    "source_file": "Page of Swords.png"
+  },
+  {
+    "id": 61,
+    "name": "Knight of Swords",
+    "file": "61-knight-of-swords.png",
+    "source_file": "Knight of Swords.png"
+  },
+  {
+    "id": 62,
+    "name": "Queen of Swords",
+    "file": "62-queen-of-swords.png",
+    "source_file": "Queen of Swords.png"
+  },
+  {
+    "id": 63,
+    "name": "King of Swords",
+    "file": "63-king-of-swords.png",
+    "source_file": "King of Swords.png"
+  },
+  {
+    "id": 64,
+    "name": "Ace of Pentacles",
+    "file": "64-ace-of-pentacles.png",
+    "source_file": "Ace of Pentacles.png"
+  },
+  {
+    "id": 65,
+    "name": "Two of Pentacles",
+    "file": "65-two-of-pentacles.png",
+    "source_file": "2 of Pentacles.png"
+  },
+  {
+    "id": 66,
+    "name": "Three of Pentacles",
+    "file": "66-three-of-pentacles.png",
+    "source_file": "3 of Pentacles.png"
+  },
+  {
+    "id": 67,
+    "name": "Four of Pentacles",
+    "file": "67-four-of-pentacles.png",
+    "source_file": "4 of Pentacles.png"
+  },
+  {
+    "id": 68,
+    "name": "Five of Pentacles",
+    "file": "68-five-of-pentacles.png",
+    "source_file": "5 of Pentacles.png"
+  },
+  {
+    "id": 69,
+    "name": "Six of Pentacles",
+    "file": "69-six-of-pentacles.png",
+    "source_file": "6 of Pentacles.png"
+  },
+  {
+    "id": 70,
+    "name": "Seven of Pentacles",
+    "file": "70-seven-of-pentacles.png",
+    "source_file": "7 of Pentacles.png"
+  },
+  {
+    "id": 71,
+    "name": "Eight of Pentacles",
+    "file": "71-eight-of-pentacles.png",
+    "source_file": "8 of Pentacles.png"
+  },
+  {
+    "id": 72,
+    "name": "Nine of Pentacles",
+    "file": "72-nine-of-pentacles.png",
+    "source_file": "9 of Pentacles.png"
+  },
+  {
+    "id": 73,
+    "name": "Ten of Pentacles",
+    "file": "73-ten-of-pentacles.png",
+    "source_file": "10 of Pentacles.png"
+  },
+  {
+    "id": 74,
+    "name": "Page of Pentacles",
+    "file": "74-page-of-pentacles.png",
+    "source_file": "Page of Pentacles.png"
+  },
+  {
+    "id": 75,
+    "name": "Knight of Pentacles",
+    "file": "75-knight-of-pentacles.png",
+    "source_file": "Knight of Pentacles.png"
+  },
+  {
+    "id": 76,
+    "name": "Queen of Pentacles",
+    "file": "76-queen-of-pentacles.png",
+    "source_file": "Queen of pentacles.png"
+  },
+  {
+    "id": 77,
+    "name": "King of Pentacles",
+    "file": "77-king-of-pentacles.png",
+    "source_file": "King of Pentacles.png"
+  }
+]

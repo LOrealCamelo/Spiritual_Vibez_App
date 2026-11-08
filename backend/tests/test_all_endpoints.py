@@ -27,14 +27,14 @@ def run_all_tests():
     # 1. Astrology & Charts
     transits = astrology.get_daily_transits(sign="Scorpio", date="2026-11-05")
     assert transits["selected_sign"] == "Scorpio"
-    assert "forecast" in transits and transits["forecast"]["lucky_frequency"] == "528 Hz"
+    assert "forecast" in transits and len(transits["forecast"]["details"]) == 5
 
-    moon = astrology.calculate_natal_moon_phase(BirthDataRequest(birth_date="1996-11-05", birth_time="14:30"))
+    moon = astrology.calculate_natal_moon_phase(BirthDataRequest(birth_date="1996-11-05", birth_time="14:30", place_id="5142056"))
     assert "natal_moon_phase" in moon and "illumination_percentage" in moon
 
     for sys_name in ("placidus", "tropical", "progressed", "draconic"):
-        chart = astrology.generate_natal_chart(BirthDataRequest(birth_date="1996-11-05", chart_system=sys_name))
-        assert len(chart["placements"]) == 7 and len(chart["houses"]) == 12 and len(chart["asteroids"]) == 6
+        chart = astrology.generate_natal_chart(BirthDataRequest(birth_date="1996-11-05", birth_time="14:30", place_id="5142056", chart_system=sys_name))
+        assert len(chart["placements"]) == 10 and len(chart["houses"]) == 12 and chart["wheel_svg"]
 
     lunar_cal = astrology.get_lunar_calendar(13)
     assert lunar_cal["days_in_cycle"] == 28 and len(lunar_cal["days"]) == 28

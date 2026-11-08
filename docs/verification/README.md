@@ -1,6 +1,6 @@
 # Spiritual Vibez — repair and reference UI verification
 
-Updated November 7, 2026. The PR check runs provide hosted results for the latest commit.
+Updated November 8, 2026. The PR check runs provide hosted results for the latest commit.
 
 The supplied reference images guide the purple/pink skyline, transparent character,
 handwritten typography, illustrated modules, glowing cards and navigation. The brand
@@ -14,14 +14,14 @@ from the search icon and feature tiles.
 
 | Check | Result |
 | --- | --- |
-| Mobile PNG resolution | Pass: all 28 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
+| Mobile PNG resolution | Pass: all 106 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
 | Asset-validator regressions | Six pass, including newly introduced missing requires, case mismatches, empty PNGs, WebP imports, absent panel mappings and nonzero CLI exits. |
 | Web assets and typography | Five checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Decorative web feature icons use inline SVG with live text. |
 | TypeScript | Pass, including the native interaction tests. |
-| Native interactions and API routes | 25 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and all 17 network-backed native tool methods/paths plus the direct store link. |
+| Native interactions and API routes | 27 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
 | Native Android | The first PR revision passed arm64 assembleDebug in hosted CI. The latest revision repeats that job and retains the debug APK for seven days. Consult the latest PR check before relying on its result. |
-| Backend | The existing 28-check script and all 15 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
+| Backend | The existing 28-check script and all 33 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
 | Connected web flows | 16 backend-backed tools pass, plus cycle estimates, learning modules, quiz, a full spread, synthesis, saved readings, journal notes, moods and transits. No API failures or JavaScript errors were observed. |
 | Browser layouts | Home, Spreads, Learn Tarot and Journal pass at 1448px and 390px with every displayed image loaded and no horizontal overflow. |
 | Native iOS build / simulator | The cloud macOS/Xcode job built the Release app, launched it on iPhone 16 / iOS 18.5 and captured the native Home screen. Check the latest CI result for the current revision. |
@@ -31,6 +31,10 @@ Run `python frontend/tests/browser_flows.py --screenshots work/browser-evidence`
 after installing `frontend/tests/requirements.txt`. It starts FastAPI against a
 temporary database, uses installed Chrome/Chromium, exercises the connected flows,
 and captures evidence. CI runs it too.
+
+## New astrology and tarot checks
+
+The current repair adds all 78 uploaded PNGs to both native bundles and the web server. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. New chart/sky/tarot evidence is retained by the latest backend CI run.
 
 ## Screenshots
 
@@ -60,8 +64,7 @@ The owner wants products and checkout on https://neurospicymystic.com/ only.
 Both apps expose one **Visit my store** link and no product listings, prices or
 per-product buttons. The link works without calling the backend catalog endpoint.
 
-Existing astrology calculations remain approximate; timezone and scientific
-accuracy have not been certified by this UI/route repair. No paid AI, payment
+Birth-chart and daily-sky calculations now use Astronomy Engine, historical city timezones and real Placidus houses; see [methods and numerical checks](../ASTROLOGY_AND_TAROT.md). Other legacy astrology tools are outside that numerical validation. No paid AI, payment
 provider, authentication system or external deployment was added.
 
 ## Artwork and native host audit

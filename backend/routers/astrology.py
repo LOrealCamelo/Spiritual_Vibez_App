@@ -1,42 +1,61 @@
 """
 AuraMystic Astrology, Ephemeris, Natal/Placidus/Draconic Charts, 13-Month Calendar, BaZi & Astrocartography Router
 """
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from ..models import BirthDataRequest, BaZiRequest, RelocationRequest
 from ..services.ephemeris_engine import (
-    calculate_daily_transits,
     compute_planetary_positions,
-    calculate_multi_system_chart,
     calculate_13_month_calendar,
     calculate_bazi_four_pillars,
     calculate_astrocartography,
     MASTER_DATA
 )
-from datetime import datetime
+from ..services.birth_locations import resolve_birth, search_places, catalog
+from ..services.sky_engine import daily_transits, natal_chart
 
 router = APIRouter()
 
 @router.get("/daily-transits")
 def get_daily_transits(
-    sign: str = Query("Scorpio", description="Zodiac sign for personalized daily mood forecast"),
-    date: Optional[str] = Query(None, description="YYYY-MM-DD (defaults to today)")
+    sign: str = 'Scorpio', date: Optional[str] = None,
+    timezone: str = 'UTC', zodiac: str = 'tropical'
 ):
     """Returns real-time daily moon phase, planetary alignments, and personalized zodiac mood forecast."""
-    return calculate_daily_transits(sign=sign, date_str=date)
+    try:
+        return daily_transits(sign=sign, date_str=date, timezone_name=timezone, zodiac=zodiac)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get('/locations/countries')
+def birth_countries():
+    return {'countries': sorted([{'code': k, 'name': v['name']} for k,v in catalog().get_countries().items()], key=lambda c:c['name'])}
+
+
+@router.get('/locations/search')
+def birth_city_search(city: str, country: str, state: str = ''):
+    try:
+        return {'places': search_places(city, country, state), 'source': 'GeoNames (CC BY 4.0)',
+                'note': 'Cities and towns with population of at least 1,000. If yours is absent, choose a nearby listed town and note that houses may differ slightly.'}
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 @router.post("/moon-phase")
 def calculate_natal_moon_phase(data: BirthDataRequest):
     """Calculates exact natal lunar phase, illumination percentage, moon sign, and soul archetype."""
     try:
-        dt = datetime.strptime(f"{data.birth_date} {data.birth_time or '14:30'}", "%Y-%m-%d %H:%M")
-    except ValueError:
-        dt = datetime.strptime(data.birth_date, "%Y-%m-%d").replace(hour=14, minute=30)
-    pos = compute_planetary_positions(dt)
+        dt, location, local_time = resolve_birth(data)
+        pos = compute_planetary_positions(dt, data.zodiac)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     lp = pos["LunarPhase"]
     return {
         "birth_date": data.birth_date,
         "birth_time": data.birth_time,
+        'birth_local_time': local_time,
+        'birth_utc': dt.isoformat(),
+        'location': location,
         "natal_moon_phase": lp["phase_name"],
         "emoji": lp["emoji"],
         "archetype_title": lp["archetype"],
@@ -50,13 +69,16 @@ def calculate_natal_moon_phase(data: BirthDataRequest):
 @router.post("/natal-chart")
 def generate_natal_chart(data: BirthDataRequest):
     """Calculates Placidus, Tropical, Secondary Progressions, or Draconic chart placements, 12 houses, and asteroids."""
-    return calculate_multi_system_chart(
-        birth_date=data.birth_date,
-        birth_time=data.birth_time or "14:30",
-        latitude=data.latitude or 43.1009,
-        longitude=data.longitude or -75.2327,
-        system=data.chart_system or "placidus"
-    )
+    try:
+        dt, location, local_time = resolve_birth(data)
+        chart = natal_chart(dt, location['latitude'], location['longitude'], name=data.name,
+                            zodiac=data.zodiac, house_system=data.house_system,
+                            chart_system=data.chart_system or 'natal')
+        chart.update(birth_date=data.birth_date, birth_time=data.birth_time,
+                     birth_local_time=local_time, birth_utc=dt.isoformat(), location=location)
+        return chart
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 @router.get("/houses")
 def get_twelve_houses():

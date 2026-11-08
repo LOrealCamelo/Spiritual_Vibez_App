@@ -6,9 +6,18 @@ from typing import List, Dict, Optional, Any
 
 class BirthDataRequest(BaseModel):
     birth_date: str = Field(..., description="YYYY-MM-DD", examples=["1996-11-05"])
-    birth_time: Optional[str] = Field("14:30", description="HH:MM (24h)", examples=["14:30"])
-    latitude: Optional[float] = Field(43.1009, description="Birth latitude (default: Utica, NY)")
-    longitude: Optional[float] = Field(-75.2327, description="Birth longitude (default: Utica, NY)")
+    birth_time: str = Field(..., description="Local HH:MM (24h)", examples=["14:30"])
+    name: str = Field('', max_length=80)
+    place_id: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    state: Optional[str] = None
+    timezone: Optional[str] = None
+    time_fold: Optional[int] = Field(None, ge=0, le=1, description="0 first / 1 second occurrence during a repeated DST hour")
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
+    zodiac: str = 'tropical'
+    house_system: str = 'placidus'
     chart_system: Optional[str] = Field("placidus", description="placidus | tropical | progressed | draconic")
 
 class BaZiRequest(BaseModel):

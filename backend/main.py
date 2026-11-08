@@ -88,5 +88,14 @@ def serve_guide_illustration():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
 
 
+@app.get('/cosmic.js', include_in_schema=False)
+def serve_cosmic_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'cosmic.js'), media_type='text/javascript')
+
+
+# The same 78 PNGs serve browsers and are bundled by Metro for iOS/Android.
+# Keep this specific mount before the general /assets mount.
+app.mount('/assets/tarot', StaticFiles(directory=os.path.join(os.path.dirname(__file__), '..', 'mobile', 'assets', 'tarot')), name='tarot-deck')
+
 # Serve the approved Spiritual Vibez illustrated artwork as real image assets.
 app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "frontend", "assets")), name="spiritual-vibez-artwork")

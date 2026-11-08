@@ -21,7 +21,9 @@ jobs:
       - name: Run pytest
         run: pytest -q backend/tests
       - name: Syntax-check browser app
-        run: node --check frontend/app.js
+        run: |
+          node --check frontend/app.js
+          node --check frontend/cosmic.js
 
       - name: Install browser test driver
         run: pip install -r frontend/tests/requirements.txt

@@ -34,6 +34,8 @@ def main():
                      'mobile/ios/SpiritualVibez.xcodeproj/project.pbxproj']:
             assert (app / file).is_file(), 'Application source missing from ZIP: ' + file
         assert len(list((app / 'mobile/assets/ui_cards').glob('*.png'))) == 24
+        assert len(list((app / 'mobile/assets/tarot').glob('*.png'))) == 78
+        assert (app / 'frontend/cosmic.js').is_file()
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', 0))
             port = probe.getsockname()[1]
@@ -61,7 +63,7 @@ def main():
                         time.sleep(.5)
                 else:
                     raise RuntimeError('The extracted app did not start within five minutes.')
-                for route in ['/', '/app.js', '/styles.css', '/assets/ui_background.png',
+                for route in ['/', '/app.js', '/cosmic.js', '/styles.css', '/assets/tarot/00-the-fool.png', '/assets/ui_background.png',
                               '/assets/footer.png', '/assets/cartoon_me_transparent3.png']:
                     with http.open(address + route) as response:
                         assert response.status == 200, route

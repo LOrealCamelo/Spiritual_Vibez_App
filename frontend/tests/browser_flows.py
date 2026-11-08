@@ -38,25 +38,49 @@ def exercise(base_url, screenshots):
   for tool in ['natal','draconic','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
+   if tool in ['natal','draconic','moon']:
+    page.locator('#birth-hour').fill('14');page.locator('#birth-minute').fill('30')
+    page.locator('#birth-country').fill('US');page.locator('#birth-region').fill('NY');page.locator('#birth-city').fill('Utica')
+    page.locator('[data-action="birth-search"]').click();page.wait_for_selector('[data-action="birth-place"]');page.locator('[data-action="birth-place"]').first.click()
+    assert page.locator('#birth-lat').count()==0 and page.locator('#birth-lon').count()==0
    if page.locator('#search').count():page.locator('#search').fill('clarity')
    page.locator('[data-action="tool-run"]').click()
    page.wait_for_function('state.result!==null||state.error!==""')
    error=page.evaluate('state.error');assert not error,(tool,error)
+   if tool in ['natal','draconic']:
+    assert page.locator('.chart-wheel svg').count()==1
+    assert page.evaluate('state.result.placements.length')==10 and page.evaluate('state.result.houses.length')==12
+    assert page.evaluate('state.result.birth_utc')=='1996-11-05T19:30:00+00:00'
+    if tool=='natal':
+     page.screenshot(path=str(screenshots/'web-desktop-birth-chart.png'))
+     page.pdf(path=str(screenshots/'birth-chart-report.pdf'),format='A4',print_background=True,margin={'top':'12mm','bottom':'12mm','left':'12mm','right':'12mm'})
+     before=page.evaluate('state.result.placements[0].longitude')
+     page.locator('#birth-zodiac').select_option('sidereal');page.locator('[data-action="tool-run"]').click();page.wait_for_function('state.result?.zodiac==="sidereal"')
+     assert before!=page.evaluate('state.result.placements[0].longitude')
    requests.append(tool)
   page.evaluate('transition("explore","store")')
   assert page.get_by_role('link',name='Visit my store ↗',exact=True).get_attribute('href')=='https://neurospicymystic.com/'
   assert page.locator('[data-action="tool-run"]').count()==0
   # Cycle is intentionally local and sound is synthesized locally.
   page.evaluate('transition("explore","cycle")');page.locator('#period-date').fill('2026-10-22');page.locator('[data-action="tool-run"]').click();assert page.locator('.result').count()==1
-  page.evaluate('transition("learn")');page.get_by_role('button',name='Major Arcana',exact=True).click();page.locator('[data-action="card"]').first.click();assert page.locator('#selected-card').count()==1
+  page.evaluate('transition("learn")');page.get_by_role('button',name='Major Arcana',exact=True).click();page.locator('[data-action="card"]').first.click();assert page.locator('#selected-card').count()==1;assert page.locator('#selected-card img.tarot-image').count()==1
   page.locator('[data-action="learn-back"]').click();page.get_by_role('button',name='Quiz Me',exact=True).click();page.wait_for_selector('[data-action="quiz-answer"]');correct=page.evaluate('state.quiz.correct_answer');page.get_by_role('button',name=correct,exact=True).click();assert page.locator('.ok').count()==1
   page.evaluate('transition("spreads")');page.get_by_role('button',name='Randomize a Spread',exact=True).click()
   for index in range(page.locator('.slot').count()):
    page.locator('.slot').nth(index).click();page.wait_for_function('(n)=>Object.keys(state.drawn).length>=n',arg=index+1)
+  assert page.locator('.slot.opened img.tarot-image').count()==page.locator('.slot').count()
+  page.locator('img.tarot-image').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.querySelectorAll(".slot img")).every(i=>i.complete&&i.naturalWidth>0)')
+  page.screenshot(path=str(screenshots/'web-tarot-reading.png'))
   page.locator('[data-action="interpret"]').click();page.wait_for_function('Boolean(state.reading)');page.locator('[data-action="save-reading"]').click()
   page.evaluate('transition("journal")');page.get_by_role('button',name="Today's Journal",exact=True).click();page.locator('#journal-text').fill('Connected flow verification');page.locator('[data-action="save-note"]').click();assert 'Connected flow verification' in page.locator('main').inner_text()
   page.get_by_role('button',name='Mood Check-In',exact=True).click();page.get_by_role('button',name='Log mood 😊').click();assert 'Latest check-in' in page.locator('main').inner_text()
-  page.evaluate('transition("cosmos")');page.locator('[data-action="get-transit"]').click();page.wait_for_function('state.transit!==null')
+  page.evaluate('transition("cosmos")');page.wait_for_function('state.transit!==null&&!skyUI.loading')
+  assert page.evaluate('state.transit.planets.length')==10
+  page.locator('#sky-date').fill('2026-11-08');page.locator('#transit-sign').select_option('Virgo');page.wait_for_function('state.transit?.date==="2026-11-08"&&state.transit?.selected_sign==="Virgo"&&!skyUI.loading')
+  assert page.evaluate('state.transit.moon.waxing') is False
+  assert page.evaluate('state.transit.moon.phase_name')=='Waning Crescent'
+  virgo=page.evaluate('state.transit.forecast.content');page.locator('#transit-sign').select_option('Pisces');page.wait_for_function('state.transit?.selected_sign==="Pisces"&&!skyUI.loading');assert virgo!=page.evaluate('state.transit.forecast.content')
+  page.screenshot(path=str(screenshots/'web-daily-sky.png'))
   assert not failures,failures
   assert not errors,errors
   print(json.dumps({'passedTools':requests,'extraFlows':['cycle','learn module','quiz','complete spread','synthesis','save reading','journal note','mood','transits'],'apiErrors':failures,'jsErrors':errors}))
@@ -67,6 +91,9 @@ def exercise(base_url, screenshots):
     page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)');page.evaluate('document.fonts.ready')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),(label,name)
     page.screenshot(path=str(screenshots/f'web-{label}-{name}.png'),full_page=True)
+  page.set_viewport_size({'width':390,'height':844});page.evaluate('transition("explore","natal")');page.locator('[data-action="tool-run"]').click();page.wait_for_selector('.chart-wheel svg')
+  assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
+  page.locator('.chart-wheel').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web-mobile-birth-chart.png'))
   b.close()
 
 

@@ -51,3 +51,30 @@ html{scroll-padding-top:100px;scroll-padding-bottom:140px}.main-page:has(.art-pa
 .feature-grid .feature-icon,.feature-grid .feature--journal .feature-icon{height:100px;overflow:visible;flex-basis:110px}.feature-icon svg{display:block;width:100%;height:100%;filter:drop-shadow(0 3px 1px #fff8)}@media(max-width:1000px){.feature-grid .feature-icon{flex-basis:80px}}@media(max-width:750px){.feature-grid .feature-icon,.feature-grid .feature--journal .feature-icon{height:68px;margin-bottom:6px}}
 
 .navicon svg{display:block;width:23px;height:23px}.bottomdock button span svg{display:block;width:27px;height:27px;margin:0 auto}.avatar-chip{overflow:hidden;padding:0}.avatar-chip img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.9);transform-origin:center top}@media(min-width:1000px){.section-heading--more,.more-grid{display:none}}
+/* Real tarot artwork and the printable astrology report. */
+.tarot-image{display:block;object-fit:contain;max-width:100%;height:auto;border-radius:9px;background:#fff4fb}
+.tarot-reversed{transform:rotate(180deg)}
+.deck-tarot{width:100%;aspect-ratio:3/5;margin:0 auto 10px}
+.study-tarot{width:260px;margin:14px auto 24px}
+.slot .spread-tarot{width:110px;aspect-ratio:3/5;margin:0 auto 9px}
+.slot .card-back{display:flex;width:110px;height:183px;align-items:center;justify-content:center;border:2px solid #ffe77c;border-radius:9px;background:repeating-linear-gradient(45deg,#60249c,#60249c 9px,#7130ac 9px,#7130ac 10px);color:#ffe77c;font-size:23px;margin:0 auto 9px}
+.slot{padding:12px 8px;min-width:130px}
+.slot:disabled{opacity:1;cursor:default}
+.deck-card{padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.chart-wheel{width:100%;max-width:760px;margin:20px auto;background:#fff9fc;border-radius:24px}
+.chart-wheel svg{display:block;width:100%;height:auto}
+.birth-form .controls>.field{min-width:140px;flex:1}
+.place-choice{display:block;width:100%;text-align:left;background:#fff7fc;color:#3a156b;border:1px solid #dca6d2;border-radius:12px;padding:13px;margin:8px 0;font:inherit;cursor:pointer}
+.place-choice small{display:block;margin-top:5px}
+.selected-place{background:#e7fff5;border-radius:12px;padding:12px;color:#225743}
+.birth-report{max-width:1080px;margin:24px auto;color:#3a2549}
+.birth-report h2{font-size:28px;margin-top:32px}
+.report-section{padding:16px 0;border-bottom:1px solid #d9bad8}
+.report-section p{line-height:1.8;margin:12px 0}
+.planet-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.planet-summary>div{padding:12px;border-radius:12px;background:#fff6fc}
+.planet-summary span{display:block;font-size:14px;margin-top:5px}
+.retrograde{color:#b11975}
+.moon-detail p{overflow-wrap:anywhere}
+@media(max-width:600px){.planet-summary{grid-template-columns:1fr}.birth-report{padding:16px}.birth-form .controls{flex-wrap:wrap}.slot .spread-tarot,.slot .card-back{width:88px}.slot .card-back{height:147px}.slot{min-width:110px}}
+@media print{body{background:white!important;color:#222}nav,.topbar,.bottom-nav,.bottomdock,.page-head,.birth-form,.birth-report button,main>.btn,footer{display:none!important}.birth-report{box-shadow:none;background:white;border:0;margin:0;padding:0;max-width:none}.chart-wheel{max-width:500px}.report-section{break-inside:avoid}.birth-report h2,.birth-report h3{color:#222;text-shadow:none}.planet-summary>div{border:1px solid #ddd}}
