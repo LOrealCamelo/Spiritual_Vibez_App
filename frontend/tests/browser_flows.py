@@ -52,7 +52,7 @@ def exercise(base_url, screenshots):
     assert page.evaluate('state.result.placements.length')==10 and page.evaluate('state.result.houses.length')==12
     assert page.evaluate('state.result.birth_utc')=='1996-11-05T19:30:00+00:00'
     if tool=='natal':
-     page.screenshot(path=str(screenshots/'web-desktop-birth-chart.png'))
+     page.locator('.chart-wheel').screenshot(path=str(screenshots/'web-desktop-birth-chart.png'))
      page.pdf(path=str(screenshots/'birth-chart-report.pdf'),format='A4',print_background=True,margin={'top':'12mm','bottom':'12mm','left':'12mm','right':'12mm'})
      before=page.evaluate('state.result.placements[0].longitude')
      page.locator('#birth-zodiac').select_option('sidereal');page.locator('[data-action="tool-run"]').click();page.wait_for_function('state.result?.zodiac==="sidereal"')

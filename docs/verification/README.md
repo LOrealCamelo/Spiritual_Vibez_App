@@ -18,7 +18,7 @@ from the search icon and feature tiles.
 | Asset-validator regressions | Six pass, including newly introduced missing requires, case mismatches, empty PNGs, WebP imports, absent panel mappings and nonzero CLI exits. |
 | Web assets and typography | Five checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Decorative web feature icons use inline SVG with live text. |
 | TypeScript | Pass, including the native interaction tests. |
-| Native interactions and API routes | 27 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
+| Native interactions and API routes | 28 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
 | Native Android | The first PR revision passed arm64 assembleDebug in hosted CI. The latest revision repeats that job and retains the debug APK for seven days. Consult the latest PR check before relying on its result. |
 | Backend | The existing 28-check script and all 33 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
@@ -34,7 +34,7 @@ and captures evidence. CI runs it too.
 
 ## New astrology and tarot checks
 
-The current repair adds all 78 uploaded PNGs to both native bundles and the web server. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. New chart/sky/tarot evidence is retained by the latest backend CI run.
+The current repair adds all 78 uploaded PNGs to both native bundles and the web server. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. The latest backend CI run retains chart/sky/tarot evidence. Review the [chart wheel](web-desktop-birth-chart.png), [phone-width chart](web-mobile-birth-chart.png), [daily sky](web-daily-sky.png), [tarot reading](web-tarot-reading.png) and [13-page sample report](birth-chart-report.pdf).
 
 ## Screenshots
 

@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,CosmosScreen} from '../App';
 import {IllustratedCard,UI_CARD_IMAGES} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
+import {NativeChartReport} from '../src/components/CosmicTools';
+import {SvgXml} from 'react-native-svg';
 
 let tree:ReactTestRenderer;
 beforeEach(()=>{
@@ -175,4 +177,14 @@ test('daily sky loads on entry, switches sign and requests the selected date',as
  await press('Pisces');expect(text().replace(/\s+/g,' ')).toContain('Your Pisces daily reflection');
  await act(async()=>tree.root.findByType(TextInput).props.onChangeText('2026-11-07'));await press('Refresh my cosmic weather');
  expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('date=2026-11-07');
+});
+
+
+test('native SVG parser renders a real backend chart and its complete report',async()=>{
+ const report=require('./fixtures/natalChart.json');
+ await render(<NativeChartReport result={report}/>);
+ expect(tree.root.findByType(SvgXml).props.xml).toContain('viewBox="0 0 760 760"');
+ const output=text().replace(/\s+/g,' ');
+ for(const p of report.placements)expect(output).toContain(p.planet+' in '+p.sign);
+ expect(output).toContain('House 12');expect(output).toContain('Major planetary aspects');
 });
