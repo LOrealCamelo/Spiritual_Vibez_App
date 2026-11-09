@@ -34,7 +34,10 @@ and captures evidence. CI runs it too.
 
 ## Clear glass and platform separation
 
-The home headline is **Your journey starts here**. Clear liquid glass appears
+The home headline is **Your journey starts here**. All tabs use an original
+photographic night-sky backdrop with a crescent moon, extra stars, a warm horizon
+and mountain silhouettes. Calendar text has a subtle clear dark backing for
+contrast; characters and tarot artwork stay unchanged. Clear liquid glass appears
 behind the illustrations, spread rows, reading surfaces and footer tabs. Reflected
 edges and mild web refraction replace the opaque pastel fills; no frosted blur
 is applied. Native uses transparent reflective surfaces without browser-specific

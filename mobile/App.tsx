@@ -21,7 +21,7 @@ import tarotCards from './src/data/tarotCards.json';
 const BACKEND = API_BASE_URL;
 const STORE_URL='https://neurospicymystic.com/';
 const HOME_GREETING=require('./assets/home-hey-mystic-illustrated.png');
-const SKYLINE_BACKGROUND=require('./assets/hero-skyline-background.png');
+const SCENIC_BACKGROUND=require('./assets/night-sky-background.png');
 const FOOTER_BACKGROUND=require('./assets/footer-skyline-background.png');
 const SPREAD_ART={
  'spread-trust-your-gut-illustrated.png':require('./assets/spread-trust-your-gut-illustrated.png'),
@@ -55,7 +55,7 @@ async function post(path:string,payload:any){const r=await fetch(BACKEND+path,{m
 function Header({label='Spiritual Vibez',subtitle='ZODIAC, TAROT & MORE'}:{label?:string,subtitle?:string}){
  return <View style={st.header}><Text style={st.brand}>☾ {label} ✦</Text><Text style={st.tagline}>{subtitle}</Text></View>;
 }
-function Screen({children}:{children:React.ReactNode}){return <LinearGradient colors={['#371274','#63208f','#742c92']} locations={[0,.45,1]} style={{flex:1}}><Image source={SKYLINE_BACKGROUND} resizeMode="cover" style={[StyleSheet.absoluteFillObject,{opacity:.3}]} accessible={false}/><SafeAreaView edges={['top']} style={st.safe}><StatusBar barStyle="light-content" backgroundColor="#4F168F"/><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={st.page}>{children}</ScrollView></SafeAreaView></LinearGradient>}
+function Screen({children}:{children:React.ReactNode}){const {width,height}=useWindowDimensions();return <View style={{flex:1,backgroundColor:'#0b0718'}}><Image source={SCENIC_BACKGROUND} resizeMode="cover" style={{position:'absolute',right:0,bottom:0,width:Math.max(width,height*1672/941),height}} accessible={false}/><SafeAreaView edges={['top']} style={st.safe}><StatusBar barStyle="light-content" backgroundColor="#4F168F"/><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={st.page}>{children}</ScrollView></SafeAreaView></View>}
 function Title({eyebrow,title,sub}:{eyebrow:string,title:string,sub?:string}){return <View style={{marginBottom:16}}><Text style={st.kicker}>{eyebrow.toUpperCase()} ✦</Text><Text style={st.title}>{title}</Text>{sub?<Text style={st.subtitle}>{sub}</Text>:null}</View>}
 function Action({text,onPress,secondary=false,disabled=false}:{text:string,onPress:()=>void,secondary?:boolean,disabled?:boolean}){return <TouchableOpacity accessibilityRole="button" onPress={onPress} disabled={disabled} style={[{alignSelf:'flex-start',marginTop:10,marginBottom:8},disabled?{opacity:.5}:null]}><ClearGlassSurface radius={28} style={{paddingVertical:11,paddingHorizontal:13,flexDirection:'row',gap:8,alignItems:'center',justifyContent:'center'}}><Text style={st.actionLabel}>{text}</Text><ArrowRight size={16} color="#fff"/></ClearGlassSurface></TouchableOpacity>}
 function Info({children,warning=false}:{children:React.ReactNode,warning?:boolean}){return <View style={[st.info,warning?{backgroundColor:'#FFF0D3'}:null]}><Text style={st.infoText}>{children}</Text></View>}

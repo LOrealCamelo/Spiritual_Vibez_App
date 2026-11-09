@@ -1,5 +1,13 @@
 # Clear liquid glass and platform folders
 
+All tabs now start with an original generated purple night-sky landscape, with
+extra stars, a crescent moon, a warm horizon and dark mountain silhouettes. The
+calendar has a subtle clear dark tint so its white labels stay readable over the
+brighter scene. The unchanged source is in `frontend/assets/cosmos-night-sky.png`
+and `mobile/assets/night-sky-background.png`. It is a shared scenic starting point;
+individual tab images can be selected later. Existing characters, card artwork and
+clear glass panels stay intact. The supplied reference photograph is not copied.
+
 The default interface uses transparent liquid glass on the 24 illustrated panels,
 spread rows, reading surfaces, action buttons and footer navigation. The artwork
 itself stays unchanged and opaque where it originally was; the glass is behind

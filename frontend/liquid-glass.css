@@ -24,3 +24,27 @@ body{background:radial-gradient(ellipse at 20% 40%,#a628b477,transparent 65%),li
 @media(prefers-reduced-motion:reduce){.btn,.fresh-panel{transition:none!important}}
 @media print{.birth-report{color:#222!important}.birth-report .panel-title{color:#222!important}}
 .bottomdock button{text-shadow:0 1px 3px #1a052de6,0 0 8px #1a052db3}.bottomdock button svg{filter:drop-shadow(0 1px 1px #1a052d99)}
+
+/* Original starry landscape only on the Web Moon calendar/Cosmos page. */
+body[data-page="cosmos"]{background:#0b0718 url('assets/cosmos-night-sky.png') center bottom/cover fixed no-repeat}
+body[data-page="cosmos"]:before{opacity:0}
+body[data-page="cosmos"] .moon-calendar-day{background:var(--clear-glass-fill);border:1px solid #ffffff70;color:#fff9fe;box-shadow:inset 1px 1px 1px #ffffff80}
+body[data-page="cosmos"] .moon-calendar-day small{color:#f6ecfc}
+body[data-page="cosmos"] .moon-event-day,body[data-page="cosmos"] .moon-day-selected{background:linear-gradient(135deg,#ffffff24,#ffffff05);border-color:#fff;outline-color:#fff8}
+body[data-page="cosmos"] .moon-selected-day,body[data-page="cosmos"] .lunar-health-note{background:linear-gradient(135deg,#ffffff12,#ffffff03);border:1px solid #ffffff60;color:#fff9fe}
+body[data-page="cosmos"] .lunar-daily-table{background:transparent;color:#fff9fe}
+body[data-page="cosmos"] .lunar-daily-table thead{background:#20103899}
+body[data-page="cosmos"] .lunar-daily-table button,body[data-page="cosmos"] .lunar-daily-table small{color:#fff9fe}
+body[data-page="cosmos"] .lunar-principal-row{background:#ffffff12}
+body[data-page="cosmos"] .lunar-daily-table th,body[data-page="cosmos"] .lunar-daily-table td{border-color:#ffffff35}
+/* A clear dark tint beneath calendar text preserves contrast over bright stars. */
+body[data-page="cosmos"] .moon-calendar{background:linear-gradient(135deg,#170c3640,#120b2c24)}
+body[data-page="cosmos"] .moon-calendar-day{background:linear-gradient(135deg,#0f092d38,#0c08251f)}
+body[data-page="cosmos"] .moon-weekday,body[data-page="cosmos"] .moon-calendar h2,body[data-page="cosmos"] .moon-calendar h3{color:#fff;text-shadow:0 1px 3px #070311cc}
+
+/* Shared scenic starting backdrop for every tab; artwork and clear panels stay intact. */
+body,body[data-page="cosmos"]{background:#0b0718;isolation:isolate}
+body:before,body[data-page="cosmos"]:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:1;background:url('assets/cosmos-night-sky.png') center bottom/cover no-repeat}
+.home-hero{background:linear-gradient(90deg,#0e082a45,#0e082a05),url('assets/cosmos-night-sky.png') center bottom/cover no-repeat}
+@media(max-width:750px){body:before,body[data-page="cosmos"]:before{background-position:right bottom}}
+@media print{body:before,body[data-page="cosmos"]:before{display:none}body{background:white!important}.birth-report{background:white!important;color:#222!important}}

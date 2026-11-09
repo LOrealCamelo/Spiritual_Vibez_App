@@ -22,7 +22,7 @@ function appContext() {
 test('rendered images and CSS backgrounds resolve to real PNG uploads', () => {
   const {context} = appContext();
   const html = ['home()','spreadsPage()','learningPage()','journalPage()'].map(code=>vm.runInContext(code,context)).join('');
-  const css = fs.readFileSync(path.join(root,'styles.css'),'utf8');
+  const css = fs.readFileSync(path.join(root,'styles.css'),'utf8')+fs.readFileSync(path.join(root,'liquid-glass.css'),'utf8');
   const refs = [
     ...[...html.matchAll(/src="(assets\/[^"]+)"/g)].map(m=>m[1]),
     ...[...css.matchAll(/url\(["']?(assets\/[^)'"\s]+\.png)["']?\)/g)].map(m=>m[1]),

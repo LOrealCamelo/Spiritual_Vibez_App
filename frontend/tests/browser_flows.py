@@ -127,6 +127,7 @@ def exercise(base_url, screenshots):
     page.evaluate('(name)=>{state.selected=null;state.learningModule=null;transition(name)}',name)
     page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)');page.evaluate('document.fonts.ready')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),(label,name)
+    assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
     assert page.locator('.fresh-panel').count()>0,(label,name)
     assert page.locator('.fresh-panel,.glass,.listbutton,.bottomdock').evaluate_all('(nodes)=>nodes.every(n=>!getComputedStyle(n).backdropFilter.includes("blur"))'),(label,name,'frosted glass')
     assert page.locator('.panel-illustration img').evaluate_all('(imgs)=>imgs.every(i=>i.naturalWidth>=1200&&i.naturalWidth>=6*i.parentElement.clientWidth)'),(label,name,'illustration density')
