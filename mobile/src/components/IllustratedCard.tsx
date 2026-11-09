@@ -1,45 +1,47 @@
-/** Illustrated Spiritual Vibez cards - each image is a separate local PNG asset.
- *  Native accessibility and navigation remain in React Native; no Expo/WebView.
- */
+/** Original art, live labels and scalable decoration shared by all 24 panels. */
 import React from 'react';
-import {Image,View,TouchableOpacity,useWindowDimensions,StyleProp,ViewStyle} from 'react-native';
-
-export const UI_CARD_IMAGES = {
-  'home_birth_chart': require('../../assets/ui_cards/home_birth_chart.png'),
-  'home_daily_card': require('../../assets/ui_cards/home_daily_card.png'),
-  'home_learn_tarot': require('../../assets/ui_cards/home_learn_tarot.png'),
-  'home_shuffle_spread': require('../../assets/ui_cards/home_shuffle_spread.png'),
-  'journal_header': require('../../assets/ui_cards/journal_header.png'),
-  'journal_mood_checkin': require('../../assets/ui_cards/journal_mood_checkin.png'),
-  'journal_moon_phase': require('../../assets/ui_cards/journal_moon_phase.png'),
-  'journal_numerology': require('../../assets/ui_cards/journal_numerology.png'),
-  'journal_rituals': require('../../assets/ui_cards/journal_rituals.png'),
-  'journal_saved_readings': require('../../assets/ui_cards/journal_saved_readings.png'),
-  'journal_today': require('../../assets/ui_cards/journal_today.png'),
-  'learn_card_meanings': require('../../assets/ui_cards/learn_card_meanings.png'),
-  'learn_header': require('../../assets/ui_cards/learn_header.png'),
-  'learn_major_arcana': require('../../assets/ui_cards/learn_major_arcana.png'),
-  'learn_minor_arcana': require('../../assets/ui_cards/learn_minor_arcana.png'),
-  'learn_progress': require('../../assets/ui_cards/learn_progress.png'),
-  'learn_quiz_me': require('../../assets/ui_cards/learn_quiz_me.png'),
-  'learn_reversed_cards': require('../../assets/ui_cards/learn_reversed_cards.png'),
-  'spreads_crossroads': require('../../assets/ui_cards/spreads_crossroads.png'),
-  'spreads_filters': require('../../assets/ui_cards/spreads_filters.png'),
-  'spreads_header': require('../../assets/ui_cards/spreads_header.png'),
-  'spreads_next_phase': require('../../assets/ui_cards/spreads_next_phase.png'),
-  'spreads_randomize': require('../../assets/ui_cards/spreads_randomize.png'),
-  'spreads_trust_gut': require('../../assets/ui_cards/spreads_trust_gut.png'),
-} as const;
-
-export type CardArtName = keyof typeof UI_CARD_IMAGES;
-type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode};
-export function IllustratedCard({asset,width,label,onPress,style,children}:Props){
-  const {width:screenWidth}=useWindowDimensions();
-  const w=width??Math.min(screenWidth-24,580);
-  const source=UI_CARD_IMAGES[asset];
-  const size=Image.resolveAssetSource(source);
-  const h=w*size.height/size.width;
-  const content=<><Image source={source} resizeMode="contain" style={{width:w,height:h}} accessible={!onPress&&!children} accessibilityLabel={label||asset} />{children}</>;
-  if(onPress)return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label||asset} onPress={onPress} style={[{width:w,height:h,marginBottom:10},style]}>{content}</TouchableOpacity>;
-  return <View style={[{width:w,height:h,marginBottom:10},style]}>{content}</View>;
+import {Image,View,Text,TouchableOpacity,useWindowDimensions,StyleSheet,StyleProp,ViewStyle} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import catalog from '../data/uiPanels.json';
+export const UI_PANELS=catalog;
+export type CardArtName=keyof typeof catalog;
+export const ILLUSTRATION_PACKS={
+ cosmic:require('../../assets/illustrations/cosmic.png'),
+ study:require('../../assets/illustrations/study.png'),
+ journal:require('../../assets/illustrations/journal.png'),
+ ritual:require('../../assets/illustrations/ritual.png'),
+};
+export function PanelIllustration({pack,cell,size=110}:{pack:keyof typeof ILLUSTRATION_PACKS,cell:number,size?:number}){
+ return <View pointerEvents="none" accessible={false} style={{width:size,height:size,overflow:'hidden',flexShrink:0}}><Image source={ILLUSTRATION_PACKS[pack]} accessible={false} resizeMode="stretch" style={{position:'absolute',width:size*2,height:size*2,left:-(cell%2)*size,top:-Math.floor(cell/2)*size}}/></View>;
 }
+const themes:Record<string,{colors:string[],ink:string,accent:string}>={
+ pink:{colors:['#ffa0d7','#ffe4f3'],ink:'#321146',accent:'#ec138c'},
+ aqua:{colors:['#61e3df','#d3faf5'],ink:'#321146',accent:'#0b979c'},
+ lilac:{colors:['#cb94f6','#f7d9ff'],ink:'#321146',accent:'#9f30ce'},
+ peach:{colors:['#ffbe7f','#ffe7ce'],ink:'#321146',accent:'#f27e27'},
+ cream:{colors:['#ffe3e9','#fff8ed'],ink:'#321146',accent:'#ec138c'},
+ purple:{colors:['#48208c','#be38c0'],ink:'#fff7fd',accent:'#ed4ab8'},
+ hotpink:{colors:['#fc198c','#cb087d'],ink:'#fff7fd',accent:'#fd67bd'},
+};
+type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode;progress?:{completed:number,total:number};meta?:string};
+export function IllustratedCard({asset,width,label,onPress,style,children,progress,meta}:Props){
+ const {width:screenWidth}=useWindowDimensions();const w=width??Math.min(screenWidth-24,580);
+ const p=catalog[asset],theme=themes[p.theme];const compact=w<260,header=p.kind==='header',random=p.kind==='randomize';
+ const percent=progress?Math.max(0,Math.min(100,Math.round(progress.completed/Math.max(progress.total,1)*100))):0;
+ const size=compact?104:random?72:header?112:106;
+ const content=<LinearGradient colors={theme.colors} start={{x:0,y:0}} end={{x:1,y:1}} style={[st.surface,{flexDirection:compact?'column':header?'row-reverse':'row',minHeight:compact?250:random?112:156,padding:compact?14:16,gap:compact?12:14}]}>
+  <Text accessible={false} style={st.sparkle}>✦</Text>
+  <PanelIllustration pack={p.pack as keyof typeof ILLUSTRATION_PACKS} cell={p.cell} size={size}/>
+  <View style={{flex:compact?undefined:1,alignSelf:compact?'stretch':undefined,gap:8,paddingBottom:compact&&onPress?24:0}}>
+   <Text style={{color:theme.ink,fontWeight:header||random?'400':'900',fontFamily:header||random?'KaushanScript-Regular':undefined,fontSize:compact?23:header?37:random?27:26,letterSpacing:header?0:-.5,lineHeight:compact?26:header?45:31}}>{p.title}</Text>
+   <Text style={{color:theme.ink,fontSize:compact?13:15,lineHeight:compact?19:22,fontWeight:'500'}}>{p.description}</Text>
+   {meta?<Text style={{color:theme.ink,fontSize:13,fontWeight:'800',lineHeight:19}}>{meta}</Text>:null}
+   {progress?<View accessibilityRole="progressbar" accessibilityLabel={p.title+' progress'} accessibilityValue={{min:0,max:progress.total,now:progress.completed}} style={{gap:7,marginTop:4}}><View style={st.track}><View style={[st.fill,{width:`${percent}%`}]}/></View><Text style={{color:theme.ink,fontSize:13,fontWeight:'800'}}>{p.kind==='progress'?percent+'% complete · ':''}{progress.completed} / {progress.total} cards</Text></View>:null}
+   {children}
+  </View>
+  {onPress&&!header?<View accessible={false} style={[st.arrow,compact?{position:'absolute',right:12,bottom:12}:null]}><Text style={{fontSize:32,color:theme.accent,fontWeight:'800',lineHeight:30}}>›</Text></View>:null}
+ </LinearGradient>;
+ const outer=[st.outer,{width:w},style];
+ return onPress?<TouchableOpacity accessibilityRole="button" accessibilityLabel={label||p.title} onPress={onPress} style={outer}>{content}</TouchableOpacity>:<View accessibilityLabel={label||p.title} style={outer}>{content}</View>;
+}
+const st=StyleSheet.create({outer:{marginBottom:16,borderRadius:27,borderWidth:2,borderColor:'#f377cf',shadowColor:'#32104b',shadowOffset:{width:0,height:6},shadowOpacity:.25,shadowRadius:8,elevation:5},surface:{alignItems:'center',borderRadius:25,borderWidth:2,borderColor:'#fff8fc',overflow:'hidden'},sparkle:{position:'absolute',top:7,right:'12%',color:'#ffe67c',fontSize:23,opacity:.8},arrow:{width:30,height:30,borderRadius:16,borderWidth:2,borderColor:'#fff',backgroundColor:'#fff5fc',alignItems:'center',justifyContent:'center',flexShrink:0},track:{height:13,borderRadius:12,borderWidth:2,borderColor:'#fff9',backgroundColor:'#c19eb74a',overflow:'hidden'},fill:{height:'100%',backgroundColor:'#ec138c',borderRadius:10}});

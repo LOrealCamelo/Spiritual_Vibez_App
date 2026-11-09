@@ -14,9 +14,9 @@ from the search icon and feature tiles.
 
 | Check | Result |
 | --- | --- |
-| Mobile PNG resolution | Pass: all 109 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
+| Mobile PNG resolution | Pass: all 89 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
 | Asset-validator regressions | Six pass, including newly introduced missing requires, case mismatches, empty PNGs, WebP imports, absent panel mappings and nonzero CLI exits. |
-| Web assets and typography | Seven checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Home uses the exact supplied PNG cards. All 24 web/native panel copies match, and the illustrated vibe filters work. |
+| Web assets and typography | Seven checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Home uses recreated panels with live text and new illustrations. All four new web/native illustration packs and all 24 panel definitions match; filters and labels are live UI elements. |
 | TypeScript | Pass, including the native interaction tests. |
 | Native interactions and API routes | 29 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
@@ -34,7 +34,19 @@ and captures evidence. CI runs it too.
 
 ## Illustrated UI placement
 
-[All 24 supplied panels and their destinations](../UI_ARTWORK_PLACEMENT.md) are now mapped in both apps. Home uses the supplied Daily Card, Shuffle a Spread, Learn Tarot and Birth Chart PNGs. Web Spreads uses the painted Filter by Vibe panel, and transparent native/web touch targets preserve its symbols. The Moon Phase card opens the current sky. Progress overlays preserve the illustrations while hiding sample counts.
+[All 24 panels and their destinations](../UI_ARTWORK_PLACEMENT.md) now use 16 freshly
+generated illustrations, live labels, gradients, borders, arrows and progress.
+The four 1254 × 1254 RGBA source packs are copied unchanged between Web and Mobile;
+each icon has a 627 × 627 source region and displays at 130 logical pixels or less.
+The old blurry PNG crops and their web copies were removed. The existing larger
+character/scenic/favorite illustrations and the 78 tarot cards remain in use.
+
+Seven web asset checks validate source resolution, file identity, matching panel
+definitions, all 24 live titles, actions and the absence of old panel image URLs.
+Twenty-nine native checks include readable labels, navigation, filters, progress
+and the unchanged chart/calendar flows. Eight new desktop/phone screenshots below
+show the rebuilt panels. A [3× density phone capture](web-mobile-panels-3x.png)
+shows the new artwork and live typography at 1170-pixel viewport resolution.
 
 ## New astrology and tarot checks
 
@@ -96,8 +108,8 @@ with fully transparent and fully opaque pixels:
 | avatar-sunglasses / cartoon_me_transparent2 | 1254 × 1254 | 491,815 |
 | avatar-tarot-headphones / cartoon_me_transparent1 | 1254 × 1254 | 610,615 |
 
-Native learning counters/bars and spread counts cover sample values painted into
-the artwork. No deleted crop was restored. Licensed Pacifico and Kaushan Script
+Learning counters/bars and spread counts are real UI elements with no baked-in
+sample values to cover. No deleted crop was restored. Licensed Pacifico and Kaushan Script
 fonts are linked into both native hosts; the web also bundles DM Sans. License
 notices accompany the fonts.
 

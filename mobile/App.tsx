@@ -8,11 +8,11 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Home,Shuffle,BookOpen,Moon,Star,BookText,ChevronRight,ArrowRight} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {API_BASE_URL} from './src/api/spiritualVibezClient';
-import {IllustratedCard,UI_CARD_IMAGES,CardArtName} from './src/components/IllustratedCard';
+import {IllustratedCard,UI_PANELS,CardArtName} from './src/components/IllustratedCard';
 
 import {normalizeSpreads,matchesVibe} from './src/api/spreads';
 import {LearningCard} from './src/components/LearningCard';
-import {PaintedVibeFilter} from './src/components/VibeFilter';
+import {VibeFilter} from './src/components/VibeFilter';
 import {NativeBirthChart,NativeDailySky} from './src/components/CosmicTools';
 import {TAROT_IMAGES} from './src/data/tarotImages';
 import tarotCards from './src/data/tarotCards.json';
@@ -72,10 +72,7 @@ function OptionRow({choices,value,onSelect}:{choices:string[],value:string,onSel
 function TarotImage({card,width=96,reversed=false}:{card:any,width?:number,reversed?:boolean}){return <Image accessibilityLabel={card.name+(reversed?' — reversed':'')} source={TAROT_IMAGES[card.id]} resizeMode="contain" style={{width,height:width*5/3,borderRadius:6,alignSelf:'center',marginVertical:6,transform:[{rotate:reversed?'180deg':'0deg'}]}}/>}
 function ArtTile({name,label,width,onPress}:{name:CardArtName,label:string,width:number,onPress:()=>void}){return <IllustratedCard asset={name} width={width} label={label} onPress={onPress}/>}
 function ArtSpread({name,label,width,onPress,cardCount}:{name:CardArtName|keyof typeof SPREAD_ART,label:string,width:number,onPress:()=>void,cardCount?:number}){
- const captions:Record<string,[string,number,number,number,number]>={spreads_trust_gut:['Intuition · Clarity',40,4,8,14],spreads_crossroads:['Decision · Direction',36,5,11,13],spreads_next_phase:["Growth · What’s Next",21,5,7,12]};
- const caption=captions[name];
- const count=cardCount!=null&&caption?<View pointerEvents="none" style={{position:'absolute',left:`${caption[1]}%`,right:`${caption[2]}%`,bottom:`${caption[3]}%`,height:`${caption[4]}%`,borderRadius:18,backgroundColor:'#FCE9F1',justifyContent:'center',alignItems:'center'}}><Text style={{color:C.plum,fontWeight:'800',fontSize:Math.max(9,width*.034)}}>{cardCount} Cards · {caption[0]}</Text></View>:null;
- return name in UI_CARD_IMAGES?<IllustratedCard asset={name as CardArtName} width={width} label={label} onPress={onPress}>{count}</IllustratedCard>:<TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:11}}><Image style={{width,aspectRatio:4/3,borderRadius:19}} source={SPREAD_ART[name as keyof typeof SPREAD_ART]} resizeMode="contain" /></TouchableOpacity>;
+ return name in UI_PANELS?<IllustratedCard asset={name as CardArtName} width={width} label={label} onPress={onPress} meta={cardCount!=null?cardCount+' cards':undefined}/>:<TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:11}}><Image style={{width,aspectRatio:4/3,borderRadius:19}} source={SPREAD_ART[name as keyof typeof SPREAD_ART]} resizeMode="contain" /></TouchableOpacity>;
 }
 
 export function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const contentW=Math.min(width-24,580);const tileW=(contentW-12)/2;
@@ -87,7 +84,7 @@ export function HomeScreen({navigation}:any){const {width}=useWindowDimensions()
  <View style={st.twoCols}>{favourite.map(([label,file])=><ArtSpread key={file} name={file} label={label} width={tileW} cardCount={spreads.find(x=>x.title.toLowerCase()===label.toLowerCase())?.cardCount} onPress={()=>navigation.navigate('Spreads',{favorite:label})}/>)}</View>
  <Text style={st.section}>More to explore ✨</Text><View style={[st.twoCols,{justifyContent:'center'}]}>{extra.map(([label,art,target,tool])=>{
   const open=()=>navigation.navigate(target,tool?{tool}:undefined);
-  return art in UI_CARD_IMAGES?<IllustratedCard key={label} asset={art as CardArtName} width={art==='journal_rituals'?contentW:tileW} label={label} onPress={open}/>:<TouchableOpacity key={label} accessibilityLabel={label} accessibilityRole="button" style={[st.toolTile,{width:tileW}]} onPress={open}><Text style={{fontSize:33}}>{art}</Text><Text style={st.toolName}>{label}</Text><ChevronRight color={C.pink}/></TouchableOpacity>;
+  return art in UI_PANELS?<IllustratedCard key={label} asset={art as CardArtName} width={art==='journal_rituals'?contentW:tileW} label={label} onPress={open}/>:<TouchableOpacity key={label} accessibilityLabel={label} accessibilityRole="button" style={[st.toolTile,{width:tileW}]} onPress={open}><Text style={{fontSize:33}}>{art}</Text><Text style={st.toolName}>{label}</Text><ChevronRight color={C.pink}/></TouchableOpacity>;
  })}</View>
  <Action text="Explore all features" onPress={()=>navigation.navigate('Explore')}/>
  <Image source={FOOTER_BACKGROUND} style={st.homeFooter} resizeMode="cover" accessibilityLabel="Illustrated skyline and crystals"/>
@@ -110,7 +107,7 @@ export function SpreadsScreen({route}:any){const {width:screenWidth}=useWindowDi
  {reading?<Panel><Text style={st.panelTitle}>💖 Your overall reading</Text><Text style={st.body}>{reading}</Text><Action text="Share reading" onPress={()=>Share.share({message:selected.title+'\n\n'+reading})}/><Action text="Save reading" secondary onPress={saveReading}/></Panel>:null}<Action text="Shuffle again" secondary onPress={()=>start(selected)}/>
  </>:<>
  <IllustratedCard asset="spreads_randomize" label="Randomize a Spread" onPress={randomize}/>
- <PaintedVibeFilter value={vibe} onChange={setVibe}/>
+ <VibeFilter value={vibe} onChange={setVibe}/>
  {([["Trust Your Gut","spreads_trust_gut"],["At a Crossroads","spreads_crossroads"],["The Next Phase","spreads_next_phase"]] as const).map(([title,art])=>{
   const match=shown.find(x=>x.title.toLowerCase()===title.toLowerCase());
   return match?<ArtSpread key={art} name={art} label={title} width={Math.min(screenWidth-24,580)} cardCount={match.cardCount} onPress={()=>start(match)}/>:null;

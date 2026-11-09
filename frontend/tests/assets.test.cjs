@@ -14,6 +14,7 @@ function appContext() {
     location, AbortSignal, fetch:async()=>{throw Error('Offline asset test')},
     localStorage:{getItem:()=>null},
   });
+  vm.runInContext(fs.readFileSync(path.join(root,'artwork.js'),'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root,'app.js'),'utf8'), context);
   return {context,app};
 }
@@ -33,7 +34,7 @@ test('rendered images and CSS backgrounds resolve to real PNG uploads', () => {
     assert.ok(fs.existsSync(file),`Missing uploaded image: ${ref}`);
     assert.equal(fs.readFileSync(file).subarray(0,8).toString('hex'),'89504e470d0a1a0a',`Not an actual PNG: ${ref}`);
   }
-  for(const file of ['app.js','styles.css','index.html']){
+  for(const file of ['app.js','artwork.js','styles.css','index.html']){
     assert.doesNotMatch(fs.readFileSync(path.join(root,file),'utf8'),/\.webp\b/i,`Legacy image URL in ${file}`);
   }
 });
@@ -78,21 +79,24 @@ test('store has one external website link and no product catalog',()=>{
 });
 
 
-test('all 24 supplied UI panels appear in the matching web sections',()=>{
+test('all 24 panels use fresh artwork and live text, with identical web/native definitions',()=>{
  const {context}=appContext();context.catalog=JSON.parse(fs.readFileSync(path.join(root,'../backend/data/master_data.json'),'utf8')).masterSpreadsData;
  vm.runInContext('state.spreads=normalizeSpreads(catalog)',context);
  const html=['home()','spreadsPage()','learningPage()','journalPage()'].map(code=>vm.runInContext(code,context)).join('');
- const panels=fs.readdirSync(path.join(root,'../mobile/assets/ui_cards')).filter(x=>x.endsWith('.png'));
- assert.equal(panels.length,24);
- for(const panel of panels){
-  assert.ok(html.includes('assets/'+panel),'Missing UI panel: '+panel);
-  assert.deepEqual(fs.readFileSync(path.join(root,'assets',panel)),fs.readFileSync(path.join(root,'../mobile/assets/ui_cards',panel)));
+ const panels=JSON.parse(fs.readFileSync(path.join(root,'../mobile/src/data/uiPanels.json'),'utf8'));
+ assert.equal(Object.keys(panels).length,24);
+ assert.equal(vm.runInContext('JSON.stringify(CARD_PANELS)',context),JSON.stringify(panels));
+ for(const [key,p] of Object.entries(panels)){
+  assert.ok(html.includes('data-panel="'+key+'"'),'Missing panel: '+key);
+  assert.ok(html.includes(p.title.replace(/&/g,'&amp;').replace(/'/g,'&#39;')),'Missing live title: '+p.title);
+  assert.ok(!html.includes('assets/'+key+'.png'),'Old cropped image remains: '+key);
+ }
+ for(const pack of ['cosmic','study','journal','ritual']){
+  const name='illustrations/'+pack+'.png';const bytes=fs.readFileSync(path.join(root,'assets',name));
+  assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile/assets',name)));
+  assert.ok(bytes.readUInt32BE(16)>=1200&&bytes.readUInt32BE(20)>=1200,'Insufficient source resolution');
  }
  for(const vibe of ['All','Love','Career','Growth'])assert.ok(html.includes('aria-label="Filter by '+vibe+'"'));
- const home=vm.runInContext('home()',context);
- assert.match(home,/src="assets\/me_hero2.png"/);
- assert.match(home,/data-action="nav:cosmos" aria-label="Open Moon Phase"/);
- assert.doesNotMatch(home,/feature-icon|feature-copy/);
  assert.doesNotMatch(vm.runInContext('state.tool=null;explorePage()',context),/Draconic/);
 });
 

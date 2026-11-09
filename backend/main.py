@@ -88,6 +88,11 @@ def serve_guide_illustration():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
 
 
+@app.get('/artwork.js', include_in_schema=False)
+def serve_artwork_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'artwork.js'), media_type='text/javascript')
+
+
 @app.get('/cosmic.js', include_in_schema=False)
 def serve_cosmic_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'cosmic.js'), media_type='text/javascript')

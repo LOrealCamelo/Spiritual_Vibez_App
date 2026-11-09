@@ -66,13 +66,17 @@ function checkLocalPngs(root, {checkPanels = true} = {}) {
   }
   if (!references.length) errors.push('No local PNG references found; check the scan root.');
   if (checkPanels) {
-    const panelDir = path.join(root, 'assets/ui_cards');
-    const panels = fs.existsSync(panelDir) ? fs.readdirSync(panelDir).filter(name => /\.png$/i.test(name)) : [];
-    if (panels.length !== 24) errors.push(`Expected 24 individual UI panels; found ${panels.length}.`);
-    const map = path.join(root, 'src/components/IllustratedCard.tsx');
-    const mapped = new Set(references.filter(ref => ref.file === map).map(ref => ref.resolved));
-    for (const panel of panels) {
-      if (!mapped.has(path.join(panelDir, panel))) errors.push(`UI panel missing from IllustratedCard map: ${panel}`);
+    const catalogFile=path.join(root,'src/data/uiPanels.json');
+    if(!fs.existsSync(catalogFile)) errors.push('Missing UI panel catalog.');
+    else {
+      const panels=JSON.parse(fs.readFileSync(catalogFile,'utf8'));
+      if(Object.keys(panels).length!==24) errors.push('Expected 24 live UI panel definitions.');
+      const mapped=new Set(references.map(ref=>ref.resolved));
+      for(const [name,panel] of Object.entries(panels)){
+        const asset=path.join(root,'assets/illustrations',panel.pack+'.png');
+        if(!mapped.has(asset))errors.push('UI illustration missing from static map: '+name);
+        if(!Number.isInteger(panel.cell)||panel.cell<0||panel.cell>3||!panel.title)errors.push('Invalid UI panel definition: '+name);
+      }
     }
   }
   return {files: files.length, references, errors};

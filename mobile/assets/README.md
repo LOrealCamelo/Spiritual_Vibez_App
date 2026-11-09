@@ -1,26 +1,29 @@
-# Spiritual Vibez — native PNG artwork
+# Spiritual Vibez — native artwork
 
-All React Native artwork is bundled from local PNG files. Android and iOS use
-these same sources; there are no WebP imports, remote image requests or Expo dependencies.
+The 24 interface panels are rebuilt with **16 new original illustrations and live
+native text, gradients, borders, arrows, filters and progress controls**. The old
+screenshot-sized `ui_cards/` PNGs were removed, along with their web copies.
 
-`ui_cards/` contains 24 separate illustrated panels mapped by name in
-`src/components/IllustratedCard.tsx`. Home, Spreads, Learn Tarot and Journal use
-these panels in native touch targets. Filter buttons use transparent native touch targets to preserve the supplied symbols and lettering. Learning counts and
-progress bars cover sample values in the artwork with live values.
-Learning counts reflect distinct cards studied this session, not backend account progress.
-Spread card counts are also native overlays over the three spread panels.
+`illustrations/` contains four unmodified **1254 × 1254 RGBA PNG** illustration
+packs. Each has four separate icons in a regular 2 × 2 layout, giving a 627 × 627
+source region for each icon. `PanelIllustration` selects a region at display time;
+it does not enlarge a demo crop or produce a resized source file. Icons display at
+72–112 logical pixels in the native app, leaving sufficient source pixels for
+high-density screens. The text and panel frame are always native elements.
 
-Native Home uses the standalone `home-hey-mystic-illustrated.png` greeting to
-match the supplied phone reference. The skyline and transparent character layers
-remain available and are composed separately in the web hero. `footer-skyline-background.png`
-is a decorative background. Home favorites use the standalone 4:3 Trust Your Gut, Next Phase, Reset Your Energy and Grounding PNGs. A faint skyline also appears behind native screens. Images keep their original aspect ratios.
+`src/data/uiPanels.json` defines all 24 panels. `IllustratedCard.tsx` has the four
+static Metro requires and the native rendering. Web uses byte-identical PNG packs
+and matching definitions in `frontend/artwork.js`; regression checks compare both.
+`illustrations/manifest.json` records dimensions, transparency and SHA-256 hashes.
 
-The other standalone illustrations and transparent avatars remain available on
-disk. The obsolete `ARTWORK` map and all references to deleted legacy crops were
-removed. No deleted crop was restored and no phone screenshot was cropped into an asset.
+Learning progress reflects distinct cards studied this session. Spread counts come
+from the actual catalog, and filters use real labeled buttons. No sample counts
+or labels are painted into the new artwork.
 
-Run `npm run check:assets` from `mobile/` to resolve every static local PNG
-require/import relative to its source, validate PNG headers, and confirm that
-all 24 panels remain mapped. Static WebP image references fail this check.
+The larger supplied character, greeting, skyline and favorite-spread illustrations
+remain in use. All 78 tarot card PNGs remain separate, unchanged by this panel
+rebuild. These sources are bundled locally; no Expo or remote image dependency is
+introduced.
 
-See [all panel placements and actions](../../docs/UI_ARTWORK_PLACEMENT.md).
+Run `npm run check:assets` to validate every local PNG reference, the 24 definitions
+and their static illustration mappings. See [panel placements and actions](../../docs/UI_ARTWORK_PLACEMENT.md).

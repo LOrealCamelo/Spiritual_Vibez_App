@@ -27,16 +27,17 @@ The updated work is on `fix/mobile-assets-metro-ci` in [PR #7](https://github.co
 | --- | --- |
 | `frontend/index.html` | Small HTML entry point that loads the web JavaScript and stylesheet |
 | `frontend/app.js` | Web screens, navigation, buttons and backend requests |
+| `frontend/artwork.js` | New illustration definitions and live panel markup |
 | `frontend/cosmic.js` | City-based birth forms, chart/report display and automatic daily sky |
 | `frontend/styles.css` | Web layout, colors, fonts, backgrounds and responsive styles |
 | `frontend/assets/` | Web PNG artwork and locally bundled fonts |
 | `backend/` | FastAPI server, data and eight API router groups |
 | `mobile/App.tsx` | Native mobile screens and navigation |
-| `mobile/src/components/` | Illustrated native card components and live overlays |
-| `mobile/assets/` | The 24 clean UI panels, standalone artwork and all 78 tarot PNGs |
+| `mobile/src/components/` | Illustrated native panels and live text/progress |
+| `mobile/assets/` | New illustration packs, standalone artwork and all 78 tarot PNGs |
 | `mobile/android`, `mobile/ios` | Authoritative native host projects |
 
-[All 24 supplied illustrated panels](docs/UI_ARTWORK_PLACEMENT.md) are placed in the corresponding Home, Spreads, Learn and Journal sections, including clickable painted vibe filters and live learning progress.
+[All 24 interface panels](docs/UI_ARTWORK_PLACEMENT.md) have been rebuilt with 16 new illustrations and live text, borders, arrows, vibe filters and learning progress. The old blurry panel crops have been removed from Web and Mobile assets.
 
 The mobile app has four primary tabs: Home, Spreads, Learn and Journal. Cosmos and Explore remain separate destinations. The store UI contains one link to [neurospicymystic.com](https://neurospicymystic.com/).
 

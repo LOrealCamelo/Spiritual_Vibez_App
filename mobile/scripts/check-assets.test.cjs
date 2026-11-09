@@ -11,7 +11,7 @@ function fixture(t) {
   t.after(() => fs.rmSync(root, {recursive: true, force: true}));
   fs.mkdirSync(path.join(root, 'src/components'), {recursive: true});
   fs.mkdirSync(path.join(root, 'assets'));
-  fs.copyFileSync(path.join(__dirname, '../assets/ui_cards/home_daily_card.png'), path.join(root, 'assets/good.png'));
+  fs.copyFileSync(path.join(__dirname, '../assets/illustrations/cosmic.png'), path.join(root, 'assets/good.png'));
   return root;
 }
 const check = root => checkLocalPngs(root, {checkPanels: false});
@@ -67,7 +67,9 @@ test('rejects static WebP imports so Android and iOS continue to use PNG artwork
 
 test('requires all 24 panels to be mapped and exits nonzero for a newly broken component', t => {
   const root = fixture(t);
-  fs.cpSync(path.join(__dirname, '../assets/ui_cards'), path.join(root, 'assets/ui_cards'), {recursive:true});
+  fs.cpSync(path.join(__dirname, '../assets/illustrations'), path.join(root, 'assets/illustrations'), {recursive:true});
+  fs.mkdirSync(path.join(root,'src/data'));
+  fs.copyFileSync(path.join(__dirname,'../src/data/uiPanels.json'),path.join(root,'src/data/uiPanels.json'));
   fs.copyFileSync(path.join(__dirname, '../src/components/IllustratedCard.tsx'), path.join(root, 'src/components/IllustratedCard.tsx'));
   assert.deepEqual(checkLocalPngs(root).errors, []);
   fs.writeFileSync(path.join(root, 'src/components/NewScreen.tsx'), `const unused = require('../../assets/missing.png')`);
@@ -75,5 +77,5 @@ test('requires all 24 panels to be mapped and exits nonzero for a newly broken c
   assert.equal(cli.status, 1);
   assert.match(cli.stderr, /NewScreen.tsx:1/);
   fs.writeFileSync(path.join(root, 'src/components/IllustratedCard.tsx'), `require('../../assets/good.png')`);
-  assert.match(checkLocalPngs(root).errors.join('\n'), /UI panel missing from IllustratedCard map/);
+  assert.match(checkLocalPngs(root).errors.join('\n'), /UI illustration missing from static map/);
 });

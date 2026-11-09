@@ -54,10 +54,13 @@ def test_new_css_js_and_illustration_are_served():
 
 
 def test_approved_illustrations():
-    for name in ["cartoon_me_transparent3.png", "ui_background.png", "home_shuffle_spread.png", "me_reset_your_energy.png"]:
+    for name in ["cartoon_me_transparent3.png", "ui_background.png", "illustrations/cosmic.png", "illustrations/study.png", "illustrations/journal.png", "illustrations/ritual.png", "me_reset_your_energy.png"]:
         response=client.get("/assets/"+name)
         assert response.status_code == 200
         assert response.headers["content-type"].startswith("image/png")
         assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
+    artwork=client.get("/artwork.js")
+    assert artwork.status_code == 200 and "CARD_PANELS" in artwork.text
+    assert client.get("/assets/home_shuffle_spread.png").status_code == 404
     appjs=client.get("/app.js")
     assert appjs.status_code == 200 and "Spiritual Vibez" in appjs.text

@@ -3,7 +3,7 @@ import TestRenderer,{act,ReactTestRenderer} from 'react-test-renderer';
 import {Image,Text,TextInput,TouchableOpacity,Linking} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,CosmosScreen} from '../App';
-import {IllustratedCard,UI_CARD_IMAGES} from '../src/components/IllustratedCard';
+import {IllustratedCard,UI_PANELS} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
 import {NativeChartReport,NativeMoonCalendar} from '../src/components/CosmicTools';
 import {matchesVibe} from '../src/api/spreads';
@@ -41,11 +41,13 @@ test('Home clean PNG cards navigate independently to learning, spreads, cosmos, 
   }
 });
 
-test('all 24 panels have concrete local sources and preserve their intrinsic aspect ratio',async()=>{
-  expect(Object.keys(UI_CARD_IMAGES)).toHaveLength(24);
+test('all 24 panels use fresh illustration sources and readable live labels',async()=>{
+  expect(Object.keys(UI_PANELS)).toHaveLength(24);
   const onPress=jest.fn();
   await render(<IllustratedCard asset="home_daily_card" width={300} label="Daily card" onPress={onPress}/>);
-  expect(tree.root.findByType(Image).props.style).toEqual({width:300,height:125});
+  expect(text()).toContain('Daily Card');expect(text()).toContain('Get today’s insight');
+  const image=tree.root.findByType(Image);expect(image.props.style.width).toBe(image.props.style.height);
+  expect(image.props.style.width).toBeGreaterThan(0);expect(image.props.accessible).toBe(false);
   await press('Daily card');
   expect(onPress).toHaveBeenCalledTimes(1);
 });
@@ -191,7 +193,7 @@ test('native SVG parser renders a real backend chart and its complete report',as
 });
 
 
-test('painted Career filter finds the API career spreads without covering its icons',async()=>{
+test('live Career filter finds the API career spreads and keeps a readable selected label',async()=>{
  const catalog=require('../../backend/data/master_data.json').masterSpreadsData;
  expect(catalog.filter((s:any)=>matchesVibe(s,'Career')).map((s:any)=>s.id)).toEqual(expect.arrayContaining(['career-shift','financial-healing']));
  globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({spreads:catalog})});
@@ -199,7 +201,8 @@ test('painted Career filter finds the API career spreads without covering its ic
  expect(text()).toContain('Career Shift');
  const selected=tree.root.findAllByType(TouchableOpacity).find(x=>x.props.accessibilityLabel==='Filter by Career')!;
  expect(selected.props.accessibilityState.selected).toBe(true);
- expect(selected.findAllByType(Text)).toHaveLength(0);
+ expect(selected.findAllByType(Text)).toHaveLength(1);
+ expect(selected.findByType(Text).props.children).toContain('Career');
 });
 
 
