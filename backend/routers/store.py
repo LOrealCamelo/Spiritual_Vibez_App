@@ -20,7 +20,8 @@ PRODUCTS = [
         "category": "Tarot Decks",
         "in_stock": True,
         "description": "78 custom Marseille-inspired illustrated cards with iconic tattoo symbolism (heart, dagger, rose, snake, diamond) and astrological decans.",
-        "url": f"{STORE_URL}/products/tattoo-tarot-deck",
+        "url": STORE_URL,
+        "product_url_available": False,
         "tiktok_shop_enabled": True
     },
     {
@@ -31,7 +32,8 @@ PRODUCTS = [
         "category": "Sound Healing",
         "in_stock": True,
         "description": "Medical-grade aluminum biosonic tuning fork with ergonomic grip and activator mallet for somatic nervous system reset.",
-        "url": f"{STORE_URL}/products/528hz-tuning-forks",
+        "url": STORE_URL,
+        "product_url_available": False,
         "tiktok_shop_enabled": True
     },
     {
@@ -42,7 +44,8 @@ PRODUCTS = [
         "category": "Ceremonial Apparel",
         "in_stock": True,
         "description": "Heavyweight organic cotton ceremonial hoodies and celestial kimonos with embroidered moon phase alignments.",
-        "url": f"{STORE_URL}/collections/apparel",
+        "url": STORE_URL,
+        "product_url_available": False,
         "tiktok_shop_enabled": True
     },
     {
@@ -53,7 +56,8 @@ PRODUCTS = [
         "category": "Digital Planners",
         "in_stock": True,
         "description": "Interactive GoodNotes & Notability digital planner covering all 13 lunar cycles, ritual prompts, and natal tracking.",
-        "url": f"{STORE_URL}/products/digital-moon-journal",
+        "url": STORE_URL,
+        "product_url_available": False,
         "tiktok_shop_enabled": False
     }
 ]

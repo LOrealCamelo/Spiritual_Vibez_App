@@ -1,0 +1,54 @@
+name: Downloadable app startup
+on:
+  pull_request:
+    paths:
+      - "run_web.py"
+      - "START_WEB_WINDOWS.cmd"
+      - "frontend/**"
+      - "backend/**"
+      - "mobile/assets/tarot/**"
+      - ".github/workflows/web-launcher-check.yml"
+  push:
+    branches: [main]
+    paths:
+      - "run_web.py"
+      - "START_WEB_WINDOWS.cmd"
+      - "frontend/**"
+      - "backend/**"
+      - "mobile/assets/tarot/**"
+      - ".github/workflows/web-launcher-check.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  extracted-source:
+    name: Extract and run on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Build the complete source ZIP and start the extracted application
+        shell: bash
+        run: python frontend/tests/check_source_package.py --zip-out "$RUNNER_TEMP/SpiritualVibez-complete-app.zip"
+      - name: Download this artifact for the runnable project, not just evidence logs
+        if: matrix.os == 'ubuntu-24.04'
+        uses: actions/upload-artifact@v7
+        with:
+          name: SpiritualVibez-COMPLETE-APP-SOURCE
+          path: ${{ runner.temp }}/SpiritualVibez-complete-app.zip
+          if-no-files-found: error
+          retention-days: 14
+      - name: Startup diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: source-startup-error-${{ matrix.os }}
+          path: ${{ runner.temp }}/SpiritualVibez-complete-app.startup.log
+          if-no-files-found: ignore

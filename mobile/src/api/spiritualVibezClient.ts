@@ -3,16 +3,17 @@ import {Platform} from 'react-native';
 // Emulator defaults. Replace with an HTTPS URL for production or a LAN IP on physical devices.
 export const API_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:8000/api' : 'http://localhost:8000/api';
 
-export async function fetchDailyTransits(sign: string = 'Scorpio') {
-  const res = await fetch(`${API_BASE_URL}/astrology/daily-transits?sign=${encodeURIComponent(sign)}`);
+export async function fetchDailyTransits(sign: string = 'Scorpio', date?: string, zodiac: 'tropical'|'sidereal' = 'tropical') {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const res = await fetch(`${API_BASE_URL}/astrology/daily-transits?sign=${encodeURIComponent(sign)}&timezone=${encodeURIComponent(timezone)}&zodiac=${zodiac}${date?'&date='+encodeURIComponent(date):''}`);
   return res.json();
 }
 
-export async function calculateNatalMoonPhase(birth_date: string, birth_time: string = '14:30') {
+export async function calculateNatalMoonPhase(birth_date: string, birth_time: string, place_id: string, zodiac: 'tropical'|'sidereal' = 'tropical') {
   const res = await fetch(`${API_BASE_URL}/astrology/moon-phase`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ birth_date, birth_time }),
+    body: JSON.stringify({ birth_date, birth_time, place_id, zodiac }),
   });
   return res.json();
 }

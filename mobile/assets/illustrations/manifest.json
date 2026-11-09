@@ -1,0 +1,63 @@
+{
+  "description": "New original illustration sources; the app draws all panel text, decoration and controls separately.",
+  "generation": "image_gen, transparent background, generated from scratch with written brand/style prompts; no source screenshot was used as an image input.",
+  "layout": {
+    "columns": 2,
+    "rows": 2,
+    "order": "top left, top right, bottom left, bottom right"
+  },
+  "packs": {
+    "ritual": {
+      "file": "ritual.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "cell_width": 627,
+      "cell_height": 627,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "261acec2a905f379e4f1c4558f21eeed995ccebeb9bfc91b2c763050f1d51e0b"
+    },
+    "cosmic": {
+      "file": "cosmic.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "cell_width": 627,
+      "cell_height": 627,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "dea633f1502772f1ee6d2484bf50bfcc9ffea3589dcb0c1489b23043ecda3a65"
+    },
+    "journal": {
+      "file": "journal.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "cell_width": 627,
+      "cell_height": 627,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "7d5fd01ccdd3413d8c7849701b1e66c46536c0692ad87d10a3b3bfd3941f11f6"
+    },
+    "study": {
+      "file": "study.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "cell_width": 627,
+      "cell_height": 627,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "696a8f3232572f233efd262f28fb1d4598498129ee6b9a002fa249eefcb1d683"
+    }
+  }
+}

@@ -1,65 +1,68 @@
-# AuraMystic — Full-Stack Spiritual Sanctuary & Solar Astrology Portal (`NeuroSpicy Mystic`)
+# Spiritual Vibez — Zodiac, Tarot & More
 
-Production-ready Git repository containing the complete **FastAPI Backend**, **SQLite Persistence Layer**, **Astronomical/Ephemeris Calculation Engine**, **Interactive Web Application**, and **React Native (Expo) Mobile Client** for **AuraMystic** by **NeuroSpicy Mystic** ([neurospicymystic.com](https://www.neurospicymystic.com)).
+This repository contains the actual web application, Python backend, and bare React Native Android/iOS source. CI evidence ZIPs contain screenshots and logs; they are **not the application download**.
 
-## Repository Structure
+## Download and run the web app on Windows
 
-```text
-auramystic-repo/
-├── backend/
-│   ├── main.py                      # FastAPI server entry point, CORS, health check & static hosting
-│   ├── database.py                  # SQLite schema & persistence (journals, readings, cycles, streaks, cart)
-│   ├── models.py                    # Pydantic v2 request/response validation schemas
-│   ├── requirements.txt             # Python dependencies
-│   ├── data/
-│   │   └── master_data.json         # Complete 78 Tarot cards, 48 spreads, rituals, frequencies, houses & asteroids
-│   ├── services/
-│   │   └── ephemeris_engine.py      # Real Julian Day, lunar phase, Placidus/Draconic, 13-Moon, BaZi & Astrocartography engine
-│   ├── routers/
-│   │   ├── astrology.py             # /api/astrology/* (Transits, Moon Phase, Natal/Placidus/Draconic, 13-Moon, BaZi, Relocation)
-│   │   ├── synastry.py              # /api/synastry/* (Life Path, Master Numbers 11/22/33, Love Compatibility & 4 Sub-scores)
-│   │   ├── tarot.py                 # /api/tarot/* (78-Card Encyclopedia, Study Quiz, Peek, 48 Spreads, Reset Your Energy)
-│   │   ├── rituals.py               # /api/rituals/* (8 Solfeggio Frequencies, Ritual Finder, Eugen Jonas Lunar Fertility)
-│   │   ├── wellness.py              # /api/wellness/* (Lunar Menstrual Cycle Tracker & Private Shadow Work Journal CRUD)
-│   │   ├── divination.py            # /api/divination/* (Amethyst Crystal Pendulum Dowsing & Elder Futhark 3-Rune Casting)
-│   │   ├── oracle_ai.py             # /api/oracle/* (The AuraMystic AI Oracle Synthesis Engine & Chat History)
-│   │   └── store.py                 # /api/store/* (NeuroSpicy Mystic Storefront Catalog & Shopping Bag)
-│   └── tests/
-│       └── test_all_endpoints.py    # Automated verification test suite covering all 8 routers
-├── frontend/
-│   └── index.html                   # Self-contained interactive web app with all 9 clickable tabs + Store
-├── mobile/
-│   ├── App.tsx                      # React Native (Expo) 9-tab mobile navigation client
-│   ├── package.json                 # Expo dependencies
-│   └── src/api/auramysticClient.ts  # TypeScript API client wired to the FastAPI backend
-├── Dockerfile                       # Production container build
-├── docker-compose.yml               # Local Docker Compose orchestration with persistent SQLite volume
-├── render.yaml                      # 1-Click Render deployment blueprint
-├── .env.example                     # Environment variable template
-└── .gitignore                       # Git ignore rules
+1. [Download the complete updated project ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_App/archive/refs/heads/main.zip).
+2. Right-click the ZIP and choose **Extract All**. Do not run a file from inside the ZIP.
+3. In the extracted project folder, double-click **START_WEB_WINDOWS.cmd**.
+4. The launcher installs backend packages in a private `.venv-web` folder and opens the app in your browser. Keep its window open while testing; press Ctrl+C to stop.
+
+Install [Python 3.11 or newer](https://www.python.org/downloads/windows/) first if the launcher reports that Python is missing. The first start needs internet to install packages. Node, Xcode, Android Studio, Flutter and Expo are not needed to test the **web app**.
+
+The launcher starts the web UI and backend together. It chooses an available local port so an older server cannot accidentally display a previous copy of the app.
+
+On macOS/Linux, run this from the extracted project folder:
+
+```sh
+python3 run_web.py
 ```
 
-## Quick Start (Local Development)
+The default `main` branch contains the updated app. Updating GitHub does not
+update an existing Windows folder; download and extract the current ZIP to replace
+an older copy.
 
-### 1. Run the FastAPI Backend & Web App
+## Where the application code lives
 
-```bash
-pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload --port 8000
-```
+| File/folder | Purpose |
+| --- | --- |
+| `frontend/index.html` | Small HTML entry point that loads the web JavaScript and stylesheet |
+| `frontend/app.js` | Web screens, navigation, buttons and backend requests |
+| `frontend/artwork.js` | New illustration definitions and live panel markup |
+| `frontend/cosmic.js` | City-based birth forms, chart/report display and automatic daily sky |
+| `frontend/styles.css`, `frontend/liquid-glass.css` | Responsive layout and the clear liquid-glass treatment |
+| `frontend/assets/` | Web PNG artwork and locally bundled fonts |
+| `backend/` | FastAPI server, data and eight API router groups |
+| `mobile/App.tsx` | Native mobile screens and navigation |
+| `mobile/src/components/` | Illustrated native panels and live text/progress |
+| `mobile/assets/` | New illustration packs, standalone artwork and all 78 tarot PNGs |
+| `mobile/android`, `mobile/ios` | Authoritative native host projects |
 
-- **Web App UI**: Open `http://localhost:8000/`
-- **Interactive Swagger API Docs**: Open `http://localhost:8000/docs`
-- **Health Check**: Open `http://localhost:8000/api/health`
+[All 24 interface panels](docs/UI_ARTWORK_PLACEMENT.md) have been rebuilt with 16 new illustrations and live text, borders, arrows, vibe filters and learning progress. The old blurry panel crops have been removed from Web and Mobile assets.
 
-### 2. Run Automated Backend Tests
+The mobile app has four primary tabs: Home, Spreads, Learn and Journal. Cosmos and Explore remain separate destinations. The store UI contains one link to [neurospicymystic.com](https://neurospicymystic.com/).
 
-```bash
-python3 backend/tests/test_all_endpoints.py
-```
+Birth charts now accept a selected city and local birth time, resolve historical timezones, and show a chart wheel and detailed report with Tropical/Sidereal choices. Cosmos loads automatically with date-aware Moon phases, ten planets and retrogrades. Spreads, lessons and quizzes display the actual uploaded tarot cards. See [methods, deck provenance and testing](docs/ASTROLOGY_AND_TAROT.md). The app uses 648 × 1080 PNG display copies totaling about 96 MiB; your full-resolution Drive originals remain unchanged.
 
-### 3. Deploy to Render (1-Click Blueprint)
+## Browser hosting
 
-1. Push this repository to GitHub (`git init && git add . && git commit -m "Initial commit"`).
-2. In Render, click **New +** -> **Blueprint** and connect this repository (`render.yaml` is pre-configured).
-# Spiritual_Vibez_App
+[Open the live Web app](https://spiritual-vibez-app.onrender.com).
+
+Render runs the Python service and serves `frontend/` from the same application.
+Its deployment branch should be `main`; a GitHub merge triggers a new build when
+automatic deploys are enabled. The native iOS/Android app is separately built from
+`mobile/`. A hosted browser app does not run the native binary.
+
+The interface uses [clear liquid glass](docs/CLEAR_GLASS.md) with the headline
+**Your journey starts here**. The journal saves locally in the browser or native
+device; it does not currently sync between devices. Preview folders clearly
+separate Web desktop, Web phone and native Mobile evidence.
+
+## Native app and verification
+
+See [mobile/README.md](mobile/README.md) for Android/iOS prerequisites and commands, and [verification evidence](docs/verification/README.md) for screenshots and limits.
+
+CI validates asset resolution, TypeScript, native component actions/API routes, both Metro bundles, Android compilation, and a native iOS Release build/launch on a cloud iPhone simulator. Another check creates a complete project ZIP, extracts it and starts the application on Windows and Linux.
+
+Simulator screenshots and logs are evidence of a test, not installable iPhone software. Real-device testing and App Store/TestFlight distribution require separate signing setup; TestFlight/App Store distribution requires active paid Apple Developer Program membership. Astronomy calculations have numerical regression tests; astrology interpretations and production authentication/privacy are not certified by UI checks.

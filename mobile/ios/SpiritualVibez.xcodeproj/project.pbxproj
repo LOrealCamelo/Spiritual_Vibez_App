@@ -11,6 +11,9 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A20000000000000000000001 /* Pacifico-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* Pacifico-Regular.ttf */; };
+		A20000000000000000000002 /* KaushanScript-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* KaushanScript-Regular.ttf */; };
+		A20000000000000000000003 /* FontLicenses.txt in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* FontLicenses.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SpiritualVibez/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = SpiritualVibez/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		A10000000000000000000001 /* Pacifico-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Pacifico-Regular.ttf"; path = "SpiritualVibez/Fonts/Pacifico-Regular.ttf"; sourceTree = "<group>"; };
+		A10000000000000000000002 /* KaushanScript-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KaushanScript-Regular.ttf"; path = "SpiritualVibez/Fonts/KaushanScript-Regular.ttf"; sourceTree = "<group>"; };
+		A10000000000000000000003 /* FontLicenses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = FontLicenses.txt; path = SpiritualVibez/Fonts/FontLicenses.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +47,9 @@
 		13B07FAE1A68108700A75B9A /* SpiritualVibez */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000003 /* FontLicenses.txt */,
+				A10000000000000000000001 /* Pacifico-Regular.ttf */,
+				A10000000000000000000002 /* KaushanScript-Regular.ttf */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -157,6 +166,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A20000000000000000000003 /* FontLicenses.txt in Resources */,
+				A20000000000000000000001 /* Pacifico-Regular.ttf in Resources */,
+				A20000000000000000000002 /* KaushanScript-Regular.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);

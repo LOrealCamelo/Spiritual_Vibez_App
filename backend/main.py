@@ -16,7 +16,7 @@ app = FastAPI(
         "Production Full-Stack Backend powering AuraMystic: Daily Ephemeris & Transits, "
         "Natal Moon Phase, Numerology & Love Synastry, 78-Card Tarot Studio & 48 Spreads, "
         "Solfeggio Frequencies & Rituals, Lunar Menstrual Cycle & Shadow Work Journal, "
-        "Placidus/Draconic/BaZi/Astrocartography Charts, Divination Hub, AI Mystic Oracle, "
+        "Placidus/BaZi/Astrocartography Charts, Divination Hub, AI Mystic Oracle, "
         "and the Official NeuroSpicy Mystic Storefront (neurospicymystic.com)."
     ),
     version="2.0.0",
@@ -79,6 +79,11 @@ def serve_frontend():
 def serve_styles():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "styles.css"), media_type="text/css")
 
+@app.get("/liquid-glass.css", include_in_schema=False)
+def serve_liquid_glass_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "liquid-glass.css"), media_type="text/css")
+
+
 @app.get("/app.js", include_in_schema=False)
 def serve_app_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "app.js"), media_type="text/javascript")
@@ -87,6 +92,20 @@ def serve_app_script():
 def serve_guide_illustration():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
 
+
+@app.get('/artwork.js', include_in_schema=False)
+def serve_artwork_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'artwork.js'), media_type='text/javascript')
+
+
+@app.get('/cosmic.js', include_in_schema=False)
+def serve_cosmic_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'cosmic.js'), media_type='text/javascript')
+
+
+# The same 78 PNGs serve browsers and are bundled by Metro for iOS/Android.
+# Keep this specific mount before the general /assets mount.
+app.mount('/assets/tarot', StaticFiles(directory=os.path.join(os.path.dirname(__file__), '..', 'mobile', 'assets', 'tarot')), name='tarot-deck')
 
 # Serve the approved Spiritual Vibez illustrated artwork as real image assets.
 app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "frontend", "assets")), name="spiritual-vibez-artwork")

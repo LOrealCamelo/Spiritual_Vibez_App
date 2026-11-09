@@ -26,8 +26,9 @@ def synthesize_oracle_reply(message: str, zodiac_sign: str = "Scorpio") -> tuple
 
     # 1. Check preset high-frequency topics
     if "scorpio" in q or "sun" in q or "transit" in q:
-        topics.append("astrology:scorpio_sun")
-        return CHAT_PRESETS.get("scorpio", ""), topics
+        transit = calculate_daily_transits(sign=zodiac_sign or 'Scorpio')
+        topics.append(f"transit:{transit['selected_sign']}")
+        return f"{transit['date']} · {transit['moon_phase']}\n\n{transit['forecast']['content']}\n\n{transit['forecast']['note']}", topics
     if "priestess" in q:
         topics.append("tarot:high_priestess")
         return CHAT_PRESETS.get("tarot", ""), topics
@@ -55,7 +56,7 @@ def synthesize_oracle_reply(message: str, zodiac_sign: str = "Scorpio") -> tuple
             topics.append(f"ritual:{rit['title']}")
             return (
                 f"🕯️ **Recommended Sanctuary Ceremony: {rit['title']}**\n\n"
-                f"• **Sacred Tools:** {rit['tools']}\n"
+                f"• **Sacred Tools:** {rit.get('tools') or rit.get('items', '')}\n"
                 f"• **Celestial Timing:** {rit['moon']}\n"
                 f"• **Step-by-Step Protocol:** {rit['steps']}"
             ), topics
@@ -75,9 +76,8 @@ def synthesize_oracle_reply(message: str, zodiac_sign: str = "Scorpio") -> tuple
     return (
         f"✨ **AuraMystic Oracle Synthesis ({transit['moon_phase']}):**\n\n"
         f"{CHAT_PRESETS.get('default', '')}\n\n"
-        f"For your **{transit['selected_sign']}** alignment today ({transit['forecast']['mood']}), "
-        f"your transit sensitivity is at **{transit['forecast']['transit_sensitivity_percent']}%** "
-        f"and your harmonic power frequency is **{transit['forecast']['lucky_frequency']}**."
+        f"For **{transit['selected_sign']}** today: {transit['forecast']['content']}\n\n"
+        f"{transit['forecast']['note']}"
     ), topics
 
 @router.post("/chat")

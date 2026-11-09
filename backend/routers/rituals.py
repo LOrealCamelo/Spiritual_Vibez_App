@@ -12,7 +12,8 @@ router = APIRouter()
 
 FREQUENCIES = MASTER_DATA.get("frequencies", [])
 RITUALS = [
-    {**r, "id": f"ritual-{i+1}", "legacy_id": str(r.get("id", i+1))}
+    {**r, "tools": r.get("tools", r.get("items", "")),
+     "id": f"ritual-{i+1}", "legacy_id": str(r.get("id", i+1))}
     for i, r in enumerate(MASTER_DATA.get("ritualsData", []))
 ]
 
@@ -66,10 +67,8 @@ def search_rituals(
         q = query.lower().strip()
         results = [
             r for r in results
-            if q in r["title"].lower()
-            or q in r["tools"].lower()
-            or q in r["moon"].lower()
-            or q in r["steps"].lower()
+            if any(q in str(r.get(field, "")).lower()
+                   for field in ("title", "tools", "items", "moon", "steps"))
         ]
     conn = get_connection()
     completed_rows = conn.execute("SELECT ritual_id, completed_at FROM ritual_completions ORDER BY id DESC").fetchall()

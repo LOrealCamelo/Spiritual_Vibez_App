@@ -12,7 +12,9 @@ from ..database import get_connection
 
 router = APIRouter()
 
-ALL_CARDS: List[Dict[str, Any]] = MASTER_DATA.get("allCards", [])
+from pathlib import Path
+IMAGE_FILES = {c['id']: c['file'] for c in json.loads(Path(__file__).parents[1].joinpath('data/tarot_images.json').read_text())}
+ALL_CARDS: List[Dict[str, Any]] = [{**c, 'image_url': '/assets/tarot/' + IMAGE_FILES[c['id']]} for c in MASTER_DATA.get('allCards', [])]
 STUDY_DETAILS: Dict[str, Any] = MASTER_DATA.get("cardStudyDetails", {})
 MASTER_SPREADS: List[Dict[str, Any]] = MASTER_DATA.get("masterSpreadsData", [])
 CAT_TITLES: Dict[str, str] = MASTER_DATA.get("catTitles", {})
@@ -104,6 +106,7 @@ def get_study_quiz_question(card_id: Optional[int] = Query(None, description="Sp
         "brand": "NeuroSpicy Mystic",
         "card_id": card["id"],
         "card_name": card["name"],
+        'image_url': card['image_url'],
         "suit": card["suit"],
         "icon": card["icon"],
         "prompt": "What idea can this card represent?",
@@ -261,6 +264,7 @@ def deal_single_slot(req: DealSlotRequest):
         "question": q_obj["q"],
         "card": {
             "id": chosen["id"],
+            'image_url': chosen['image_url'],
             "name": chosen["name"],
             "suit": chosen["suit"],
             "icon": chosen["icon"],
@@ -295,6 +299,7 @@ def deal_entire_spread(req: DealSpreadRequest):
             "question": q_obj["q"],
             "card_id": card["id"],
             "card_name": card["name"],
+            'image_url': card['image_url'],
             "icon": card["icon"],
             "decan": card["decan"],
             "element": card["element"],
@@ -346,6 +351,7 @@ def synthesize_custom_spread(req: SynthesizeSpreadRequest):
             "question": q_obj["q"],
             "card_id": card["id"],
             "card_name": card["name"],
+            'image_url': card['image_url'],
             "orientation": item.orientation,
             "meaning": meaning,
             "interpretation": f"{card['name']} ({item.orientation}) illuminates '{q_obj['title']}': {meaning}."
