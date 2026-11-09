@@ -2,6 +2,8 @@ name: Downloadable app startup
 on:
   pull_request:
     paths:
+      - "Dockerfile"
+      - ".dockerignore"
       - "run_web.py"
       - "START_WEB_WINDOWS.cmd"
       - "frontend/**"
@@ -11,6 +13,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "Dockerfile"
+      - ".dockerignore"
       - "run_web.py"
       - "START_WEB_WINDOWS.cmd"
       - "frontend/**"
@@ -52,3 +56,15 @@ jobs:
           name: source-startup-error-${{ matrix.os }}
           path: ${{ runner.temp }}/SpiritualVibez-complete-app.startup.log
           if-no-files-found: ignore
+
+  render-container:
+    name: Render Docker startup and complete assets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Build and run the actual production container on its injected PORT
+        run: python backend/scripts/check_container.py

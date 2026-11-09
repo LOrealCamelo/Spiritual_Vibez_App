@@ -51,7 +51,9 @@ Birth charts now accept a selected city and local birth time, resolve historical
 
 Render runs the Python service and serves `frontend/` from the same application.
 Its deployment branch should be `main`; a GitHub merge triggers a new build when
-automatic deploys are enabled. The native iOS/Android app is separately built from
+automatic deploys are enabled. The Docker image includes the shared tarot asset directory and honors Render’s
+`PORT` environment variable. CI builds the actual image and checks its startup,
+assets and lunar API. The native iOS/Android app is separately built from
 `mobile/`. A hosted browser app does not run the native binary.
 
 The interface uses [clear liquid glass](docs/CLEAR_GLASS.md) with the headline

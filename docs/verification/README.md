@@ -19,6 +19,7 @@ from the search icon and feature tiles.
 | Web assets and typography | Eight checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Home uses recreated panels with live text and new illustrations. All four new web/native illustration packs and all 24 panel definitions match; filters and labels are live UI elements. |
 | TypeScript | Pass, including the native interaction tests. |
 | Native interactions and API routes | 29 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
+| Render Docker image | Pass: actual production container builds, starts on injected `PORT=9137` and serves the complete deck, scenic image, glass CSS and lunar API. CI repeats this check. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
 | Native Android | The first PR revision passed arm64 assembleDebug in hosted CI. The latest revision repeats that job and retains the debug APK for seven days. Consult the latest PR check before relying on its result. |
 | Backend | The existing 28-check script and all 52 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |

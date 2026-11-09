@@ -1,0 +1,16 @@
+.git
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.venv*
+.env
+.env.*
+docs
+mobile/*
+!mobile/assets/
+mobile/assets/*
+!mobile/assets/tarot/
+
+**/*.db
+**/*.db-*
+**/*.sqlite*
