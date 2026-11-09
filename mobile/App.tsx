@@ -10,8 +10,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {API_BASE_URL} from './src/api/spiritualVibezClient';
 import {IllustratedCard,UI_CARD_IMAGES,CardArtName} from './src/components/IllustratedCard';
 
-import {normalizeSpreads} from './src/api/spreads';
+import {normalizeSpreads,matchesVibe} from './src/api/spreads';
 import {LearningCard} from './src/components/LearningCard';
+import {PaintedVibeFilter} from './src/components/VibeFilter';
 import {NativeBirthChart,NativeDailySky} from './src/components/CosmicTools';
 import {TAROT_IMAGES} from './src/data/tarotImages';
 import tarotCards from './src/data/tarotCards.json';
@@ -19,8 +20,11 @@ import tarotCards from './src/data/tarotCards.json';
 const BACKEND = API_BASE_URL;
 const STORE_URL='https://neurospicymystic.com/';
 const HOME_GREETING=require('./assets/home-hey-mystic-illustrated.png');
+const SKYLINE_BACKGROUND=require('./assets/hero-skyline-background.png');
 const FOOTER_BACKGROUND=require('./assets/footer-skyline-background.png');
 const SPREAD_ART={
+ 'spread-trust-your-gut-illustrated.png':require('./assets/spread-trust-your-gut-illustrated.png'),
+ 'spread-next-phase-illustrated.png':require('./assets/spread-next-phase-illustrated.png'),
  'spread-reset-energy-illustrated.png':require('./assets/spread-reset-energy-illustrated.png'),
  'spread-grounding-illustrated.png':require('./assets/spread-grounding-illustrated.png'),
 } as const;
@@ -28,8 +32,8 @@ const C={purple:'#6522B4',plum:'#3A156B',pink:'#F71C9F',lilac:'#BE6DEC',peach:'#
 const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const Tab=createBottomTabNavigator();
 const featureImages=[['home_daily_card','Daily'],['home_shuffle_spread','Spreads'],['home_learn_tarot','Learn'],['home_birth_chart','Birth']] as const;
-const favourite=[['Trust Your Gut','spreads_trust_gut'],['At a Crossroads','spreads_crossroads'],['The Next Phase','spreads_next_phase'],['Reset Your Energy','spread-reset-energy-illustrated.png'],['Grounding','spread-grounding-illustrated.png']] as const;
-const extra=[['Cosmos','☾','Cosmos',undefined],['Birth Chart','✦','Explore','natal'],['Numerology','journal_numerology','Explore','life'],['Moon Phase','journal_moon_phase','Explore','moon'],['Rituals','journal_rituals','Explore','rituals'],['Saved Readings','journal_saved_readings','Journal',undefined]] as const;
+const favourite=[['Trust Your Gut','spread-trust-your-gut-illustrated.png'],['At a Crossroads','spreads_crossroads'],['The Next Phase','spread-next-phase-illustrated.png'],['Reset Your Energy','spread-reset-energy-illustrated.png'],['Grounding','spread-grounding-illustrated.png']] as const;
+const extra=[['Moon Phase','journal_moon_phase','Cosmos',undefined],['Numerology','journal_numerology','Explore','life'],['Saved Readings','journal_saved_readings','Journal',undefined],['Rituals','journal_rituals','Explore','rituals']] as const;
 const exampleSpreads=[
  {id:'reset-energy',title:'Reset Your Energy',category:'wellbeing',cardCount:4,questions:['What drains me?','What can I release?','What can restore me?','One small step forward'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
  {id:'trust-your-gut',title:'Trust Your Gut',category:'crossroads',cardCount:5,questions:['What do I know?','What causes doubt?','What deserves care?','What can I let go?','My next step'].map((q,i)=>({slot:i+1,title:'Position '+(i+1),q}))},
@@ -50,7 +54,7 @@ async function post(path:string,payload:any){const r=await fetch(BACKEND+path,{m
 function Header({label='Spiritual Vibez',subtitle='ZODIAC, TAROT & MORE'}:{label?:string,subtitle?:string}){
  return <View style={st.header}><Text style={st.brand}>☾ {label} ✦</Text><Text style={st.tagline}>{subtitle}</Text></View>;
 }
-function Screen({children}:{children:React.ReactNode}){return <LinearGradient colors={['#6624B5','#F398D1','#FFD2E7']} locations={[0,.45,1]} style={{flex:1}}><SafeAreaView edges={['top']} style={st.safe}><StatusBar barStyle="light-content" backgroundColor="#4F168F"/><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={st.page}>{children}</ScrollView></SafeAreaView></LinearGradient>}
+function Screen({children}:{children:React.ReactNode}){return <LinearGradient colors={['#6624B5','#F398D1','#FFD2E7']} locations={[0,.45,1]} style={{flex:1}}><Image source={SKYLINE_BACKGROUND} resizeMode="cover" style={[StyleSheet.absoluteFillObject,{opacity:.2}]} accessible={false}/><SafeAreaView edges={['top']} style={st.safe}><StatusBar barStyle="light-content" backgroundColor="#4F168F"/><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={st.page}>{children}</ScrollView></SafeAreaView></LinearGradient>}
 function Title({eyebrow,title,sub}:{eyebrow:string,title:string,sub?:string}){return <View style={{marginBottom:16}}><Text style={st.kicker}>{eyebrow.toUpperCase()} ✦</Text><Text style={st.title}>{title}</Text>{sub?<Text style={st.subtitle}>{sub}</Text>:null}</View>}
 function Action({text,onPress,secondary=false,disabled=false}:{text:string,onPress:()=>void,secondary?:boolean,disabled?:boolean}){return <TouchableOpacity accessibilityRole="button" onPress={onPress} disabled={disabled} style={[st.action,secondary?st.actionSecondary:null,disabled?{opacity:.5}:null]}><Text style={[st.actionLabel,secondary?{color:C.plum}:null]}>{text}</Text><ArrowRight size={16} color={secondary?C.plum:'#fff'}/></TouchableOpacity>}
 function Info({children,warning=false}:{children:React.ReactNode,warning?:boolean}){return <View style={[st.info,warning?{backgroundColor:'#FFF0D3'}:null]}><Text style={st.infoText}>{children}</Text></View>}
@@ -68,33 +72,24 @@ function OptionRow({choices,value,onSelect}:{choices:string[],value:string,onSel
 function TarotImage({card,width=96,reversed=false}:{card:any,width?:number,reversed?:boolean}){return <Image accessibilityLabel={card.name+(reversed?' — reversed':'')} source={TAROT_IMAGES[card.id]} resizeMode="contain" style={{width,height:width*5/3,borderRadius:6,alignSelf:'center',marginVertical:6,transform:[{rotate:reversed?'180deg':'0deg'}]}}/>}
 function ArtTile({name,label,width,onPress}:{name:CardArtName,label:string,width:number,onPress:()=>void}){return <IllustratedCard asset={name} width={width} label={label} onPress={onPress}/>}
 function ArtSpread({name,label,width,onPress,cardCount}:{name:CardArtName|keyof typeof SPREAD_ART,label:string,width:number,onPress:()=>void,cardCount?:number}){
- const count=cardCount!=null?<View pointerEvents="none" style={{position:'absolute',left:'24%',right:'14%',bottom:'8%',height:'15%',borderRadius:8,backgroundColor:'#FCE9F1',justifyContent:'center',alignItems:'center'}}><Text style={{color:C.plum,fontWeight:'800',fontSize:Math.max(9,width*.032)}}>{cardCount} cards · Tap to explore</Text></View>:null;
+ const captions:Record<string,[string,number,number,number,number]>={spreads_trust_gut:['Intuition · Clarity',40,4,8,14],spreads_crossroads:['Decision · Direction',36,5,11,13],spreads_next_phase:["Growth · What’s Next",21,5,7,12]};
+ const caption=captions[name];
+ const count=cardCount!=null&&caption?<View pointerEvents="none" style={{position:'absolute',left:`${caption[1]}%`,right:`${caption[2]}%`,bottom:`${caption[3]}%`,height:`${caption[4]}%`,borderRadius:18,backgroundColor:'#FCE9F1',justifyContent:'center',alignItems:'center'}}><Text style={{color:C.plum,fontWeight:'800',fontSize:Math.max(9,width*.034)}}>{cardCount} Cards · {caption[0]}</Text></View>:null;
  return name in UI_CARD_IMAGES?<IllustratedCard asset={name as CardArtName} width={width} label={label} onPress={onPress}>{count}</IllustratedCard>:<TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{width,marginBottom:11}}><Image style={{width,aspectRatio:4/3,borderRadius:19}} source={SPREAD_ART[name as keyof typeof SPREAD_ART]} resizeMode="contain" /></TouchableOpacity>;
-}
-
-/** The painted filter artwork stays interactive: each visible chip has its own touch target. */
-function PaintedVibeFilter({value,onChange}:{value:string,onChange:(s:string)=>void}){
- const {width}=useWindowDimensions();const w=Math.min(width-24,580);
- const a=Image.resolveAssetSource(UI_CARD_IMAGES.spreads_filters);const h=w*a.height/a.width;
- return <View style={{width:w,height:h,marginBottom:13}}>
-   <Image source={UI_CARD_IMAGES.spreads_filters} style={{width:w,height:h}} resizeMode="stretch"/>
-   <View style={{position:'absolute',left:w*.015,right:w*.015,bottom:h*.08,height:h*.42,flexDirection:'row'}}>
-    {['All','Love','Career','Growth'].map((x)=><TouchableOpacity key={x} accessibilityRole="button" accessibilityLabel={'Filter by '+x} accessibilityState={{selected:value===x}} onPress={()=>onChange(x)} style={{flex:1,marginHorizontal:2,borderRadius:22,borderWidth:1,borderColor:'#E3CBD7',backgroundColor:value===x?C.pink:'#FFF5FC',alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:Math.max(10,w*.03),fontWeight:'800',color:value===x?'#fff':C.plum}}>{x}</Text></TouchableOpacity>)}
-   </View>
- </View>;
 }
 
 export function HomeScreen({navigation}:any){const {width}=useWindowDimensions();const contentW=Math.min(width-24,580);const tileW=(contentW-12)/2;
  const [spreads,setSpreads]=useState<any[]>(exampleSpreads);
  useEffect(()=>{get('/tarot/spreads').then(x=>{if(x.spreads?.length)setSpreads(normalizeSpreads(x.spreads))}).catch(()=>{})},[]);
- return <Screen><Header/><Image source={HOME_GREETING} style={{width:contentW,height:contentW*.95,borderRadius:24,marginBottom:12}} resizeMode="cover" accessibilityLabel="Hey Mystic! Ready to tap in, learn, grow and vibe higher?"/>
+ return <Screen><Header/><Image source={HOME_GREETING} style={{width:contentW,aspectRatio:1,borderRadius:24,marginBottom:12}} resizeMode="contain" accessibilityLabel="Hey Mystic! Ready to tap in, learn, grow and vibe higher?"/>
  <View style={st.twoCols}>{featureImages.map(([file,target])=><ArtTile key={file} name={file} label={target} width={tileW} onPress={()=>target==='Daily'?navigation.navigate('Learn',{daily:true}):target==='Birth'?navigation.navigate('Explore',{tool:'natal'}):navigation.navigate(target)}/>)}</View>
  <View style={st.sectionRow}><Text style={st.section}>Fan-favorite spreads ♡</Text><TouchableOpacity onPress={()=>navigation.navigate('Spreads')}><Text style={{color:'#fff',fontWeight:'900'}}>See all →</Text></TouchableOpacity></View>
  <View style={st.twoCols}>{favourite.map(([label,file])=><ArtSpread key={file} name={file} label={label} width={tileW} cardCount={spreads.find(x=>x.title.toLowerCase()===label.toLowerCase())?.cardCount} onPress={()=>navigation.navigate('Spreads',{favorite:label})}/>)}</View>
- <Text style={st.section}>More to explore ✨</Text><View style={st.twoCols}>{extra.map(([label,art,target,tool])=>{
+ <Text style={st.section}>More to explore ✨</Text><View style={[st.twoCols,{justifyContent:'center'}]}>{extra.map(([label,art,target,tool])=>{
   const open=()=>navigation.navigate(target,tool?{tool}:undefined);
-  return art in UI_CARD_IMAGES?<IllustratedCard key={label} asset={art as CardArtName} width={tileW} label={label} onPress={open}/>:<TouchableOpacity key={label} accessibilityLabel={label} accessibilityRole="button" style={[st.toolTile,{width:tileW}]} onPress={open}><Text style={{fontSize:33}}>{art}</Text><Text style={st.toolName}>{label}</Text><ChevronRight color={C.pink}/></TouchableOpacity>;
+  return art in UI_CARD_IMAGES?<IllustratedCard key={label} asset={art as CardArtName} width={art==='journal_rituals'?contentW:tileW} label={label} onPress={open}/>:<TouchableOpacity key={label} accessibilityLabel={label} accessibilityRole="button" style={[st.toolTile,{width:tileW}]} onPress={open}><Text style={{fontSize:33}}>{art}</Text><Text style={st.toolName}>{label}</Text><ChevronRight color={C.pink}/></TouchableOpacity>;
  })}</View>
+ <Action text="Explore all features" onPress={()=>navigation.navigate('Explore')}/>
  <Image source={FOOTER_BACKGROUND} style={st.homeFooter} resizeMode="cover" accessibilityLabel="Illustrated skyline and crystals"/>
  </Screen>
 }
@@ -103,8 +98,7 @@ export function SpreadsScreen({route}:any){const {width:screenWidth}=useWindowDi
  useEffect(()=>{const f=route.params?.favorite;if(f&&items.length){const found=items.find(x=>x.title?.toLowerCase()===f.toLowerCase());if(found){setSelected(found);setCards({});setReading('')}}},[route.params,items]);
  const start=(s:any)=>{setSelected(s);setCards({});setReading('');setError('')};
  const randomize=()=>{if(items.length)start(items[Math.floor(Math.random()*items.length)])};
- const terms=vibe==='Growth'?['growth','purpose','wellbeing','shadow','crossroads']: [vibe.toLowerCase()];
- const shown=items.filter(x=>(x.title+' '+(x.originalTitle||'')).toLowerCase().includes(search.toLowerCase())&&(vibe==='All'||terms.some(term=>(x.category+' '+x.title).toLowerCase().includes(term))));
+ const shown=items.filter(x=>(x.title+' '+(x.originalTitle||'')).toLowerCase().includes(search.toLowerCase())&&matchesVibe(x,vibe));
  const draw=async(slot:number)=>{if(!selected||busy||cards[slot])return;setBusy(true);setError('');try{const x=await post('/tarot/spreads/deal-slot',{spread_id:selected.id,slot_num:slot,exclude_card_ids:Object.values(cards).map((d:any)=>d.card.id)});setCards(old=>({...old,[slot]:x}))}catch{const existing=Object.values(cards).map((x:any)=>x.card.id);const pool=extendedCards.filter(x=>!existing.includes(x.id));const card=pool[Math.floor(Math.random()*pool.length)];setCards(old=>({...old,[slot]:{slot,card:{...card,orientation:'Upright',meaning:card.upright}}}))}finally{setBusy(false)}};
  const saveReading=async()=>{if(!selected||!reading)return;try{const current=await AsyncStorage.getItem('sv_readings');const old=current?JSON.parse(current):[];const next=[{date:new Date().toLocaleDateString(),title:selected.title,text:reading},...old].slice(0,100);await AsyncStorage.setItem('sv_readings',JSON.stringify(next));Alert.alert('Saved','Reading saved on this device.')}catch{Alert.alert('Save failed','Could not save this reading.')}};
  const interpret=async()=>{if(!selected)return;setBusy(true);try{const r=await post('/tarot/spreads/synthesize',{spread_id:selected.id,drawn_cards:Object.values(cards).map((v:any)=>({slot:v.slot,card_id:v.card.id,orientation:v.card.orientation})),save_to_journal:false});setReading(r.synthesis)}catch{setReading('Your '+selected.title+' cards invite a reflection on '+Object.values(cards).map((d:any)=>d.card.name).join(', ')+'. Consider each question in the spread, notice patterns, and choose one practical next step. This is a reflective prompt, not a prediction.')}finally{setBusy(false)}};
@@ -117,7 +111,6 @@ export function SpreadsScreen({route}:any){const {width:screenWidth}=useWindowDi
  </>:<>
  <IllustratedCard asset="spreads_randomize" label="Randomize a Spread" onPress={randomize}/>
  <PaintedVibeFilter value={vibe} onChange={setVibe}/>
- <Title eyebrow="Your illustrated spread collection" title="Pick your spread ✨" sub="Each layout opens a real interactive card reading."/>
  {([["Trust Your Gut","spreads_trust_gut"],["At a Crossroads","spreads_crossroads"],["The Next Phase","spreads_next_phase"]] as const).map(([title,art])=>{
   const match=shown.find(x=>x.title.toLowerCase()===title.toLowerCase());
   return match?<ArtSpread key={art} name={art} label={title} width={Math.min(screenWidth-24,580)} cardCount={match.cardCount} onPress={()=>start(match)}/>:null;

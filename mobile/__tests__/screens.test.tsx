@@ -6,6 +6,7 @@ import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,Cos
 import {IllustratedCard,UI_CARD_IMAGES} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
 import {NativeChartReport} from '../src/components/CosmicTools';
+import {matchesVibe} from '../src/api/spreads';
 import {SvgXml} from 'react-native-svg';
 
 let tree:ReactTestRenderer;
@@ -31,8 +32,8 @@ test('Home clean PNG cards navigate independently to learning, spreads, cosmos, 
   await render(<HomeScreen navigation={{navigate}}/>);
   for(const [label,route,params] of [
     ['Learn','Learn',undefined],['Spreads','Spreads',undefined],['Daily','Learn',{daily:true}],
-    ['Numerology','Explore',{tool:'life'}],['Moon Phase','Explore',{tool:'moon'}],
-    ['Saved Readings','Journal',undefined],['Cosmos','Cosmos',undefined],
+    ['Numerology','Explore',{tool:'life'}],['Moon Phase','Cosmos',undefined],
+    ['Saved Readings','Journal',undefined],['Birth','Explore',{tool:'natal'}],
   ] as const){
     await press(label);
     expect(navigate.mock.calls.at(-1)?.[0]).toBe(route);
@@ -187,4 +188,16 @@ test('native SVG parser renders a real backend chart and its complete report',as
  const output=text().replace(/\s+/g,' ');
  for(const p of report.placements)expect(output).toContain(p.planet+' in '+p.sign);
  expect(output).toContain('House 12');expect(output).toContain('Major planetary aspects');
+});
+
+
+test('painted Career filter finds the API career spreads without covering its icons',async()=>{
+ const catalog=require('../../backend/data/master_data.json').masterSpreadsData;
+ expect(catalog.filter((s:any)=>matchesVibe(s,'Career')).map((s:any)=>s.id)).toEqual(expect.arrayContaining(['career-shift','financial-healing']));
+ globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({spreads:catalog})});
+ await render(<SpreadsScreen route={{params:{}}}/>);await press('Filter by Career');
+ expect(text()).toContain('Career Shift');
+ const selected=tree.root.findAllByType(TouchableOpacity).find(x=>x.props.accessibilityLabel==='Filter by Career')!;
+ expect(selected.props.accessibilityState.selected).toBe(true);
+ expect(selected.findAllByType(Text)).toHaveLength(0);
 });

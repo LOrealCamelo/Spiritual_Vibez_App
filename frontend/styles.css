@@ -78,3 +78,29 @@ html{scroll-padding-top:100px;scroll-padding-bottom:140px}.main-page:has(.art-pa
 .moon-detail p{overflow-wrap:anywhere}
 @media(max-width:600px){.planet-summary{grid-template-columns:1fr}.birth-report{padding:16px}.birth-form .controls{flex-wrap:wrap}.slot .spread-tarot,.slot .card-back{width:88px}.slot .card-back{height:147px}.slot{min-width:110px}}
 @media print{body{background:white!important;color:#222}nav,.topbar,.bottom-nav,.bottomdock,.page-head,.birth-form,.birth-report button,main>.btn,footer{display:none!important}.birth-report{box-shadow:none;background:white;border:0;margin:0;padding:0;max-width:none}.chart-wheel{max-width:500px}.report-section{break-inside:avoid}.birth-report h2,.birth-report h3{color:#222;text-shadow:none}.planet-summary>div{border:1px solid #ddd}}
+/* Supplied illustrated panels are rendered whole, with live controls above them. */
+.home-greeting{display:none;width:100%;height:auto;margin:12px auto 16px;border-radius:24px}
+.feature-grid .picture-tile{display:block;min-height:0;padding:0;border:0;border-radius:0;background:transparent;overflow:visible;box-shadow:none;text-align:center}
+.feature-grid .picture-tile img{position:static;display:block;width:100%;height:auto;aspect-ratio:auto;object-fit:contain}
+.favorite-card,.extra-card{border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.favorite-card img,.extra-card img{display:block;width:100%;height:auto;aspect-ratio:auto;object-fit:contain}
+.favorite-card{border-radius:24px;overflow:hidden}
+.more-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;max-width:1000px;margin:auto}
+.more-grid .extra-card[data-action="tool:rituals"]{grid-column:1/-1;width:100%;max-width:580px;justify-self:center}
+.section-heading--more{display:flex}.home-explore{text-align:center;margin:24px 0}
+.art-button{container-type:inline-size}
+.art-caption{border-radius:18px;font-size:clamp(10px,3.4cqw,18px);line-height:1.1;white-space:nowrap}
+.art-progress{gap:6px;border-radius:7px;font-size:clamp(11px,3.6cqw,20px)}
+.art-progress meter{width:var(--track-width);flex:none;height:80%}
+.art-progress>span{flex:1;text-align:right;white-space:nowrap}
+.journey-number{left:70%;font-size:clamp(12px,3.6cqw,21px)}
+.vibe-filter{position:relative;width:100%;margin-bottom:15px}
+.vibe-filter>img{display:block;width:100%;height:auto}
+.vibe-target{position:absolute;top:40%;height:43%;padding:0;border:0;border-radius:40px;background:transparent}
+.vibe-target--0{left:2%;width:21%}.vibe-target--1{left:24%;width:22%}.vibe-target--2{left:47%;width:24%}.vibe-target--3{left:73%;width:25%}
+.vibe-target.is-selected:not(.vibe-target--0){outline:2px solid #f7199f;outline-offset:-2px;background:#f7199f18}
+.vibe-all-neutral{display:flex;width:100%;height:100%;align-items:center;justify-content:center;border-radius:40px;border:2px solid white;background:#fff1f9;color:#5e1d79;font-size:clamp(14px,3vw,24px);font-weight:800}
+.spread-search summary{cursor:pointer;font-weight:800;padding:2px 0}
+.spread-search[open] summary{margin-bottom:15px}
+@media(max-width:750px){.more-grid .extra-card[data-action="nav:journal"]{grid-column:1/-1;width:calc(50% - 6px);justify-self:center}}
+@media(max-width:750px){.home-greeting{display:block}.home-hero{display:none}.feature-grid{grid-template-columns:1fr 1fr}.more-grid{grid-template-columns:1fr 1fr}.more-grid .extra-card[data-action="tool:rituals"]{grid-column:1/-1}.section-heading--more{display:flex}}

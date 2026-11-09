@@ -43,7 +43,7 @@ test('hero has separate character/background layers and accessible HTML actions'
   const html=vm.runInContext('home()',context);
   assert.match(html,/assets\/cartoon_me_transparent3.png/);
   assert.match(html,/<h1>Zero boring\.<\/h1>/);
-  for(const action of ['nav:spreads','nav:learn','daily-card','nav:journal','nav:cosmos','tool:natal','tool:life','tool:moon','tool:rituals']){
+  for(const action of ['nav:spreads','nav:learn','daily-card','nav:journal','nav:cosmos','tool:natal','tool:life','tool:rituals']){
     assert.ok(html.includes(`data-action="${action}"`),`Missing interactive action: ${action}`);
   }
 });
@@ -75,4 +75,30 @@ test('store has one external website link and no product catalog',()=>{
   assert.equal((html.match(/href="https:\/\/neurospicymystic.com\/"/g)||[]).length,1);
   assert.ok(html.includes('Visit my store'));
   assert.ok(!html.includes('data-action="tool-run"'));
+});
+
+
+test('all 24 supplied UI panels appear in the matching web sections',()=>{
+ const {context}=appContext();context.catalog=JSON.parse(fs.readFileSync(path.join(root,'../backend/data/master_data.json'),'utf8')).masterSpreadsData;
+ vm.runInContext('state.spreads=normalizeSpreads(catalog)',context);
+ const html=['home()','spreadsPage()','learningPage()','journalPage()'].map(code=>vm.runInContext(code,context)).join('');
+ const panels=fs.readdirSync(path.join(root,'../mobile/assets/ui_cards')).filter(x=>x.endsWith('.png'));
+ assert.equal(panels.length,24);
+ for(const panel of panels){
+  assert.ok(html.includes('assets/'+panel),'Missing UI panel: '+panel);
+  assert.deepEqual(fs.readFileSync(path.join(root,'assets',panel)),fs.readFileSync(path.join(root,'../mobile/assets/ui_cards',panel)));
+ }
+ for(const vibe of ['All','Love','Career','Growth'])assert.ok(html.includes('aria-label="Filter by '+vibe+'"'));
+ const home=vm.runInContext('home()',context);
+ assert.match(home,/src="assets\/me_hero2.png"/);
+ assert.match(home,/data-action="nav:cosmos" aria-label="Open Moon Phase"/);
+ assert.doesNotMatch(home,/feature-icon|feature-copy/);
+});
+
+test('vibe filters include actual career and relationship spreads',()=>{
+ const {context}=appContext();context.catalog=JSON.parse(fs.readFileSync(path.join(root,'../backend/data/master_data.json'),'utf8')).masterSpreadsData;
+ const career=vm.runInContext('catalog.filter(s=>matchesVibe(s,"Career")).map(s=>s.id)',context);
+ assert.ok(career.includes('career-shift'));assert.ok(career.includes('financial-healing'));
+ assert.equal(vm.runInContext('matchesVibe({title:"A relationship reflection",category:"love"},"Love")',context),true);
+ assert.equal(vm.runInContext('matchesVibe({title:"Grounding",category:"wellbeing"},"Career")',context),false);
 });

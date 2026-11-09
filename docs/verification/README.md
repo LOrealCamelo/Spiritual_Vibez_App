@@ -1,6 +1,6 @@
 # Spiritual Vibez — repair and reference UI verification
 
-Updated November 8, 2026. The PR check runs provide hosted results for the latest commit.
+Updated November 9, 2026. The PR check runs provide hosted results for the latest commit.
 
 The supplied reference images guide the purple/pink skyline, transparent character,
 handwritten typography, illustrated modules, glowing cards and navigation. The brand
@@ -14,11 +14,11 @@ from the search icon and feature tiles.
 
 | Check | Result |
 | --- | --- |
-| Mobile PNG resolution | Pass: all 106 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
+| Mobile PNG resolution | Pass: all 109 static local references resolve across every JS/TS/JSX/TSX source, including nested components and unused requires. All 24 panels remain mapped. |
 | Asset-validator regressions | Six pass, including newly introduced missing requires, case mismatches, empty PNGs, WebP imports, absent panel mappings and nonzero CLI exits. |
-| Web assets and typography | Five checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Decorative web feature icons use inline SVG with live text. |
+| Web assets and typography | Seven checks pass: rendered PNGs/CSS backgrounds exist, no WebP URLs, local licensed fonts and canonical spread mappings. Home uses the exact supplied PNG cards. All 24 web/native panel copies match, and the illustrated vibe filters work. |
 | TypeScript | Pass, including the native interaction tests. |
-| Native interactions and API routes | 28 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
+| Native interactions and API routes | 29 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
 | Native Android | The first PR revision passed arm64 assembleDebug in hosted CI. The latest revision repeats that job and retains the debug APK for seven days. Consult the latest PR check before relying on its result. |
 | Backend | The existing 28-check script and all 33 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
@@ -31,6 +31,10 @@ Run `python frontend/tests/browser_flows.py --screenshots work/browser-evidence`
 after installing `frontend/tests/requirements.txt`. It starts FastAPI against a
 temporary database, uses installed Chrome/Chromium, exercises the connected flows,
 and captures evidence. CI runs it too.
+
+## Illustrated UI placement
+
+[All 24 supplied panels and their destinations](../UI_ARTWORK_PLACEMENT.md) are now mapped in both apps. Home uses the supplied Daily Card, Shuffle a Spread, Learn Tarot and Birth Chart PNGs. Web Spreads uses the painted Filter by Vibe panel, and transparent native/web touch targets preserve its symbols. The Moon Phase card opens the current sky. Progress overlays preserve the illustrations while hiding sample counts.
 
 ## New astrology and tarot checks
 

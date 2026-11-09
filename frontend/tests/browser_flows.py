@@ -35,6 +35,14 @@ def exercise(base_url, screenshots):
    page.get_by_role('button',name='Open '+title+' spread',exact=True).click()
    assert page.evaluate('state.selected.id')==spread_id,(title,spread_id)
    page.get_by_role('button',name='← All spreads',exact=True).click()
+  page.evaluate('transition("spreads")');page.get_by_role('button',name='Filter by Career',exact=True).click()
+  assert page.locator('[data-action="vibe"][data-vibe="Career"]').get_attribute('aria-pressed')=='true'
+  assert page.locator('[data-action="select-spread"][data-id="career-shift"]').count()==1
+  page.get_by_role('button',name='Filter by All',exact=True).click()
+  page.locator('.spread-search summary').click();page.locator('#spread-search').fill('career');page.locator('#spread-search').press('Backspace')
+  assert page.locator('.spread-search').get_attribute('open') is not None
+  assert page.locator('#spread-search').input_value()=='caree'
+  page.locator('#spread-search').fill('');page.locator('.spread-search summary').click()
   for tool in ['natal','draconic','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
