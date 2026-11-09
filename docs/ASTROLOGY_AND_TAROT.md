@@ -6,7 +6,7 @@ and log artifacts are verification evidence rather than the runnable application
 
 ## Try the changes
 
-Download the [updated branch ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_App/archive/refs/heads/fix/mobile-assets-metro-ci.zip),
+Download the [current app ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_App/archive/refs/heads/main.zip),
 extract it and double-click `START_WEB_WINDOWS.cmd`. The first launch installs
 the Python packages, then opens the web app and backend together.
 

@@ -1,7 +1,7 @@
 /** Original art, live labels and scalable decoration shared by all 24 panels. */
 import React from 'react';
 import {Image,View,Text,TouchableOpacity,useWindowDimensions,StyleSheet,StyleProp,ViewStyle} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import {ClearGlassSurface} from './ClearGlassSurface';
 import catalog from '../data/uiPanels.json';
 export const UI_PANELS=catalog;
 export type CardArtName=keyof typeof catalog;
@@ -14,22 +14,13 @@ export const ILLUSTRATION_PACKS={
 export function PanelIllustration({pack,cell,size=110}:{pack:keyof typeof ILLUSTRATION_PACKS,cell:number,size?:number}){
  return <View pointerEvents="none" accessible={false} style={{width:size,height:size,overflow:'hidden',flexShrink:0}}><Image source={ILLUSTRATION_PACKS[pack]} accessible={false} resizeMode="stretch" style={{position:'absolute',width:size*2,height:size*2,left:-(cell%2)*size,top:-Math.floor(cell/2)*size}}/></View>;
 }
-const themes:Record<string,{colors:string[],ink:string,accent:string}>={
- pink:{colors:['#ffa0d7','#ffe4f3'],ink:'#321146',accent:'#ec138c'},
- aqua:{colors:['#61e3df','#d3faf5'],ink:'#321146',accent:'#0b979c'},
- lilac:{colors:['#cb94f6','#f7d9ff'],ink:'#321146',accent:'#9f30ce'},
- peach:{colors:['#ffbe7f','#ffe7ce'],ink:'#321146',accent:'#f27e27'},
- cream:{colors:['#ffe3e9','#fff8ed'],ink:'#321146',accent:'#ec138c'},
- purple:{colors:['#48208c','#be38c0'],ink:'#fff7fd',accent:'#ed4ab8'},
- hotpink:{colors:['#fc198c','#cb087d'],ink:'#fff7fd',accent:'#fd67bd'},
-};
 type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode;progress?:{completed:number,total:number};meta?:string};
 export function IllustratedCard({asset,width,label,onPress,style,children,progress,meta}:Props){
  const {width:screenWidth}=useWindowDimensions();const w=width??Math.min(screenWidth-24,580);
- const p=catalog[asset],theme=themes[p.theme];const compact=w<260,header=p.kind==='header',random=p.kind==='randomize';
+ const p=catalog[asset],theme={ink:'#fff9fe',accent:'#fff'};const compact=w<260,header=p.kind==='header',random=p.kind==='randomize';
  const percent=progress?Math.max(0,Math.min(100,Math.round(progress.completed/Math.max(progress.total,1)*100))):0;
  const size=compact?104:random?72:header?112:106;
- const content=<LinearGradient colors={theme.colors} start={{x:0,y:0}} end={{x:1,y:1}} style={[st.surface,{flexDirection:compact?'column':header?'row-reverse':'row',minHeight:compact?250:random?112:156,padding:compact?14:16,gap:compact?12:14}]}>
+ const content=<ClearGlassSurface radius={25} style={[st.surface,{flexDirection:compact?'column':header?'row-reverse':'row',minHeight:compact?250:random?112:156,padding:compact?14:16,gap:compact?12:14}]}>
   <Text accessible={false} style={st.sparkle}>✦</Text>
   <PanelIllustration pack={p.pack as keyof typeof ILLUSTRATION_PACKS} cell={p.cell} size={size}/>
   <View style={{flex:compact?undefined:1,alignSelf:compact?'stretch':undefined,gap:8,paddingBottom:compact&&onPress?24:0}}>
@@ -40,8 +31,8 @@ export function IllustratedCard({asset,width,label,onPress,style,children,progre
    {children}
   </View>
   {onPress&&!header?<View accessible={false} style={[st.arrow,compact?{position:'absolute',right:12,bottom:12}:null]}><Text style={{fontSize:32,color:theme.accent,fontWeight:'800',lineHeight:30}}>›</Text></View>:null}
- </LinearGradient>;
+ </ClearGlassSurface>;
  const outer=[st.outer,{width:w},style];
  return onPress?<TouchableOpacity accessibilityRole="button" accessibilityLabel={label||p.title} onPress={onPress} style={outer}>{content}</TouchableOpacity>:<View accessibilityLabel={label||p.title} style={outer}>{content}</View>;
 }
-const st=StyleSheet.create({outer:{marginBottom:16,borderRadius:27,borderWidth:2,borderColor:'#f377cf',shadowColor:'#32104b',shadowOffset:{width:0,height:6},shadowOpacity:.25,shadowRadius:8,elevation:5},surface:{alignItems:'center',borderRadius:25,borderWidth:2,borderColor:'#fff8fc',overflow:'hidden'},sparkle:{position:'absolute',top:7,right:'12%',color:'#ffe67c',fontSize:23,opacity:.8},arrow:{width:30,height:30,borderRadius:16,borderWidth:2,borderColor:'#fff',backgroundColor:'#fff5fc',alignItems:'center',justifyContent:'center',flexShrink:0},track:{height:13,borderRadius:12,borderWidth:2,borderColor:'#fff9',backgroundColor:'#c19eb74a',overflow:'hidden'},fill:{height:'100%',backgroundColor:'#ec138c',borderRadius:10}});
+const st=StyleSheet.create({outer:{marginBottom:16,borderRadius:27,borderWidth:0,borderColor:'transparent',shadowColor:'#32104b',shadowOffset:{width:0,height:6},shadowOpacity:.25,shadowRadius:8,elevation:5},surface:{alignItems:'center',borderRadius:25,borderWidth:1,borderColor:'#ffffff80',overflow:'hidden'},sparkle:{position:'absolute',top:7,right:'12%',color:'#ffe67c',fontSize:23,opacity:.8},arrow:{width:30,height:30,borderRadius:16,borderWidth:2,borderColor:'#fff',backgroundColor:'rgba(255,255,255,.05)',alignItems:'center',justifyContent:'center',flexShrink:0},track:{height:13,borderRadius:12,borderWidth:2,borderColor:'#fff9',backgroundColor:'#c19eb74a',overflow:'hidden'},fill:{height:'100%',backgroundColor:'#ec138c',borderRadius:10}});

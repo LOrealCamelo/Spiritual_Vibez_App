@@ -43,7 +43,7 @@ test('hero has separate character/background layers and accessible HTML actions'
   const {context} = appContext();
   const html=vm.runInContext('home()',context);
   assert.match(html,/assets\/cartoon_me_transparent3.png/);
-  assert.match(html,/<h1>Zero boring\.<\/h1>/);
+  assert.match(html,/<h1>Your journey starts here<\/h1>/);
   for(const action of ['nav:spreads','nav:learn','daily-card','nav:journal','nav:cosmos','tool:natal','tool:life','tool:rituals']){
     assert.ok(html.includes(`data-action="${action}"`),`Missing interactive action: ${action}`);
   }
@@ -106,4 +106,15 @@ test('vibe filters include actual career and relationship spreads',()=>{
  assert.ok(career.includes('career-shift'));assert.ok(career.includes('financial-healing'));
  assert.equal(vm.runInContext('matchesVibe({title:"A relationship reflection",category:"love"},"Love")',context),true);
  assert.equal(vm.runInContext('matchesVibe({title:"Grounding",category:"wellbeing"},"Career")',context),false);
+});
+
+
+test('clear glass uses refraction and reflective edges without frosted blur',()=>{
+ const css=fs.readFileSync(path.join(root,'liquid-glass.css'),'utf8');
+ const artwork=fs.readFileSync(path.join(root,'artwork.js'),'utf8');
+ assert.doesNotMatch(css,/blur\s*\(/i);
+ assert.ok(css.includes('.slot.opened')&&css.includes('.listbutton')&&css.includes('.bottomdock'));
+ assert.ok(css.includes('inset')&&css.includes('ffffff05'));
+ assert.ok(artwork.includes('feDisplacementMap'));assert.ok(!artwork.includes('feGaussianBlur'));
+ assert.ok(fs.readFileSync(path.join(root,'index.html'),'utf8').includes('liquid-glass.css'));
 });

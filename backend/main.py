@@ -79,6 +79,11 @@ def serve_frontend():
 def serve_styles():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "styles.css"), media_type="text/css")
 
+@app.get("/liquid-glass.css", include_in_schema=False)
+def serve_liquid_glass_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "liquid-glass.css"), media_type="text/css")
+
+
 @app.get("/app.js", include_in_schema=False)
 def serve_app_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "app.js"), media_type="text/javascript")

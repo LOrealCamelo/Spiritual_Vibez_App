@@ -199,3 +199,6 @@ function panelContents(key,extra=''){
  return panelIllustration(p.pack,p.cell)+'<span class="panel-copy"><span class="panel-title"'+(p.kind==='header'?' role="heading" aria-level="2"':'')+'>'+e(p.title)+'</span><span class="panel-description">'+e(p.description)+'</span>'+extra+'</span>'+(p.kind==='header'?'':'<span class="panel-arrow" aria-hidden="true">›</span>');
 }
 function panelClasses(key){const p=CARD_PANELS[key];return 'fresh-panel panel-theme-'+p.theme+' panel-kind-'+p.kind}
+
+// Shared once per document, instead of repeating the same SVG id in each button.
+function clearGlassFilter(){return '<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none"><defs><filter id="liquid-refraction" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.018 0.025" numOctaves="1" seed="1" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="B"/></filter></defs></svg>'}

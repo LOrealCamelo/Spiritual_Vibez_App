@@ -1,0 +1,26 @@
+/* Clear liquid glass: reflected edges and mild refraction, with no frosted blur. */
+:root{--clear-glass-shadow:0 8px 24px #17072c33,inset 1px 1px 1px #ffffffb3,inset -1px -1px 1px #ffffff66,inset 0 0 8px #ffffff18;--clear-glass-fill:linear-gradient(125deg,#ffffff16 0%,#ffffff05 35%,#ffffff02 65%,#ffffff12 100%)}
+body{background:radial-gradient(ellipse at 20% 40%,#a628b477,transparent 65%),linear-gradient(145deg,#371274,#63208f 50%,#742c92)}
+.main-page:has(.art-page){background:transparent}
+.hero-copy h1{white-space:normal;font-size:clamp(40px,5.2vw,70px);line-height:1.14;max-width:650px}
+.home-hero{min-height:420px}.phone-journey-heading{display:none}
+.fresh-panel,.feature-grid .fresh-panel,.more-grid .fresh-panel,.art-grid .fresh-panel,.glass,.listbutton,.reading-board,.slot.opened,.result:not(.birth-report),.fresh-filter,.bottomdock,.nav,.btn,.btn.cream,.chip,.tooltile,.deck-card{background:var(--clear-glass-fill);border:1px solid #ffffff80;box-shadow:var(--clear-glass-shadow);color:#fff9fe;backdrop-filter:url('#liquid-refraction');-webkit-backdrop-filter:url('#liquid-refraction');isolation:isolate}
+.fresh-panel{--panel-ink:#fff9fe;--panel-accent:#fff;outline:0}.fresh-panel:hover,.picture-tile:hover,.extra-card:hover{box-shadow:0 10px 24px #17072c44,inset 1px 1px 1px #ffffffd9,inset -1px -1px 1px #ffffff80}
+.panel-title,.panel-description,.panel-meta,.panel-progress{color:#fff9fe;text-shadow:0 1px 2px #200c4270}
+.panel-arrow{background:linear-gradient(135deg,#ffffff20,#ffffff04);border:1px solid #ffffffb0;box-shadow:inset 1px 1px 2px #fff8,0 2px 5px #12052833;color:#fff}
+.glass h2,.glass h3,.glass h4,.glass .field,.glass .muted,.listbutton small,.listbutton strong,.fresh-filter h3,.result:not(.birth-report) h2,.result:not(.birth-report) h3{color:#fff9fe}
+.glass .field input,.glass .field select,.glass .field textarea{color:#351750;background:#fff9fc}
+.listbutton .glyph{background:linear-gradient(135deg,#ffffff1f,#ffffff03);border:1px solid #ffffff66}
+.reading-board{background:linear-gradient(135deg,#ffffff0a,#ffffff02);border-color:#ffffff80}.reading-board h3{color:#fff9fe}.slot.opened{background:linear-gradient(140deg,#ffffff12,#ffffff03);color:#fff9fe}.slot .tarot-image,.tarot-image{background:transparent}.slot .card-back{background:repeating-linear-gradient(45deg,#60249c,#60249c 9px,#7130ac 9px,#7130ac 10px)}
+.fresh-filter .vibe-target{background:linear-gradient(135deg,#ffffff15,#ffffff03);border:1px solid #ffffff88;box-shadow:inset 1px 1px 1px #fff7,0 3px 5px #220c3826;color:#fff9fe}.fresh-filter .vibe-target.is-selected,.chip.active{background:linear-gradient(135deg,#ffffff32,#ffffff08);color:#fff;border-color:#ffffffd0;box-shadow:inset 1px 1px 2px #ffffffc0,0 2px 7px #220c3833}
+.bottomdock{border-width:1px;background:linear-gradient(135deg,#ffffff12,#ffffff03);backdrop-filter:url('#liquid-refraction');-webkit-backdrop-filter:url('#liquid-refraction');box-shadow:var(--clear-glass-shadow)}
+.bottomdock button,.nav button{color:#fff9fe}.bottomdock button.current,.nav button.selected{background:linear-gradient(135deg,#ffffff28,#ffffff05);border:1px solid #ffffffc0;box-shadow:inset 1px 1px 2px #ffffffb3,inset -1px -1px 1px #ffffff66,0 2px 8px #1a052d33;color:#fff}
+.topbar{background:linear-gradient(110deg,#511991c9,#6d2598b3);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid #ffffff66}
+.favorite-card{background:transparent;box-shadow:var(--clear-glass-shadow)}
+.btn,.btn.cream{color:#fff9fe;transition:transform .18s,box-shadow .18s}.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:inset 1px 1px 2px #ffffffcc,inset -1px -1px 1px #ffffff80,0 5px 14px #17072c44}.btn:active:not(:disabled){transform:translateY(1px)}
+.phone-journey-heading{font-family:Kaushan,cursive;font-weight:400;font-size:36px;line-height:1.15;color:#fff;margin:15px 0 20px;text-shadow:0 2px 10px #35106f55}
+@supports not (backdrop-filter:url('#liquid-refraction')){.fresh-panel,.glass,.listbutton,.reading-board,.bottomdock{backdrop-filter:none}}
+@media(max-width:750px){.phone-journey-heading{display:block}.hero-copy h1{font-size:40px}.bottomdock button.current{padding-left:8px;padding-right:8px}}
+@media(prefers-reduced-motion:reduce){.btn,.fresh-panel{transition:none!important}}
+@media print{.birth-report{color:#222!important}.birth-report .panel-title{color:#222!important}}
+.bottomdock button{text-shadow:0 1px 3px #1a052de6,0 0 8px #1a052db3}.bottomdock button svg{filter:drop-shadow(0 1px 1px #1a052d99)}

@@ -4,7 +4,7 @@ This repository contains the actual web application, Python backend, and bare Re
 
 ## Download and run the web app on Windows
 
-1. [Download the complete updated project ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_App/archive/refs/heads/fix/mobile-assets-metro-ci.zip).
+1. [Download the complete updated project ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_App/archive/refs/heads/main.zip).
 2. Right-click the ZIP and choose **Extract All**. Do not run a file from inside the ZIP.
 3. In the extracted project folder, double-click **START_WEB_WINDOWS.cmd**.
 4. The launcher installs backend packages in a private `.venv-web` folder and opens the app in your browser. Keep its window open while testing; press Ctrl+C to stop.
@@ -19,7 +19,9 @@ On macOS/Linux, run this from the extracted project folder:
 python3 run_web.py
 ```
 
-The updated work is on `fix/mobile-assets-metro-ci` in [PR #7](https://github.com/LOrealCamelo/Spiritual_Vibez_App/pull/7). Until it is merged, the `main` branch and any ZIP you previously downloaded from `main` retain their older files. Updating GitHub does not automatically update an existing Windows folder.
+The default `main` branch contains the updated app. Updating GitHub does not
+update an existing Windows folder; download and extract the current ZIP to replace
+an older copy.
 
 ## Where the application code lives
 
@@ -29,7 +31,7 @@ The updated work is on `fix/mobile-assets-metro-ci` in [PR #7](https://github.co
 | `frontend/app.js` | Web screens, navigation, buttons and backend requests |
 | `frontend/artwork.js` | New illustration definitions and live panel markup |
 | `frontend/cosmic.js` | City-based birth forms, chart/report display and automatic daily sky |
-| `frontend/styles.css` | Web layout, colors, fonts, backgrounds and responsive styles |
+| `frontend/styles.css`, `frontend/liquid-glass.css` | Responsive layout and the clear liquid-glass treatment |
 | `frontend/assets/` | Web PNG artwork and locally bundled fonts |
 | `backend/` | FastAPI server, data and eight API router groups |
 | `mobile/App.tsx` | Native mobile screens and navigation |
@@ -45,9 +47,17 @@ Birth charts now accept a selected city and local birth time, resolve historical
 
 ## Browser hosting
 
-[Open Render deployment setup for the updated branch](https://render.com/deploy?repo=https://github.com/LOrealCamelo/Spiritual_Vibez_App/tree/fix/mobile-assets-metro-ci).
+[Open the live Web app](https://spiritual-vibez-app.onrender.com).
 
-The existing `render.yaml` starts the web UI and backend together. This link opens deployment setup in your own Render account; it does not indicate that a public service has already been created. A hosted browser app does not run the native iOS binary.
+Render runs the Python service and serves `frontend/` from the same application.
+Its deployment branch should be `main`; a GitHub merge triggers a new build when
+automatic deploys are enabled. The native iOS/Android app is separately built from
+`mobile/`. A hosted browser app does not run the native binary.
+
+The interface uses [clear liquid glass](docs/CLEAR_GLASS.md) with the headline
+**Your journey starts here**. The journal saves locally in the browser or native
+device; it does not currently sync between devices. Preview folders clearly
+separate Web desktop, Web phone and native Mobile evidence.
 
 ## Native app and verification
 

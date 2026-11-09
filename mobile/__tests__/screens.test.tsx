@@ -82,7 +82,7 @@ test('spread artwork opens an interactive reading and filters affect the illustr
   expect(text()).toContain('CARD 5');
 });
 
-test('journal PNG actions save a reflection and open saved readings',async()=>{
+test('journal actions save a reflection that survives a screen reopen and open saved readings',async()=>{
   await render(<JournalScreen navigation={{navigate:jest.fn()}}/>);
   await press("Open today's journal");
   await act(async()=>tree.root.findByType(TextInput).props.onChangeText('A calmer day.'));
@@ -91,6 +91,9 @@ test('journal PNG actions save a reflection and open saved readings',async()=>{
   expect(AsyncStorage.setItem).toHaveBeenCalledWith('sv_journal',expect.stringContaining('A calmer day.'));
   await press('Saved Readings');
   expect(text()).toContain('No saved readings yet.');
+  await act(async()=>tree.unmount());
+  await render(<JournalScreen navigation={{navigate:jest.fn()}}/>);
+  expect(text()).toContain('A calmer day.');
 });
 
 test('real tab navigator exposes six destinations and opens the independent learning and spreads screens',async()=>{
