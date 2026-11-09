@@ -21,8 +21,8 @@ from the search icon and feature tiles.
 | Native interactions and API routes | 29 pass: navigation, card proportions, distinct study counts, quiz attempts, spread filters and live catalog layouts, journal persistence and native tool methods/paths, city selection, local birth-time submission, real card images and automatic daily sky plus the direct store link. |
 | Metro Android and iOS | Both production bundles and asset exports pass locally. |
 | Native Android | The first PR revision passed arm64 assembleDebug in hosted CI. The latest revision repeats that job and retains the debug APK for seven days. Consult the latest PR check before relying on its result. |
-| Backend | The existing 28-check script and all 33 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
-| Connected web flows | 16 backend-backed tools pass, plus cycle estimates, learning modules, quiz, a full spread, synthesis, saved readings, journal notes, moods and transits. No API failures or JavaScript errors were observed. |
+| Backend | The existing 28-check script and all 52 HTTP/pytest checks pass locally. Ritual keyword search now also has regression coverage. |
+| Connected web flows | 15 backend-backed tools pass, plus cycle estimates, learning modules, quiz, a full spread, synthesis, saved readings, journal notes, moods and transits. No API failures or JavaScript errors were observed. |
 | Browser layouts | Home, Spreads, Learn Tarot and Journal pass at 1448px and 390px with every displayed image loaded and no horizontal overflow. |
 | Native iOS build / simulator | The cloud macOS/Xcode job built the Release app, launched it on iPhone 16 / iOS 18.5 and captured the native Home screen. Check the latest CI result for the current revision. |
 | Device visuals and behavior | Still require Android/iOS device or simulator checks, including fonts, safe areas, touch targets, keyboard behavior and connectivity. The native Home screenshot was inspected; full device/interaction equivalence is not certified. |
@@ -38,7 +38,21 @@ and captures evidence. CI runs it too.
 
 ## New astrology and tarot checks
 
-The current repair adds all 78 uploaded card images to both native bundles and the web server. With the owner’s approval, the app now uses 648 × 1080 PNG display copies: 95.7 MiB versus 231.7 MiB for the untouched originals. All card borders and labels are preserved. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. The latest backend CI run retains chart/sky/tarot evidence. Review the [chart wheel](web-desktop-birth-chart.png), [phone-width chart](web-mobile-birth-chart.png), [daily sky](web-daily-sky.png), [tarot reading](web-tarot-reading.png) and [13-page sample report](birth-chart-report.pdf).
+The current repair adds all 78 uploaded card images to both native bundles and the web server. With the owner’s approval, the app now uses 648 × 1080 PNG display copies: 95.7 MiB versus 231.7 MiB for the untouched originals. All card borders and labels are preserved. Connected browser checks cover the city-based birth form, SVG wheel, detailed printable report, Tropical/Sidereal changes, ten daily planet positions, date selection and different Virgo/Pisces reflections. The latest backend CI run retains chart/sky/tarot evidence. Review the [chart wheel](web-desktop-birth-chart.png), [phone-width chart](web-mobile-birth-chart.png), [daily sky](web-daily-sky.png), [tarot reading](web-tarot-reading.png) and [24-page sample report](birth-chart-report.pdf).
+
+The existing Moon Phases section now includes a monthly grid and daily list with
+1900–2100 browsing, phase illustrations, exact phase times and Moon sign ingresses.
+Checks cover local dates, leap years, skipped dates, a 25-hour DST day, screenshot
+ingress fixtures and independent phase-time fixtures. Body associations are labeled
+astrology lore, and surgery safety is referred to the surgical team. The Draconic
+chart was removed from both apps and the API.
+
+The natal report adds modern/traditional house rulers, ruler locations, house
+occupants, four chart angles and applying/separating aspects. Its sidebar shows
+planet/zodiac symbols, degrees, houses and a Zodiac dropdown; it reflows below the
+wheel on phones. See the [birth report sidebar](web-birth-report-sidebar.png) and
+[monthly lunar calendar with daily details](web-moon-calendar.png) and its
+[phone layout](web-mobile-moon-calendar.png).
 
 ## Screenshots
 

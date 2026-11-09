@@ -43,11 +43,11 @@ def exercise(base_url, screenshots):
   assert page.locator('.spread-search').get_attribute('open') is not None
   assert page.locator('#spread-search').input_value()=='caree'
   page.locator('#spread-search').fill('');page.locator('.spread-search summary').click()
-  for tool in ['natal','draconic','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
+  for tool in ['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
-   if tool in ['natal','draconic','moon']:
-    page.locator('#birth-hour').fill('14');page.locator('#birth-minute').fill('30')
+   if tool in ['natal','moon']:
+    page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-hour').fill('14');page.locator('#birth-minute').fill('30')
     page.locator('#birth-country').fill('US');page.locator('#birth-region').fill('NY');page.locator('#birth-city').fill('Utica')
     page.locator('[data-action="birth-search"]').click();page.wait_for_selector('[data-action="birth-place"]');page.locator('[data-action="birth-place"]').first.click()
     assert page.locator('#birth-lat').count()==0 and page.locator('#birth-lon').count()==0
@@ -55,15 +55,24 @@ def exercise(base_url, screenshots):
    page.locator('[data-action="tool-run"]').click()
    page.wait_for_function('state.result!==null||state.error!==""')
    error=page.evaluate('state.error');assert not error,(tool,error)
-   if tool in ['natal','draconic']:
+   if tool in ['natal']:
     assert page.locator('.chart-wheel svg').count()==1
     assert page.evaluate('state.result.placements.length')==10 and page.evaluate('state.result.houses.length')==12
     assert page.evaluate('state.result.birth_utc')=='1996-11-05T19:30:00+00:00'
+    assert page.evaluate('state.result.houses.every(h=>h.ruler_placement&&Array.isArray(h.occupants))')
+    assert page.evaluate('state.result.angles.length')==4
+    assert page.locator('.birth-sidebar table').count()==3
+    assert '☉' in page.locator('.birth-sidebar').inner_text() and '♏' in page.locator('.birth-sidebar').inner_text()
+    assert page.locator('#report-zodiac').input_value()=='tropical'
     if tool=='natal':
+     page.locator('.birth-report').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web-birth-report-sidebar.png'))
      page.locator('.chart-wheel').screenshot(path=str(screenshots/'web-desktop-birth-chart.png'))
      page.pdf(path=str(screenshots/'birth-chart-report.pdf'),format='A4',print_background=True,margin={'top':'12mm','bottom':'12mm','left':'12mm','right':'12mm'})
+     page.get_by_role('link',name='Houses',exact=True).click();assert page.locator('#chart-houses').is_visible()
+     page.locator('#birth-rulership').select_option('traditional');page.locator('[data-action="tool-run"]').click();page.wait_for_function('state.result?.rulership==="traditional"')
+     assert page.evaluate('state.result.houses[0].ruling_planet')=='Jupiter'
      before=page.evaluate('state.result.placements[0].longitude')
-     page.locator('#birth-zodiac').select_option('sidereal');page.locator('[data-action="tool-run"]').click();page.wait_for_function('state.result?.zodiac==="sidereal"')
+     page.locator('#report-zodiac').select_option('sidereal');page.wait_for_function('state.result?.zodiac==="sidereal"')
      assert before!=page.evaluate('state.result.placements[0].longitude')
    requests.append(tool)
   page.evaluate('transition("explore","store")')
@@ -84,6 +93,23 @@ def exercise(base_url, screenshots):
   page.get_by_role('button',name='Mood Check-In',exact=True).click();page.get_by_role('button',name='Log mood 😊').click();assert 'Latest check-in' in page.locator('main').inner_text()
   page.evaluate('transition("cosmos")');page.wait_for_function('state.transit!==null&&!skyUI.loading')
   assert page.evaluate('state.transit.planets.length')==10
+  page.wait_for_function('moonUI.data!==null&&!moonUI.loading')
+  page.locator('#moon-month').fill('2026-11');page.locator('#moon-month').dispatch_event('change');page.wait_for_function('moonUI.data?.month===11&&!moonUI.loading')
+  assert page.locator('.moon-calendar-grid [data-action="moon-day"]').count()==30
+  page.get_by_role('button',name='2026-11-09 New Moon',exact=True).click();page.wait_for_function('state.transit?.date==="2026-11-09"&&!skyUI.loading')
+  assert page.locator('.lunar-daily-table tbody tr').count()==30
+  assert page.locator('.lunar-daily-table svg').count()==30
+  assert 'not established medical effects' in page.locator('.lunar-health-note').inner_text()
+  assert 'At start of day' in page.locator('.lunar-daily-table').inner_text()
+  page.locator('#moon-calendar').screenshot(path=str(screenshots/'web-moon-calendar.png'))
+  page.set_viewport_size({'width':390,'height':844});page.locator('#moon-calendar').scroll_into_view_if_needed()
+  assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
+  page.screenshot(path=str(screenshots/'web-mobile-moon-calendar.png'))
+  page.set_viewport_size({'width':1448,'height':1086})
+  page.get_by_role('button',name='Next year →',exact=True).click();page.wait_for_function('moonUI.data?.year===2027&&!moonUI.loading')
+  page.get_by_role('button',name='← Previous year',exact=True).click();page.wait_for_function('moonUI.data?.year===2026&&!moonUI.loading')
+  page.get_by_role('button',name='Next month →',exact=True).click();page.wait_for_function('moonUI.data?.month===12&&!moonUI.loading');assert page.locator('.moon-calendar-grid [data-action="moon-day"]').count()==31
+  page.get_by_role('button',name='← Previous month',exact=True).click();page.wait_for_function('moonUI.data?.month===11&&!moonUI.loading')
   page.locator('#sky-date').fill('2026-11-08');page.locator('#transit-sign').select_option('Virgo');page.wait_for_function('state.transit?.date==="2026-11-08"&&state.transit?.selected_sign==="Virgo"&&!skyUI.loading')
   assert page.evaluate('state.transit.moon.waxing') is False
   assert page.evaluate('state.transit.moon.phase_name')=='Waning Crescent'

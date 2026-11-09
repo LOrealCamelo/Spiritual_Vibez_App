@@ -1,5 +1,5 @@
 """
-AuraMystic Astrology, Ephemeris, Natal/Placidus/Draconic Charts, 13-Month Calendar, BaZi & Astrocartography Router
+AuraMystic Astrology, Ephemeris, Natal/Placidus Charts, 13-Month Calendar, BaZi & Astrocartography Router
 """
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
@@ -13,6 +13,7 @@ from ..services.ephemeris_engine import (
 )
 from ..services.birth_locations import resolve_birth, search_places, catalog
 from ..services.sky_engine import daily_transits, natal_chart
+from ..services.moon_calendar import monthly_moon_calendar
 
 router = APIRouter()
 
@@ -31,6 +32,15 @@ def get_daily_transits(
 @router.get('/locations/countries')
 def birth_countries():
     return {'countries': sorted([{'code': k, 'name': v['name']} for k,v in catalog().get_countries().items()], key=lambda c:c['name'])}
+
+
+@router.get('/moon-calendar')
+def get_monthly_moon_calendar(year: Optional[int] = None, month: Optional[int] = None,
+                              timezone: str = 'UTC', zodiac: str = 'tropical'):
+    try:
+        return monthly_moon_calendar(year,month,timezone,zodiac)
+    except ValueError as exc:
+        raise HTTPException(status_code=422,detail=str(exc)) from exc
 
 
 @router.get('/locations/search')
@@ -68,11 +78,11 @@ def calculate_natal_moon_phase(data: BirthDataRequest):
 
 @router.post("/natal-chart")
 def generate_natal_chart(data: BirthDataRequest):
-    """Calculates Placidus, Tropical, Secondary Progressions, or Draconic chart placements, 12 houses, and asteroids."""
+    """Calculates Placidus, Tropical, or Secondary Progression chart placements, 12 houses, and asteroids."""
     try:
         dt, location, local_time = resolve_birth(data)
         chart = natal_chart(dt, location['latitude'], location['longitude'], name=data.name,
-                            zodiac=data.zodiac, house_system=data.house_system,
+                            zodiac=data.zodiac, house_system=data.house_system, rulership=data.rulership,
                             chart_system=data.chart_system or 'natal')
         chart.update(birth_date=data.birth_date, birth_time=data.birth_time,
                      birth_local_time=local_time, birth_utc=dt.isoformat(), location=location)

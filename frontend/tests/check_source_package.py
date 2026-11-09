@@ -79,6 +79,17 @@ def main():
                     assert json.load(response)['count'] == 48
                 with http.open(address + '/api/rituals/search?query=rosemary') as response:
                     assert json.load(response)['count'] >= 1
+                with http.open(address + '/api/astrology/moon-calendar?year=2026&month=11&timezone=UTC') as response:
+                    lunar=json.load(response)
+                    assert len(lunar['days'])==30 and lunar['days'][0]['ingresses'][0]['sign']=='Leo'
+                    assert lunar['days'][0]['moon_image_svg'].startswith('<svg')
+                birth=json.dumps({'birth_date':'1996-11-05','birth_time':'14:30','place_id':'5142056'}).encode()
+                request=urllib.request.Request(address+'/api/astrology/natal-chart',data=birth,headers={'Content-Type':'application/json'})
+                with http.open(request) as response:
+                    chart=json.load(response)
+                    assert len(chart['placements'])==10 and len(chart['angles'])==4
+                    assert chart['placements'][0]['glyph'] and chart['placements'][0]['sign_glyph']
+                    assert chart['houses'][0]['ruler_placement'] and chart['wheel_svg']
                 print('PASS: complete ZIP, extracted-folder launcher, web source, PNGs and live backend.')
                 print('Platform: ' + sys.platform)
                 print('ZIP: ' + str(output))

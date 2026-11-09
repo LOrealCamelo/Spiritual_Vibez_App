@@ -14,12 +14,23 @@ the Python packages, then opens the web app and backend together.
   minutes, country, state/province and city. Find the city and select its result.
 - Choose Tropical or Sidereal (Lahiri), and Placidus, Whole Sign or Equal houses.
   Calculate to see the wheel, ten planet placements, twelve house descriptions,
-  major aspects, element counts and a detailed symbolic report. The browser can
+  major aspects, element counts and a detailed symbolic report. The positions
+  sidebar includes planet and zodiac symbols, degrees, house numbers, retrograde
+  markers and a Tropical/Sidereal dropdown. It sits below the wheel on phones.
+  Choose Modern (10 planets) or Traditional (7 planets) house rulers to see each
+  ruler’s actual sign/house, the planets occupying each house and ASC/MC/DC/IC
+  interpretations with applying/separating aspects. The browser can
   print the report or save it as a PDF.
 - Open Cosmos. It loads the current sky automatically in the device's timezone,
   refreshes every minute and when returning to the app, and accepts other dates.
   Other dates use local noon, which is shown explicitly. Change your zodiac sign
   to see different whole-sign solar-house reflections for the same sky snapshot.
+- Inside the existing Moon Phases/Cosmos section, browse any month/year from
+  1900–2100 using the month picker or previous/next month/year controls. A daily
+  list shows weekday, date, a calculated phase illustration, exact principal-phase
+  times, Moon sign changes and traditional body associations for each sign interval.
+  The Moon card and the natal Moon page both open this section; no new navigation
+  category is needed.
 - Open any spread and reveal a position. Its actual card PNG appears, rotated if
   reversed. The same deck appears in lessons, daily cards and quizzes. Native apps
   bundle every image and the full core card catalog for use without a connection.
@@ -62,12 +73,50 @@ validity for astrology interpretations. Personal feelings cannot be calculated
 from planetary positions. Daily reflections use solar houses rather than a
 person's complete natal chart. Birth-time accuracy affects houses and Ascendant.
 
-The existing draconic option subtracts the **mean** ascending lunar node; it is
-labelled draconic rather than sidereal. The existing progressed option uses the
-secondary day-for-year convention. The repaired natal report does not invent
+The Draconic chart has been removed at the owner’s request, including its menus,
+calculation branch and API option. Old web links return to the tool catalog, and
+API requests for this removed chart return 422. Secondary progressions retain the
+existing day-for-year convention. The repaired natal report does not invent
 asteroid positions. Separate educational asteroid, BaZi, astrocartography and
 13-moon calendar tools retain their earlier behavior; they are outside the
 numerical validation described here.
+
+## Reference layout and lunar calendar
+
+The owner supplied these Astro-Seek references:
+
+- [Natal birth chart](https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/)
+- [November 2026 lunar calendar](https://mooncalendar.astro-seek.com/moon-phases-calendar-november-2026)
+
+Automated requests return HTTP 403, so no direct calculator-to-calculator match is
+claimed. The supplied screenshots guide the report/table structure. Independent
+Swiss Ephemeris comparisons remain development fixtures only. All four November
+2026 phase times differ by less than 40 seconds in the current comparison. The
+first four Moon ingresses agree within one minute with the screenshot’s Leo
+04:18, Virgo 08:28, Libra 14:38 and Scorpio 22:40 UTC entries. Different ephemerides
+and minute-display conventions can produce small differences.
+
+Moon ingress searches bracket each 30° zodiac boundary and bisect to under one
+second; this solver resolution does not imply sub-second astronomical accuracy.
+Tropical and mean-Lahiri Sidereal use their respective sign boundaries. Daily
+illumination and phase illustrations use local noon, with a north-up convention
+(waxing on the right); principal phase labels refer to actual events during that
+civil date. All intervals and events use the selected timezone, including daylight
+saving and 23/25-hour dates. Historically skipped civil dates are marked unavailable.
+Responses cache up to 64 month/timezone/zodiac combinations.
+
+Body correspondences are explicitly presented as traditional astrology lore,
+not established physiological effects. The Surgery column directs users to their
+surgical team. Moon placements do not establish surgical safety; the app does not
+provide a lunar yes/no medical recommendation.
+
+House rulership is a symbolic convention. Modern rulers use Pluto for Scorpio,
+Uranus for Aquarius and Neptune for Pisces; traditional rulers use Mars, Saturn
+and Jupiter respectively. Major planetary aspect orbs are 8° conjunction, 4°
+sextile, 6° square/trine and 8° opposition; angle aspects use 8°. Applying/separating
+is derived from angular-error motion, with horizon/meridian motion included for
+chart angles. It is not inferred from sign order. Interpretations are original
+text based on those computed placements, rather than copied Astro-Seek prose.
 
 ## Deck provenance and packaging
 

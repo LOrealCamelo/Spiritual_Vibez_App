@@ -104,3 +104,44 @@ html{scroll-padding-top:100px;scroll-padding-bottom:140px}.main-page:has(.art-pa
 .spread-search[open] summary{margin-bottom:15px}
 @media(max-width:750px){.more-grid .extra-card[data-action="nav:journal"]{grid-column:1/-1;width:calc(50% - 6px);justify-self:center}}
 @media(max-width:750px){.home-greeting{display:block}.home-hero{display:none}.feature-grid{grid-template-columns:1fr 1fr}.more-grid{grid-template-columns:1fr 1fr}.more-grid .extra-card[data-action="tool:rituals"]{grid-column:1/-1}.section-heading--more{display:flex}}
+.birth-report{max-width:1260px}
+.birth-chart-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:24px;align-items:start}
+.birth-narrative{min-width:0}
+.birth-sidebar{position:sticky;top:100px;max-height:calc(100vh - 120px);overflow:auto;background:#ffedf8;border:1px solid #edc1df;border-radius:15px;padding:14px}
+.birth-sidebar h3{font-size:17px;margin-top:20px}
+.birth-sidebar table{width:100%;border-collapse:collapse;font-size:12px}
+.birth-sidebar th,.birth-sidebar td{padding:6px 2px;text-align:left;border-bottom:1px solid #e9cde1}
+.birth-sidebar th{font-weight:800}
+.report-jumps{display:flex;flex-wrap:wrap;gap:8px}
+.report-jumps a{color:#7a1c83;font-weight:700;font-size:13px}
+.report-mobile-summary{display:none}
+.report-section h4{color:#673277;margin-bottom:7px}
+.birth-narrative h2{scroll-margin-top:110px}
+@media(max-width:1050px){.birth-chart-layout{display:block}.birth-sidebar{display:none}.report-mobile-summary{display:grid}}
+@media print{.birth-chart-layout{display:block}.birth-sidebar{display:none}.report-mobile-summary{display:grid}}
+.moon-month-nav{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
+.moon-month-nav .field{min-width:150px;max-width:240px}
+.moon-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin:18px 0}
+.moon-weekday{text-align:center;font-size:13px;font-weight:800;padding:8px 0}
+.moon-calendar-day{display:flex;flex-direction:column;align-items:center;gap:5px;background:#fff7fc;border:1px solid #e9bbda;border-radius:14px;color:#46205f;padding:10px 4px}
+.moon-day-emoji{font-size:30px;line-height:1.2}
+.moon-calendar-day small{font-size:12px}
+.moon-event-day{background:#ffe4f4;border-color:#e85bad}
+.moon-day-selected{outline:2px solid #e51a9a;outline-offset:-2px}
+.moon-selected-day{background:#fff8fd;border-radius:15px;padding:15px;margin-bottom:20px}
+.moon-events{padding:0;list-style:none}
+.moon-events li{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid #e9c3de}
+.moon-events span{text-align:right}
+@media(max-width:600px){.moon-calendar-grid{gap:3px}.moon-calendar-day{padding:8px 1px;border-radius:8px}.moon-day-emoji{font-size:25px}.moon-calendar-day small{font-size:10px}.moon-weekday{font-size:11px}.moon-month-nav .btn{font-size:12px;padding:9px 12px}.moon-events li{display:block}.moon-events span{display:block;text-align:left;margin-top:5px}}
+
+.lunar-table-wrap{overflow-x:auto;border:1px solid #edc1df;border-radius:16px;margin:16px 0}
+.lunar-daily-table{width:100%;min-width:760px;border-collapse:collapse;font-size:14px;background:#fff9fd}
+.lunar-daily-table th,.lunar-daily-table td{padding:15px 12px;text-align:left;border-bottom:1px solid #edd5e6;vertical-align:top}
+.lunar-daily-table thead{background:linear-gradient(110deg,#622693,#c7289a);color:white}
+.lunar-daily-table tbody th{width:130px}.lunar-daily-table small{display:block;color:#75546f;margin:5px 0}
+.lunar-daily-table button{font:inherit;color:#8e166e;background:transparent;border:0;text-align:left;cursor:pointer;font-weight:800;padding:0}
+.lunar-daily-table td p{font-size:13px;margin:0 0 10px}.lunar-daily-table td div+div{margin-top:10px}
+.lunar-principal-row{background:#fde4f5}.lunar-health-note{font-size:14px;line-height:1.6;border-left:4px solid #d92d9b;padding:12px 16px;background:#fff8fd;border-radius:8px}
+.birth-sidebar td small{display:block;font-size:10px;color:#75546f}
+
+.lunar-daily-table .moon-day-emoji{display:inline-block;width:42px;vertical-align:middle;margin-right:7px}.lunar-daily-table .moon-day-emoji svg{width:42px;height:42px}

@@ -2,7 +2,7 @@
 Pydantic v2 Data Models & Request/Response Schemas for AuraMystic API
 """
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Literal
 
 class BirthDataRequest(BaseModel):
     birth_date: str = Field(..., description="YYYY-MM-DD", examples=["1996-11-05"])
@@ -18,7 +18,8 @@ class BirthDataRequest(BaseModel):
     longitude: Optional[float] = Field(None, ge=-180, le=180)
     zodiac: str = 'tropical'
     house_system: str = 'placidus'
-    chart_system: Optional[str] = Field("placidus", description="placidus | tropical | progressed | draconic")
+    rulership: Literal['modern','traditional'] = 'modern'
+    chart_system: Optional[Literal['natal','placidus','tropical','progressed']] = Field("placidus", description="natal | placidus | tropical | progressed")
 
 class BaZiRequest(BaseModel):
     birth_year: int = Field(1996, ge=1900, le=2100)

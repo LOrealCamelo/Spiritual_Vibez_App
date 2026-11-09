@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,CosmosScreen} from '../App';
 import {IllustratedCard,UI_CARD_IMAGES} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
-import {NativeChartReport} from '../src/components/CosmicTools';
+import {NativeChartReport,NativeMoonCalendar} from '../src/components/CosmicTools';
 import {matchesVibe} from '../src/api/spreads';
 import {SvgXml} from 'react-native-svg';
 
@@ -145,7 +145,7 @@ test('store shows one website link without loading a product catalog',async()=>{
 });
 
 
-test.each(['natal','draconic','moon'])('native %s resolves a city and submits local birth time without coordinate fields',async(tool)=>{
+test.each(['natal','moon'])('native %s resolves a city and submits local birth time without coordinate fields',async(tool)=>{
  const place={place_id:'5142056',label:'Utica, New York, United States',timezone:'America/New_York'};
  globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/locations/search')?{places:[place]}:{emoji:'🌘',natal_moon_phase:'Waning Crescent',illumination_percentage:21,description:'Birth Moon',moon_position:'Virgo 2°',birth_local_time:'1996-11-05T14:30:00-05:00',location:place}}));
  await render(<ExploreScreen route={{params:{tool}}} navigation={{goBack:jest.fn()}}/>);
@@ -153,10 +153,10 @@ test.each(['natal','draconic','moon'])('native %s resolves a city and submits lo
  await fill('Name (optional)','Mystic');await fill('Birth date YYYY-MM-DD','1996-11-05');await fill('Hour (0–23)','14');await fill('Minutes (0–59)','30');await fill('State / province','NY');await fill('City of birth','Utica');
  expect(text()).not.toContain('Birth latitude');expect(text()).not.toContain('Birth longitude');
  await press('Find my birth city');expect(String((globalThis.fetch as jest.Mock).mock.calls[0][0])).toContain('city=Utica');await press('Select '+place.label);
- await press('Sidereal (Lahiri)');await press(tool==='moon'?'Find my natal Moon':'Create my birth chart');
+ await press('Sidereal (Lahiri)');if(tool==='natal')await press('Traditional (7 planets)');await press(tool==='moon'?'Find my natal Moon':'Create my birth chart');
  const [url,options]=(globalThis.fetch as jest.Mock).mock.calls.at(-1)!;
  expect(url).toContain('/astrology/'+(tool==='moon'?'moon-phase':'natal-chart'));
- expect(JSON.parse(options.body)).toMatchObject({name:'Mystic',birth_date:'1996-11-05',birth_time:'14:30',place_id:'5142056',zodiac:'sidereal',chart_system:tool==='draconic'?'draconic':'natal'});
+ expect(JSON.parse(options.body)).toMatchObject({name:'Mystic',birth_date:'1996-11-05',birth_time:'14:30',place_id:'5142056',zodiac:'sidereal',rulership:tool==='natal'?'traditional':'modern',chart_system:'natal'});
  expect(text()).toContain('Waning Crescent');
 });
 
@@ -173,10 +173,10 @@ test('actual tarot PNGs appear in a reveal, a lesson and a study quiz',async()=>
 
 test('daily sky loads on entry, switches sign and requests the selected date',async()=>{
  const planets=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'].map(planet=>({planet,glyph:'',formatted:'Scorpio 2°',motion:'Direct'}));
- globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>({date:'2026-11-08',as_of:'2026-11-08T12:00:00',selected_sign:url.includes('sign=Pisces')?'Pisces':'Scorpio',moon_phase:'Waning Crescent in Scorpio',moon:{waxing:false,next_phase:'New Moon',next_phase_at:'2026-11-09T07:02:00Z'},planets,forecast:{details:[],method:'Solar houses',note:'Symbolic'}})}));
+ globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/moon-calendar')?require('./fixtures/moonCalendar.json'):({date:'2026-11-08',as_of:'2026-11-08T12:00:00',selected_sign:url.includes('sign=Pisces')?'Pisces':'Scorpio',moon_phase:'Waning Crescent in Scorpio',moon:{waxing:false,next_phase:'New Moon',next_phase_at:'2026-11-09T07:02:00Z'},planets,forecast:{details:[],method:'Solar houses',note:'Symbolic'}})}));
  await render(<CosmosScreen navigation={{goBack:jest.fn()}}/>);expect(text()).toContain('Waning Crescent');expect(text()).toContain('Neptune');
  await press('Pisces');expect(text().replace(/\s+/g,' ')).toContain('Your Pisces daily reflection');
- await act(async()=>tree.root.findByType(TextInput).props.onChangeText('2026-11-07'));await press('Refresh my cosmic weather');
+ await act(async()=>tree.root.findAllByType(TextInput).find(x=>x.props.accessibilityLabel==='Date YYYY-MM-DD (blank = today)')!.props.onChangeText('2026-11-07'));await press('Refresh my cosmic weather');
  expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('date=2026-11-07');
 });
 
@@ -187,7 +187,7 @@ test('native SVG parser renders a real backend chart and its complete report',as
  expect(tree.root.findByType(SvgXml).props.xml).toContain('viewBox="0 0 760 760"');
  const output=text().replace(/\s+/g,' ');
  for(const p of report.placements)expect(output).toContain(p.planet+' in '+p.sign);
- expect(output).toContain('House 12');expect(output).toContain('Major planetary aspects');
+ expect(output).toContain('House 12');expect(output).toContain('Major planetary aspects');expect(output).toMatch(/Ruler of house\s+1\s*:\s*Neptune/);expect(output).toContain('ASC aspects');
 });
 
 
@@ -200,4 +200,19 @@ test('painted Career filter finds the API career spreads without covering its ic
  const selected=tree.root.findAllByType(TouchableOpacity).find(x=>x.props.accessibilityLabel==='Filter by Career')!;
  expect(selected.props.accessibilityState.selected).toBe(true);
  expect(selected.findAllByType(Text)).toHaveLength(0);
+});
+
+
+test('monthly Moon calendar stays in the Moon section and supports day and month selection',async()=>{
+ const calendar=require('./fixtures/moonCalendar.json');const onSelect=jest.fn();
+ globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>calendar});
+ await render(<NativeMoonCalendar timezone="UTC" zodiac="tropical" currentDate="2026-11-08" selectedDate="" onSelect={onSelect}/>);
+ expect(text()).toContain('Monthly Moon Phases');expect(text()).toContain('November 2026');
+ expect(text()).toContain('Day-by-day lunar calendar');expect(text()).toContain('Heart, aorta');expect(text()).toContain('Ask your surgical team');
+ expect(tree.root.findAllByType(SvgXml)).toHaveLength(30);
+ await press('Next year →');expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('year=2027');
+ await press('← Previous year');
+ await press('2026-11-09 New Moon');expect(onSelect).toHaveBeenCalledWith('2026-11-09');
+ await press('Next month →');expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('month=12');
+ await press('← Previous month');expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('month=11');
 });

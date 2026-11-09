@@ -32,7 +32,7 @@ def run_all_tests():
     moon = astrology.calculate_natal_moon_phase(BirthDataRequest(birth_date="1996-11-05", birth_time="14:30", place_id="5142056"))
     assert "natal_moon_phase" in moon and "illumination_percentage" in moon
 
-    for sys_name in ("placidus", "tropical", "progressed", "draconic"):
+    for sys_name in ("placidus", "tropical", "progressed"):
         chart = astrology.generate_natal_chart(BirthDataRequest(birth_date="1996-11-05", birth_time="14:30", place_id="5142056", chart_system=sys_name))
         assert len(chart["placements"]) == 10 and len(chart["houses"]) == 12 and chart["wheel_svg"]
 

@@ -16,7 +16,7 @@ app = FastAPI(
         "Production Full-Stack Backend powering AuraMystic: Daily Ephemeris & Transits, "
         "Natal Moon Phase, Numerology & Love Synastry, 78-Card Tarot Studio & 48 Spreads, "
         "Solfeggio Frequencies & Rituals, Lunar Menstrual Cycle & Shadow Work Journal, "
-        "Placidus/Draconic/BaZi/Astrocartography Charts, Divination Hub, AI Mystic Oracle, "
+        "Placidus/BaZi/Astrocartography Charts, Divination Hub, AI Mystic Oracle, "
         "and the Official NeuroSpicy Mystic Storefront (neurospicymystic.com)."
     ),
     version="2.0.0",

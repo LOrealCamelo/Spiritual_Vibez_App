@@ -28,7 +28,7 @@ web controls use the same filenames. The artwork keeps its original aspect ratio
 | Today's Journal | Journal → write and save a reflection on the device |
 | Saved Readings | Journal → saved reflections and readings |
 | Mood Check-In | Journal → record a mood on the device |
-| Moon Phase | Journal and Home → current daily Moon/planetary sky |
+| Moon Phase | Journal and Home → current daily Moon/planetary sky and monthly lunar calendar |
 | Numerology | Journal and Home → Life Path calculator |
 | Rituals | Journal and Home → ritual search |
 

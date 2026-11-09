@@ -93,6 +93,7 @@ test('all 24 supplied UI panels appear in the matching web sections',()=>{
  assert.match(home,/src="assets\/me_hero2.png"/);
  assert.match(home,/data-action="nav:cosmos" aria-label="Open Moon Phase"/);
  assert.doesNotMatch(home,/feature-icon|feature-copy/);
+ assert.doesNotMatch(vm.runInContext('state.tool=null;explorePage()',context),/Draconic/);
 });
 
 test('vibe filters include actual career and relationship spreads',()=>{

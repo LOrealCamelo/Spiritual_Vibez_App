@@ -9,11 +9,13 @@ from functools import lru_cache
 import math
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import astronomy as ae
-from .chart_interpretations import SIGNS, HOUSE_THEMES, ASPECT_TEXT, planet_report, house_report, transit_forecast
+from .chart_interpretations import SIGNS, HOUSE_THEMES, planet_report, house_report, transit_forecast
+from .natal_report import aspect_between, enrich_houses, angle_report
 
 PLANETS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']
 ELEMENTS = ['Fire','Earth','Air','Water']
 MODES = ['Cardinal','Fixed','Mutable']
+SIGN_GLYPHS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓']
 GLYPHS = ['☉','☽','☿','♀','♂','♃','♄','♅','♆','♇']
 RULERS = ['Mars','Venus','Mercury','Moon','Sun','Mercury','Venus','Mars / Pluto','Jupiter','Saturn','Saturn / Uranus','Jupiter / Neptune']
 
@@ -36,7 +38,9 @@ def sign_position(longitude):
     display_index, remainder = divmod(total_minutes, 30 * 60)
     degree, minute = divmod(remainder, 60)
     return dict(longitude=round(lon, 6), sign=SIGNS[index], degree=int(lon % 30),
-                minute=int((lon % 1) * 60), formatted=f"{SIGNS[display_index]} {degree}°{minute:02d}′",
+                minute=int((lon % 1) * 60), sign_glyph=SIGN_GLYPHS[index],
+                display_sign=SIGNS[display_index], display_sign_glyph=SIGN_GLYPHS[display_index],
+                degree_formatted=f'{degree}°{minute:02d}′', formatted=f"{SIGNS[display_index]} {degree}°{minute:02d}′",
                 element=ELEMENTS[index % 4], modality=MODES[index % 3], ruler=RULERS[index])
 
 
@@ -197,8 +201,10 @@ def house_for(longitude, cusps):
     return 1
 
 
-def natal_chart(dt, latitude, longitude, name='', zodiac='tropical', house_system='placidus', chart_system='natal'):
-    if chart_system not in ('natal','placidus','tropical','draconic','progressed'):
+def natal_chart(dt, latitude, longitude, name='', zodiac='tropical', house_system='placidus', chart_system='natal', rulership='modern'):
+    if rulership not in ('modern','traditional'):
+        raise ValueError('Choose modern or traditional house rulership.')
+    if chart_system not in ('natal','placidus','tropical','progressed'):
         raise ValueError('Unknown chart system.')
     calculation_dt = dt
     if chart_system == 'progressed':
@@ -207,9 +213,6 @@ def natal_chart(dt, latitude, longitude, name='', zodiac='tropical', house_syste
     pos = compute_planetary_positions(calculation_dt, zodiac)
     cusps, asc, mc = house_cusps(calculation_dt, latitude, longitude, house_system)
     offset = zodiac_offset(astro_time(calculation_dt), zodiac)
-    if chart_system == 'draconic':
-        offset += pos['NorthNode']['longitude']
-        pos = {p: {**pos[p], **sign_position(pos[p]['longitude']-pos['NorthNode']['longitude'])} for p in PLANETS}
     cusps = [(c-offset)%360 for c in cusps]
     # Whole-sign cusps must start at the chosen zodiac's sign boundary.
     if house_system == 'whole_sign':
@@ -222,23 +225,32 @@ def natal_chart(dt, latitude, longitude, name='', zodiac='tropical', house_syste
         placements.append(row)
     houses = [dict(number=i+1, title=HOUSE_THEMES[i][0], **sign_position(c),
                    description=house_report(i+1, sign_position(c)['sign'])) for i,c in enumerate(cusps)]
+    enrich_houses(houses,placements,rulership)
     aspects = []
     for i, a in enumerate(placements):
         for b in placements[i+1:]:
-            separation = abs(signed(a['longitude']-b['longitude']))
-            for label, angle, orb in [('Conjunction',0,8),('Sextile',60,4),('Square',90,6),('Trine',120,6),('Opposition',180,8)]:
-                if abs(separation-angle) <= orb:
-                    aspects.append(dict(planet_a=a['planet'], planet_b=b['planet'], aspect=label,
-                                        angle=angle, separation=round(separation,3), orb=round(abs(separation-angle),3),
-                                        description=ASPECT_TEXT[label]))
+            aspect=aspect_between(a,b)
+            if aspect:aspects.append(aspect)
     aspects.sort(key=lambda a:a['orb'])
-    result = dict(name=name, title=('Draconic' if chart_system == 'draconic' else 'Secondary progressed' if chart_system == 'progressed' else 'Natal')+' birth chart',
+    # Natal angle motion includes Earth's rotation, as well as planetary motion.
+    # Derive it from two real sky instants; do not guess from zodiac order.
+    before=house_cusps(calculation_dt-timedelta(minutes=1),latitude,longitude,'equal')
+    after=house_cusps(calculation_dt+timedelta(minutes=1),latitude,longitude,'equal')
+    asc_speed=signed(after[1]-before[1])*720
+    mc_speed=signed(after[2]-before[2])*720
+    angles=[angle_report(n,c,sign_position(lon),speed,placements,rulership) for n,c,lon,speed in
+            [('Ascendant','ASC',asc,asc_speed),('Midheaven','MC',mc,mc_speed),
+             ('Descendant','DC',(asc+180)%360,asc_speed),('Imum Coeli','IC',(mc+180)%360,mc_speed)]]
+    result = dict(name=name, title=('Secondary progressed' if chart_system == 'progressed' else 'Natal')+' birth chart',
                   zodiac=zodiac, zodiac_label='Tropical' if zodiac == 'tropical' else 'Sidereal (Lahiri)',
                   ayanamsa_degrees=round(lahiri_ayanamsa(astro_time(calculation_dt)),6) if zodiac == 'sidereal' else 0,
-                  house_system=house_system, system=chart_system,
+                  house_system=house_system, system=chart_system, rulership=rulership,
                   ascendant=sign_position(asc)['formatted'], midheaven=sign_position(mc)['formatted'],
                   ascendant_longitude=asc, midheaven_longitude=mc,
-                  placements=placements, houses=houses, aspects=aspects,
+                  placements=placements, houses=houses, aspects=aspects, angles=angles,
+                  aspect_settings={'Conjunction':8,'Sextile':4,'Square':6,'Trine':6,'Opposition':8,'angles':8},
+                  aspect_motion_note='Applying means the angular error is decreasing at the calculation instant; separating means it is increasing. Angle aspects include the motion of the local horizon/meridian.',
+                  reference_url='https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/',
                   elements={e:sum(p['element']==e for p in placements) for e in ELEMENTS},
                   modalities={m:sum(p['modality']==m for p in placements) for m in MODES},
                   calculation_time_utc=calculation_dt.isoformat(),
