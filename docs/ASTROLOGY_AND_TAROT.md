@@ -10,8 +10,10 @@ Download the [current app ZIP](https://github.com/LOrealCamelo/Spiritual_Vibez_A
 extract it and double-click `START_WEB_WINDOWS.cmd`. The first launch installs
 the Python packages, then opens the web app and backend together.
 
-- Open Birth Chart from Home or Explore. Enter a name, birth date, local hour and
-  minutes, country, state/province and city. Find the city and select its result.
+- Open Birth Chart from Home or Explore. Enter a name, birth date, local hour
+  (12 AM through 11 AM, then 12 PM through 11 PM) and minutes (00–59), country,
+  state/province and city. Find the city and select its result. The hour must be
+  selected explicitly; 12 AM means midnight and 12 PM means noon.
 - Choose Tropical or Sidereal (Lahiri), and Placidus, Whole Sign or Equal houses.
   Calculate to see the wheel, ten planet placements, twelve house descriptions,
   major aspects, element counts and a detailed symbolic report. The positions
@@ -45,11 +47,27 @@ instants; the display uses those names within ±1° of the corresponding elongat
 and otherwise shows waxing/waning crescent or gibbous. It also shows the next
 principal phase's calculated time. This convention is visible in both apps.
 
+Both apps submit the selected 12-hour clock time and an explicit `birth_period`
+(`AM` or `PM`). Python normalizes it to a 24-hour local time before constructing
+the birth datetime: `hour % 12 + (12 if period == 'PM' else 0)`. Existing API
+clients can omit `birth_period` and continue submitting a 24-hour `birth_time`.
+Responses retain normalized 24-hour `birth_time` and also include
+`birth_time_12h`, the offset-bearing `birth_local_time`, and `birth_utc`.
+
 The historical IANA timezone from the selected city converts local birth time
 to UTC, including daylight saving. Nonexistent clock times are rejected; repeated
 times require choosing the first or second occurrence. Missing birth locations
 are rejected rather than silently substituting Utica. Existing coordinate-based
 API integrations must explicitly supply coordinates **and** a timezone.
+
+That UTC instant drives the planetary ephemeris; the same instant and the city's
+latitude/longitude drive local sidereal time, the Ascendant, Midheaven, and house
+cusps. Changing AM to PM therefore recalculates both the sky and houses. Regression
+tests cover all 24 hour choices, noon/midnight, historical DST gaps and repeated
+hours, different birthplaces, and AM/PM chart comparisons with independent
+Swiss Ephemeris 2.10.03 / Moshier reference values (Moon within 0.02°, angles and
+all 12 Placidus cusps within 0.001°). Swiss Ephemeris is a development reference,
+not an application dependency.
 
 GeoNames city data (through geonamescache 3.0.2) covers towns with population
 of at least 1,000. State/province names come from the bundled GeoNames admin1

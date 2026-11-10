@@ -3,6 +3,7 @@ AuraMystic Astrology, Ephemeris, Natal/Placidus Charts, 13-Month Calendar, BaZi 
 """
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
+from datetime import datetime
 from ..models import BirthDataRequest, BaZiRequest, RelocationRequest
 from ..services.ephemeris_engine import (
     compute_planetary_positions,
@@ -11,7 +12,7 @@ from ..services.ephemeris_engine import (
     calculate_astrocartography,
     MASTER_DATA
 )
-from ..services.birth_locations import resolve_birth, search_places, catalog
+from ..services.birth_locations import birth_time_24h, resolve_birth, search_places, catalog
 from ..services.sky_engine import daily_transits, natal_chart
 from ..services.moon_calendar import monthly_moon_calendar
 
@@ -62,7 +63,8 @@ def calculate_natal_moon_phase(data: BirthDataRequest):
     lp = pos["LunarPhase"]
     return {
         "birth_date": data.birth_date,
-        "birth_time": data.birth_time,
+        "birth_time": birth_time_24h(data),
+        'birth_time_12h': datetime.fromisoformat(local_time).strftime('%I:%M %p'),
         'birth_local_time': local_time,
         'birth_utc': dt.isoformat(),
         'location': location,
@@ -84,7 +86,8 @@ def generate_natal_chart(data: BirthDataRequest):
         chart = natal_chart(dt, location['latitude'], location['longitude'], name=data.name,
                             zodiac=data.zodiac, house_system=data.house_system, rulership=data.rulership,
                             chart_system=data.chart_system or 'natal')
-        chart.update(birth_date=data.birth_date, birth_time=data.birth_time,
+        chart.update(birth_date=data.birth_date, birth_time=birth_time_24h(data),
+                     birth_time_12h=datetime.fromisoformat(local_time).strftime('%I:%M %p'),
                      birth_local_time=local_time, birth_utc=dt.isoformat(), location=location)
         return chart
     except ValueError as exc:

@@ -7,6 +7,7 @@ determines the coordinates and IANA timezone.
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
+import re
 import unicodedata
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import geonamescache
@@ -62,6 +63,25 @@ def search_places(city, country, state=''):
     return [place_record(c) for _, _, c in found[:15]]
 
 
+def birth_time_24h(data):
+    """Normalize the recorded local clock time before applying timezone rules.
+
+    Midnight is 12 AM -> 00:MM; noon is 12 PM -> 12:MM.
+    Retain the 24-hour API contract when no AM/PM period is supplied.
+    """
+    match = re.fullmatch(r'(\d{1,2}):([0-5]\d)', data.birth_time)
+    if not match:
+        raise ValueError('Enter a valid birth time with hours and minutes (HH:MM).')
+    hour, minute = map(int, match.groups())
+    if data.birth_period is not None:
+        if not 1 <= hour <= 12:
+            raise ValueError('For AM/PM birth times, choose an hour from 1 to 12.')
+        hour = hour % 12 + (12 if data.birth_period == 'PM' else 0)
+    elif not 0 <= hour <= 23:
+        raise ValueError('For 24-hour birth times, choose an hour from 0 to 23.')
+    return f'{hour:02d}:{minute:02d}'
+
+
 def resolve_birth(data):
     if data.place_id:
         city = catalog().get_cities().get(str(data.place_id))
@@ -75,11 +95,12 @@ def resolve_birth(data):
                         longitude=data.longitude, timezone=data.timezone)
     else:
         raise ValueError('Search for and select your birth city before calculating your chart.')
+    clock_time = birth_time_24h(data)
     try:
         zone = ZoneInfo(location['timezone'])
-        naive = datetime.strptime(f'{data.birth_date} {data.birth_time}', '%Y-%m-%d %H:%M')
+        naive = datetime.strptime(f'{data.birth_date} {clock_time}', '%Y-%m-%d %H:%M')
     except (ValueError, ZoneInfoNotFoundError) as exc:
-        raise ValueError('Enter a valid birth date and local time (24-hour hours and minutes).') from exc
+        raise ValueError('Enter a valid birth date and local time.') from exc
     if not 1900 <= naive.year <= 2100:
         raise ValueError('Birth dates must be between 1900 and 2100.')
     candidates = []

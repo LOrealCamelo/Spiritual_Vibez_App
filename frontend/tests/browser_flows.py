@@ -48,10 +48,12 @@ def exercise(base_url, screenshots):
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
    if tool in ['natal','moon']:
-    page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-hour').fill('14');page.locator('#birth-minute').fill('30')
+    page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-hour').select_option('02 PM');page.locator('#birth-minute').select_option('30')
     page.locator('#birth-country').fill('US');page.locator('#birth-region').fill('NY');page.locator('#birth-city').fill('Utica')
     page.locator('[data-action="birth-search"]').click();page.wait_for_selector('[data-action="birth-place"]');page.locator('[data-action="birth-place"]').first.click()
     assert page.locator('#birth-lat').count()==0 and page.locator('#birth-lon').count()==0
+    if tool=='natal':
+     page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(screenshots/'web/desktop/birth-time-form.png'),full_page=True)
    if page.locator('#search').count():page.locator('#search').fill('clarity')
    page.locator('[data-action="tool-run"]').click()
    page.wait_for_function('state.result!==null||state.error!==""')
@@ -60,6 +62,22 @@ def exercise(base_url, screenshots):
     assert page.locator('.chart-wheel svg').count()==1
     assert page.evaluate('state.result.placements.length')==10 and page.evaluate('state.result.houses.length')==12
     assert page.evaluate('state.result.birth_utc')=='1996-11-05T19:30:00+00:00'
+    assert page.locator('#birth-hour optgroup').count()==2
+    assert page.locator('#birth-hour option').count()==25  # placeholder + 24 hours
+    assert page.locator('#birth-hour optgroup').evaluate_all('(groups)=>groups.map(g=>g.label)')==['AM','PM']
+    assert page.locator('#birth-hour optgroup').evaluate_all('(groups)=>groups.map(g=>g.children.length)')==[12,12]
+    assert page.locator('#birth-minute option').count()==60
+    pm=page.evaluate('state.result')
+    page.locator('#birth-hour').select_option('02 AM');page.locator('[data-action="tool-run"]').click()
+    page.wait_for_function('state.result?.birth_utc==="1996-11-05T07:30:00+00:00"')
+    am=page.evaluate('state.result')
+    assert am['ascendant']!=pm['ascendant'] and am['houses']!=pm['houses']
+    assert am['placements'][1]['longitude']!=pm['placements'][1]['longitude']
+    assert 'AM' in page.locator('.birth-report>p').inner_text()
+    for choice,utc in [('12 AM','05:30'),('12 PM','17:30'),('02 PM','19:30')]:
+     page.locator('#birth-hour').select_option(choice);page.locator('[data-action="tool-run"]').click()
+     page.wait_for_function('(utc)=>state.result?.birth_utc==="1996-11-05T"+utc+":00+00:00"',arg=utc)
+    assert 'PM' in page.locator('.birth-report>p').inner_text()
     assert page.evaluate('state.result.houses.every(h=>h.ruler_placement&&Array.isArray(h.occupants))')
     assert page.evaluate('state.result.angles.length')==4
     assert page.locator('.birth-sidebar table').count()==3
@@ -139,9 +157,10 @@ def exercise(base_url, screenshots):
   retina_page.locator('.feature-grid').screenshot(path=str(screenshots/'web/phone/panels-3x.png'))
   retina.close()
   page.set_viewport_size({'width':390,'height':844});page.evaluate('transition("explore","natal")')
-  page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-date').fill('1996-11-05');page.locator('#birth-hour').fill('14');page.locator('#birth-minute').fill('30')
+  page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-date').fill('1996-11-05');page.locator('#birth-hour').select_option('02 PM');page.locator('#birth-minute').select_option('30')
   page.locator('#birth-country').fill('US');page.locator('#birth-region').fill('NY');page.locator('#birth-city').fill('Utica')
   page.locator('[data-action="birth-search"]').click();page.wait_for_selector('[data-action="birth-place"]');page.locator('[data-action="birth-place"]').first.click()
+  page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(screenshots/'web/phone/birth-time-form.png'),full_page=True)
   page.locator('[data-action="tool-run"]').click();page.wait_for_selector('.chart-wheel svg')
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
   page.locator('.chart-wheel').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web/phone/birth-chart.png'))

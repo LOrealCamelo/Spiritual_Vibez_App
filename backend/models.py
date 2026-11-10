@@ -6,7 +6,8 @@ from typing import List, Dict, Optional, Any, Literal
 
 class BirthDataRequest(BaseModel):
     birth_date: str = Field(..., description="YYYY-MM-DD", examples=["1996-11-05"])
-    birth_time: str = Field(..., description="Local HH:MM (24h)", examples=["14:30"])
+    birth_time: str = Field(..., description="Local HH:MM; 12-hour clock when birth_period is supplied, otherwise 24-hour clock", examples=["02:30"])
+    birth_period: Optional[Literal['AM', 'PM']] = Field(None, description="AM/PM for a 12-hour birth_time; omit for existing 24-hour integrations")
     name: str = Field('', max_length=80)
     place_id: Optional[str] = None
     city: Optional[str] = None

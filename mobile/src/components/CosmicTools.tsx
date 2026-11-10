@@ -1,6 +1,6 @@
 /** Daily astronomical data and city-based charts on both native platforms. */
 import React,{useEffect,useRef,useState} from 'react';
-import {AppState,ActivityIndicator,Share,StyleSheet,Text,TextInput,TouchableOpacity,View,useWindowDimensions} from 'react-native';
+import {AppState,ActivityIndicator,Modal,ScrollView,Share,StyleSheet,Text,TextInput,TouchableOpacity,View,useWindowDimensions} from 'react-native';
 import {SvgXml} from 'react-native-svg';
 import {API_BASE_URL} from '../api/spiritualVibezClient';
 
@@ -15,9 +15,18 @@ async function request(path:string,payload?:any){
 function Button({label,onPress,disabled=false}:{label:string,onPress:()=>void,disabled?:boolean}){return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} disabled={disabled} style={[s.button,disabled?{opacity:.5}:null]}><Text style={s.buttonText}>{label}</Text></TouchableOpacity>}
 function Input({label,value,onChange,numeric=false,placeholder=''}:{label:string,value:string,onChange:(v:string)=>void,numeric?:boolean,placeholder?:string}){return <View style={{marginBottom:12}}><Text style={s.label}>{label}</Text><TextInput accessibilityLabel={label} style={s.input} value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#85728e" keyboardType={numeric?'number-pad':'default'}/></View>}
 function Choices({values,value,onChange}:{values:[string,string][],value:string,onChange:(v:string)=>void}){return <View style={s.choices}>{values.map(([key,label])=><TouchableOpacity key={key} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:key===value}} onPress={()=>onChange(key)} style={[s.choice,key===value?{backgroundColor:'#e51a9a'}:null]}><Text style={{color:key===value?'white':'#3a156b',fontWeight:'700'}}>{label}</Text></TouchableOpacity>)}</View>}
+const BIRTH_HOURS:[string,string][]=['AM','PM'].flatMap(period=>Array.from({length:12},(_,i)=>{
+ const hour=String(i||12).padStart(2,'0');return [hour+' '+period,(i||12)+' '+period+(i===0?(period==='AM'?' (midnight)':' (noon)'):'')] as [string,string];
+}));
+const BIRTH_MINUTES:[string,string][]=Array.from({length:60},(_,i)=>{const value=String(i).padStart(2,'0');return [value,value]});
+function ClockDropdown({label,value,options,onChange}:{label:string,value:string,options:[string,string][],onChange:(v:string)=>void}){
+ const [open,setOpen]=useState(false);const {height}=useWindowDimensions();
+ return <View style={{marginBottom:12}}><Text style={s.label}>{label}</Text><TouchableOpacity accessibilityRole="button" accessibilityLabel={label} accessibilityState={{expanded:open}} onPress={()=>setOpen(true)} style={s.clockSelect}><Text style={s.clockValue}>{options.find(([key])=>key===value)?.[1]||'Choose hour'}</Text><Text style={s.clockValue}>⌄</Text></TouchableOpacity>
+ {open?<Modal transparent animationType="fade" onRequestClose={()=>setOpen(false)}><View style={s.clockOverlay}><View accessibilityViewIsModal style={[s.clockSheet,{maxHeight:height*.72}]}><Text accessibilityRole="header" style={s.title}>{label}</Text><ScrollView keyboardShouldPersistTaps="handled">{options.map(([key,text])=><TouchableOpacity key={key} accessibilityRole="button" accessibilityLabel={'Select '+text} accessibilityState={{selected:key===value}} onPress={()=>{onChange(key);setOpen(false)}} style={[s.clockOption,key===value?{backgroundColor:'#ffffff22'}:null]}><Text style={s.clockOptionText}>{text}{key===value?' ✓':''}</Text></TouchableOpacity>)}</ScrollView><Button label="Cancel" onPress={()=>setOpen(false)}/></View></View></Modal>:null}</View>;
+}
 
 export function NativeBirthChart({tool='natal'}:{tool?:string}){
- const [name,setName]=useState(''),[date,setDate]=useState(''),[hour,setHour]=useState('12'),[minute,setMinute]=useState('00');
+ const [name,setName]=useState(''),[date,setDate]=useState(''),[hour,setHour]=useState(''),[minute,setMinute]=useState('00');
  const [city,setCity]=useState(''),[country,setCountry]=useState('US'),[region,setRegion]=useState(''),[places,setPlaces]=useState<any[]>([]),[place,setPlace]=useState<any>(null);
  const [zodiac,setZodiac]=useState('tropical'),[houses,setHouses]=useState('placidus'),[rulership,setRulership]=useState('modern'),[fold,setFold]=useState('');
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState<any>(null);
@@ -29,13 +38,15 @@ export function NativeBirthChart({tool='natal'}:{tool?:string}){
  }catch(ex:any){setError(ex.message)}finally{setBusy(false)}};
  const calculate=async()=>{
   setError('');setResult(null);if(!place){setError('Find and select your birth city first.');return}
-  if(!date||!/^(?:[01]?\d|2[0-3])$/.test(hour)||!/^\d{1,2}$/.test(minute)||Number(minute)>59){setError('Enter a birth date, an hour from 0 to 23, and minutes from 0 to 59.');return}
-  setBusy(true);try{setResult(await request('/astrology/'+(tool==='moon'?'moon-phase':'natal-chart'),{name,birth_date:date,birth_time:hour.padStart(2,'0')+':'+minute.padStart(2,'0'),place_id:place.place_id,zodiac,house_system:houses,rulership,chart_system:'natal',time_fold:fold===''?null:Number(fold)}))}catch(ex:any){setError(ex.message)}finally{setBusy(false)}
+  if(!date||!/^(?:0[1-9]|1[0-2]) (?:AM|PM)$/.test(hour)||!/^\d{2}$/.test(minute)||Number(minute)>59){setError('Enter a birth date, choose an AM or PM birth hour, and minutes (00–59).');return}
+  const [clockHour,period]=hour.split(' ');
+  setBusy(true);try{setResult(await request('/astrology/'+(tool==='moon'?'moon-phase':'natal-chart'),{name,birth_date:date,birth_time:clockHour+':'+minute,birth_period:period,place_id:place.place_id,zodiac,house_system:houses,rulership,chart_system:'natal',time_fold:fold===''?null:Number(fold)}))}catch(ex:any){setError(ex.message)}finally{setBusy(false)}
  };
  return <>
   <View style={s.panel}><Text style={s.title}>Your birth details</Text>
   <Input label="Name (optional)" value={name} onChange={setName}/><Input label="Birth date YYYY-MM-DD" placeholder="1996-11-05" value={date} onChange={v=>{setDate(v);setFold('')}}/>
-  <View style={s.row}><View style={s.flex}><Input label="Hour (0–23)" value={hour} onChange={v=>{setHour(v);setFold('')}} numeric/></View><View style={s.flex}><Input label="Minutes (0–59)" value={minute} onChange={v=>{setMinute(v);setFold('')}} numeric/></View></View>
+  <View style={s.row}><View style={s.flex}><ClockDropdown label="Hour (AM/PM)" value={hour} options={BIRTH_HOURS} onChange={v=>{setHour(v);setFold('')}}/></View><View style={s.flex}><ClockDropdown label="Minutes" value={minute} options={BIRTH_MINUTES} onChange={v=>{setMinute(v);setFold('')}}/></View></View>
+  <Text style={s.body}>Use the local time on your birth record. 12 AM is midnight; 12 PM is noon.</Text>
   <Input label="Country name or code" placeholder="United States or US" value={country} onChange={updatePlace(setCountry)}/><Input label="State / province" placeholder="New York or NY" value={region} onChange={updatePlace(setRegion)}/><Input label="City of birth" value={city} onChange={updatePlace(setCity)}/>
   <Button label="Find my birth city" onPress={search} disabled={busy}/>
   {places.map(p=><TouchableOpacity key={p.place_id} accessibilityRole="button" accessibilityLabel={'Select '+p.label} style={s.place} onPress={()=>{setPlace(p);setPlaces([]);setResult(null);setFold('')}}><Text style={s.label}>{p.label}</Text><Text style={s.body}>{p.timezone}</Text></TouchableOpacity>)}
@@ -50,7 +61,7 @@ export function NativeBirthChart({tool='natal'}:{tool?:string}){
  </>;
 }
 
-function localBirthLabel(o:any){try{return new Date(o.birth_local_time).toLocaleString(undefined,{timeZone:o.location.timezone,year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'})}catch{return o.birth_local_time}}
+function localBirthLabel(o:any){try{return new Date(o.birth_local_time).toLocaleString(undefined,{timeZone:o.location.timezone,year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZoneName:'short'})}catch{return o.birth_local_time}}
 function positionLabel(p:any){return (p.display_sign_glyph||p.sign_glyph||'')+' '+(p.degree_formatted||p.formatted)+' '+(p.display_sign||p.sign)}
 function aspectLabel(a:any){return a.planet_a+' '+a.aspect+' '+a.planet_b+' · '+(a.orb_formatted||a.orb.toFixed(2)+'°')+(a.motion?' · '+a.motion:'')}
 export function NativeChartReport({result:o}:{result:any}){
@@ -109,4 +120,4 @@ export function NativeDailySky(){
  <View style={s.row}>{data.planets.map((p:any)=><View key={p.planet} style={[s.panel,{width:'48%'}]}><Text style={s.heading}>{p.glyph} {p.planet}</Text><Text style={s.body}>{p.formatted}</Text><Text style={[s.label,p.retrograde?{color:'#ba167b'}:null]}>{p.motion}</Text></View>)}</View>
  <View style={s.panel}><Text style={s.title}>Your {data.selected_sign} daily reflection</Text>{data.forecast.details.map((d:any)=><View key={d.planet} style={s.section}><Text style={s.heading}>{d.planet} · {d.title}</Text><Text style={s.body}>{d.text}</Text></View>)}<Text style={s.body}>{data.forecast.method}</Text><Text style={s.body}>{data.forecast.note}</Text><Button label="Share daily reflection" onPress={()=>Share.share({message:data.forecast.content})}/></View></>:null}</>;
 }
-const s=StyleSheet.create({panel:{backgroundColor:'rgba(255,255,255,.035)',borderColor:'#ffffff80',borderWidth:2,borderRadius:22,padding:16,marginBottom:14},title:{fontSize:23,fontWeight:'800',color:'#fff9fe',marginVertical:12},heading:{fontSize:18,fontWeight:'800',color:'#fff9fe',marginBottom:8},label:{fontSize:14,fontWeight:'700',color:'#fff9fe',marginBottom:7},body:{fontSize:15,color:'#fff5fd',lineHeight:23,marginBottom:12},input:{backgroundColor:'#fff',borderWidth:1,borderColor:'#cfadd4',borderRadius:12,padding:13,color:'#3a156b'},button:{backgroundColor:'rgba(255,255,255,.05)',borderWidth:1,borderColor:'#ffffffa0',padding:15,borderRadius:24,marginVertical:8,alignItems:'center'},buttonText:{color:'#fff',fontWeight:'800',fontSize:16},choices:{flexDirection:'row',flexWrap:'wrap',gap:7,marginBottom:14},choice:{backgroundColor:'#fff',borderWidth:1,borderColor:'#e9b4dc',borderRadius:19,paddingVertical:9,paddingHorizontal:13},place:{padding:13,borderBottomWidth:1,borderColor:'#e4b7d5'},error:{color:'#a2144a',lineHeight:22,marginVertical:12},row:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',gap:10},flex:{flex:1},section:{paddingVertical:15,borderBottomWidth:1,borderColor:'#e9cee5'}});
+const s=StyleSheet.create({clockSelect:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:8,borderWidth:1,borderColor:'#ffffffa0',borderRadius:12,padding:13,minHeight:50,backgroundColor:'#ffffff0c'},clockValue:{color:'#fff9fe',fontSize:16},clockOverlay:{flex:1,justifyContent:'center',padding:24,backgroundColor:'#0b0718cc'},clockSheet:{width:'100%',maxWidth:420,alignSelf:'center',backgroundColor:'#211234f5',borderWidth:1,borderColor:'#ffffff90',borderRadius:24,padding:18},clockOption:{paddingVertical:14,paddingHorizontal:12,borderBottomWidth:1,borderColor:'#ffffff20',borderRadius:8,minHeight:48},clockOptionText:{fontSize:18,color:'#fff9fe'},panel:{backgroundColor:'rgba(255,255,255,.035)',borderColor:'#ffffff80',borderWidth:2,borderRadius:22,padding:16,marginBottom:14},title:{fontSize:23,fontWeight:'800',color:'#fff9fe',marginVertical:12},heading:{fontSize:18,fontWeight:'800',color:'#fff9fe',marginBottom:8},label:{fontSize:14,fontWeight:'700',color:'#fff9fe',marginBottom:7},body:{fontSize:15,color:'#fff5fd',lineHeight:23,marginBottom:12},input:{backgroundColor:'#fff',borderWidth:1,borderColor:'#cfadd4',borderRadius:12,padding:13,color:'#3a156b'},button:{backgroundColor:'rgba(255,255,255,.05)',borderWidth:1,borderColor:'#ffffffa0',padding:15,borderRadius:24,marginVertical:8,alignItems:'center'},buttonText:{color:'#fff',fontWeight:'800',fontSize:16},choices:{flexDirection:'row',flexWrap:'wrap',gap:7,marginBottom:14},choice:{backgroundColor:'#fff',borderWidth:1,borderColor:'#e9b4dc',borderRadius:19,paddingVertical:9,paddingHorizontal:13},place:{padding:13,borderBottomWidth:1,borderColor:'#e4b7d5'},error:{color:'#a2144a',lineHeight:22,marginVertical:12},row:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',gap:10},flex:{flex:1},section:{paddingVertical:15,borderBottomWidth:1,borderColor:'#e9cee5'}});

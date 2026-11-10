@@ -48,3 +48,6 @@ body:before,body[data-page="cosmos"]:before{content:"";position:fixed;inset:0;z-
 .home-hero{background:linear-gradient(90deg,#0e082a45,#0e082a05),url('assets/cosmos-night-sky.png') center bottom/cover no-repeat}
 @media(max-width:750px){body:before,body[data-page="cosmos"]:before{background-position:right bottom}}
 @media print{body:before,body[data-page="cosmos"]:before{display:none}body{background:white!important}.birth-report{background:white!important;color:#222!important}}
+.natal-tool-heading .page-title{font-size:clamp(40px,4.2vw,62px);line-height:1.2;text-shadow:none}
+.tooltile[data-action="tool:natal"] strong{font-size:22px}
+.birth-time-hint{flex-basis:100%;margin:0;font-size:14px;line-height:1.5;color:#fff5fd}

@@ -150,18 +150,18 @@ test('store shows one website link without loading a product catalog',async()=>{
 });
 
 
-test.each(['natal','moon'])('native %s resolves a city and submits local birth time without coordinate fields',async(tool)=>{
+test.each([['natal','AM'],['natal','PM'],['moon','AM'],['moon','PM']])('native %s submits an explicit %s birth time and selected city',async(tool,period)=>{
  const place={place_id:'5142056',label:'Utica, New York, United States',timezone:'America/New_York'};
  globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/locations/search')?{places:[place]}:{emoji:'🌘',natal_moon_phase:'Waning Crescent',illumination_percentage:21,description:'Birth Moon',moon_position:'Virgo 2°',birth_local_time:'1996-11-05T14:30:00-05:00',location:place}}));
  await render(<ExploreScreen route={{params:{tool}}} navigation={{goBack:jest.fn()}}/>);
  const fill=async(label:string,value:string)=>act(async()=>tree.root.findAllByType(TextInput).find(x=>x.props.accessibilityLabel===label)!.props.onChangeText(value));
- await fill('Name (optional)','Mystic');await fill('Birth date YYYY-MM-DD','1996-11-05');await fill('Hour (0–23)','14');await fill('Minutes (0–59)','30');await fill('State / province','NY');await fill('City of birth','Utica');
+ await fill('Name (optional)','Mystic');await fill('Birth date YYYY-MM-DD','1996-11-05');await press('Hour (AM/PM)');await press('Select 2 '+period);await press('Minutes');await press('Select 30');await fill('State / province','NY');await fill('City of birth','Utica');
  expect(text()).not.toContain('Birth latitude');expect(text()).not.toContain('Birth longitude');
  await press('Find my birth city');expect(String((globalThis.fetch as jest.Mock).mock.calls[0][0])).toContain('city=Utica');await press('Select '+place.label);
  await press('Sidereal (Lahiri)');if(tool==='natal')await press('Traditional (7 planets)');await press(tool==='moon'?'Find my natal Moon':'Create my birth chart');
  const [url,options]=(globalThis.fetch as jest.Mock).mock.calls.at(-1)!;
  expect(url).toContain('/astrology/'+(tool==='moon'?'moon-phase':'natal-chart'));
- expect(JSON.parse(options.body)).toMatchObject({name:'Mystic',birth_date:'1996-11-05',birth_time:'14:30',place_id:'5142056',zodiac:'sidereal',rulership:tool==='natal'?'traditional':'modern',chart_system:'natal'});
+ expect(JSON.parse(options.body)).toMatchObject({name:'Mystic',birth_date:'1996-11-05',birth_time:'02:30',birth_period:period,place_id:'5142056',zodiac:'sidereal',rulership:tool==='natal'?'traditional':'modern',chart_system:'natal'});
  expect(text()).toContain('Waning Crescent');
 });
 

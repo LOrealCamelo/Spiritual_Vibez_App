@@ -108,7 +108,7 @@ function getTool(id){return allTools.find(t=>t[0]===id)}
 function explorePage(){
  if(!state.tool)return heading('Explore More ✨','Every part of your spiritual playground gets its own space.')+Object.entries(tools).map(([name,items])=>'<section class="tool-group"><h2>'+e(name)+'</h2><div class="tiles">'+items.map(([id,ico,title,detail])=>'<button class="tooltile" data-action="tool:'+id+'"><span class="emoji">'+ico+'</span><strong>'+e(title)+'</strong><span>'+e(detail)+'</span></button>').join('')+'</div></section>').join('');
  const t=getTool(state.tool);if(!t)return '';const [id,ico,title,detail]=t;
- let out=btn('← All features','tool-back','cream')+heading(ico+' '+e(title),e(detail));
+ let out=btn('← All features','tool-back','cream')+'<div class="'+(id==='natal'?'natal-tool-heading':'tool-heading')+'">'+heading(ico+' '+e(title),e(detail))+'</div>';
  if(id==='store')return out+'<div class="glass"><p>All products and checkout are on the NeuroSpicy Mystic website.</p><a class="btn" href="'+STORE_URL+'" target="_blank" rel="noopener noreferrer">Visit my store ↗</a></div>';
  if(['natal','moon'].includes(id))return out+(id==='moon'?btn('Current Moon & monthly calendar','nav:cosmos','cream'):'')+birthForm()+(state.result?(state.result.wheel_svg?birthReport(state.result):renderResult(state.result)):'');
  const birth=['moon','natal','bazi','life'].includes(id);
