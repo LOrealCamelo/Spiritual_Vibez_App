@@ -51,3 +51,34 @@ body:before,body[data-page="cosmos"]:before{content:"";position:fixed;inset:0;z-
 .natal-tool-heading .page-title{font-size:clamp(40px,4.2vw,62px);line-height:1.2;text-shadow:none}
 .tooltile[data-action="tool:natal"] strong{font-size:22px}
 .birth-time-hint{flex-basis:100%;margin:0;font-size:14px;line-height:1.5;color:#fff5fd}
+/* Full-figure navigation portrait and clear home wordmark. */
+.topbar__inner{min-height:124px;padding-top:6px;padding-bottom:6px}
+.brand.portrait-brand{display:grid;place-items:center;flex:0 0 108px;min-width:108px;width:108px;height:108px;border:1px solid #ffffffa0;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#ffffff15,#ffffff03);box-shadow:inset 1px 1px 1px #fff9,0 4px 14px #15072444}
+.brand.portrait-brand img{display:block;width:88%;height:88%;object-fit:contain;object-position:center;transform:none;border-radius:0}
+.home-hero{min-height:470px;padding:34px 4.5%;display:flex;align-items:center;overflow:hidden}
+.hero-copy{width:min(860px,64%);max-width:none;padding:30px 34px 32px;border:1px solid #ffffff70;border-radius:30px;background:linear-gradient(125deg,#13082736,#1308270d);box-shadow:inset 1px 1px 1px #ffffff66,0 9px 26px #13042228}
+.hero-wordmark{display:flex;align-items:baseline;gap:.18em;font-size:clamp(40px,5.35vw,80px);line-height:1.2;white-space:nowrap;color:#fff;margin:0 0 9px}
+.wordmark-spiritual{font-family:'DM Sans',Arial,sans-serif;font-weight:650;letter-spacing:-.06em;text-shadow:none}
+.wordmark-vibez{position:relative;display:inline-block;padding-right:.42em;font-family:Pacifico,cursive;font-size:1.1em;font-weight:400;color:#ff8cd5;letter-spacing:-.045em;transform:rotate(-3deg);text-shadow:2px 2px 0 #8e1d76,4px 4px 0 #1b0839;-webkit-text-stroke:.35px #ffd0ef}
+.wordmark-vibration{position:absolute;right:-.01em;top:.18em;width:.35em;height:.75em;overflow:visible;fill:none;stroke:#ffe3a4;stroke-width:2.1;stroke-linecap:round;transform:rotate(3deg)}
+.header-identity{display:flex;align-items:center;gap:20px;flex-shrink:0}
+.header-tagline{display:flex;flex-direction:column;gap:4px;margin:0;color:#fff9fe;font-family:'DM Sans',Arial,sans-serif;font-size:20px;font-weight:600;line-height:1.3;letter-spacing:0;text-shadow:none;white-space:nowrap}
+.header-tagline strong{color:#ff9edd;font-weight:750}
+.header-tagline span+span{font-size:14px;color:#ffe3a4;font-weight:500;letter-spacing:.025em}
+.hero-wordmark{margin-bottom:22px}
+.hero-copy h1{font-family:Kaushan,cursive;font-size:clamp(25px,2.9vw,43px);font-weight:400;font-style:normal;letter-spacing:0;white-space:nowrap;line-height:1.3;max-width:none;margin:0 0 14px;text-shadow:none}
+.hero-copy>p{font-size:16px;line-height:1.6;font-weight:450;max-width:600px;margin:0;color:#f2e8f8}
+.home-hero>.hero-character{right:2.5%;width:32%;height:100%;max-height:490px;object-fit:contain;object-position:center bottom}
+.hero-actions{gap:12px;margin-top:22px}
+.btn,.hero-actions .btn,.hero-actions .btn.cream{font-family:'DM Sans',Arial,sans-serif;font-size:15px;line-height:1.3;font-weight:650;letter-spacing:.015em;text-shadow:none;padding:12px 20px}
+.hero-actions .btn{border:1px solid #ffffff99;background:linear-gradient(135deg,#180b3833,#180b3808);box-shadow:inset 1px 1px 1px #ffffff70,0 4px 12px #0d032e33}
+.hero-button-icon{display:inline-flex;align-items:center;justify-content:center}.hero-button-icon svg{width:19px;height:19px;stroke-width:1.8}
+.section-heading h2,.page-title,.tool-group h2,.reading-board h3,.phone-journey-heading,.panel-title,.panel-description,.panel-meta,.panel-progress,.bottomdock button,.nav button{ text-shadow:none }
+body[data-page="cosmos"] .moon-weekday,body[data-page="cosmos"] .moon-calendar h2,body[data-page="cosmos"] .moon-calendar h3{text-shadow:none}
+.bottomdock button svg{filter:none}.phone-welcome{display:none}
+@media(min-width:751px){html{scroll-padding-top:146px}button,a,input,textarea,.birth-narrative h2{scroll-margin-top:146px}.birth-sidebar{top:144px;max-height:calc(100vh - 164px)}}
+@media(min-width:751px) and (max-width:1000px){.hero-copy{width:66%;padding:24px}.hero-wordmark{font-size:clamp(36px,5vw,50px)}.hero-copy h1{font-size:27px}.hero-actions{gap:8px}.hero-actions .btn{font-size:13px;padding:11px 13px}.home-hero>.hero-character{width:31%;right:1%}}
+@media(min-width:751px) and (max-width:1100px){.header-identity{gap:12px}.header-tagline{font-size:17px}.header-tagline span+span{font-size:12px}.brand.portrait-brand{flex-basis:80px;min-width:80px;width:80px;height:80px}.nav button{font-size:11px;padding:9px 7px;gap:5px}.topbar__inner{gap:10px}}
+@media(min-width:751px) and (max-width:900px){.brand.portrait-brand{flex-basis:68px;min-width:68px;width:68px;height:68px}.header-identity{gap:10px}.header-tagline{font-size:16px}.header-tagline span+span{font-size:11px}.nav button{padding:9px 6px}.top-actions{display:none}}
+@media(max-width:750px){.header-identity{gap:13px;min-width:0}.header-tagline{font-size:clamp(15px,4.4vw,20px);white-space:normal}.header-tagline span+span{font-size:clamp(10px,2.8vw,13px);letter-spacing:0}.header-tagline span{display:block}.top-actions{display:none}.phone-welcome .hero-wordmark{margin-bottom:17px}}
+@media(max-width:750px){.topbar__inner{min-height:88px}.brand.portrait-brand{flex-basis:76px;min-width:76px;width:76px;height:76px}.home-hero{display:none}.phone-welcome{display:block;margin:16px 0 20px;padding:23px 19px;border:1px solid #ffffff70;border-radius:25px;background:linear-gradient(125deg,#13082736,#1308270d);box-shadow:inset 1px 1px 1px #ffffff66}.phone-welcome .hero-wordmark{font-size:clamp(29px,9.1vw,42px)}.phone-journey-heading{display:block;font-size:clamp(22px,5.8vw,32px);white-space:nowrap;line-height:1.3;margin:0}.home-greeting{margin-top:0}}
