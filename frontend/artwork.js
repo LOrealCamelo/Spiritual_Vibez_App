@@ -202,3 +202,120 @@ function panelClasses(key){const p=CARD_PANELS[key];return 'fresh-panel panel-th
 
 // Shared once per document, instead of repeating the same SVG id in each button.
 function clearGlassFilter(){return '<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;pointer-events:none"><defs><filter id="liquid-refraction" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.018 0.025" numOctaves="1" seed="1" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="B"/></filter></defs></svg>'}
+
+// Both clients reuse the original high-resolution illustrations for their complete directories.
+const ILLUSTRATION_BINDINGS={
+  "tools": {
+    "natal": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "moon": {
+      "pack": "journal",
+      "cell": 3
+    },
+    "bazi": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "houses": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "asteroids": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "astro": {
+      "pack": "ritual",
+      "cell": 2
+    },
+    "calendar": {
+      "pack": "journal",
+      "cell": 3
+    },
+    "life": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "numbers": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "love": {
+      "pack": "journal",
+      "cell": 2
+    },
+    "sound": {
+      "pack": "ritual",
+      "cell": 3
+    },
+    "rituals": {
+      "pack": "ritual",
+      "cell": 1
+    },
+    "cycle": {
+      "pack": "journal",
+      "cell": 3
+    },
+    "shadow": {
+      "pack": "journal",
+      "cell": 0
+    },
+    "runes": {
+      "pack": "study",
+      "cell": 3
+    },
+    "pendulum": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "oracle": {
+      "pack": "study",
+      "cell": 3
+    },
+    "store": {
+      "pack": "study",
+      "cell": 0
+    }
+  },
+  "spreads": {
+    "daily": {
+      "pack": "cosmic",
+      "cell": 0
+    },
+    "wellbeing": {
+      "pack": "ritual",
+      "cell": 1
+    },
+    "love": {
+      "pack": "journal",
+      "cell": 2
+    },
+    "shadow": {
+      "pack": "journal",
+      "cell": 0
+    },
+    "crossroads": {
+      "pack": "ritual",
+      "cell": 2
+    },
+    "purpose": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "spirit": {
+      "pack": "study",
+      "cell": 3
+    },
+    "default": {
+      "pack": "cosmic",
+      "cell": 1
+    }
+  }
+};
+function toolCard(id,title,description){const art=ILLUSTRATION_BINDINGS.tools[id];
+ if(!art)throw Error('Missing tool illustration: '+id);
+ return '<button class="fresh-panel explore-card" data-tool="'+id+'" data-action="tool:'+id+'" aria-label="'+e(title)+'">'+panelIllustration(art.pack,art.cell)+'<span class="panel-copy"><span class="panel-title">'+e(title)+'</span><span class="panel-description">'+e(description)+'</span></span><span class="panel-arrow" aria-hidden="true">›</span></button>';
+}
+function spreadIllustration(category){const art=ILLUSTRATION_BINDINGS.spreads[category]||ILLUSTRATION_BINDINGS.spreads.default;return panelIllustration(art.pack,art.cell)}

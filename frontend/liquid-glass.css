@@ -49,7 +49,7 @@ body:before,body[data-page="cosmos"]:before{content:"";position:fixed;inset:0;z-
 @media(max-width:750px){body:before,body[data-page="cosmos"]:before{background-position:right bottom}}
 @media print{body:before,body[data-page="cosmos"]:before{display:none}body{background:white!important}.birth-report{background:white!important;color:#222!important}}
 .natal-tool-heading .page-title{font-size:clamp(40px,4.2vw,62px);line-height:1.2;text-shadow:none}
-.tooltile[data-action="tool:natal"] strong{font-size:22px}
+.explore-card[data-tool="natal"] .panel-title{font-size:24px}
 .birth-time-hint{flex-basis:100%;margin:0;font-size:14px;line-height:1.5;color:#fff5fd}
 /* Full-figure navigation portrait and clear home wordmark. */
 .topbar__inner{min-height:124px;padding-top:6px;padding-bottom:6px}
@@ -82,3 +82,17 @@ body[data-page="cosmos"] .moon-weekday,body[data-page="cosmos"] .moon-calendar h
 @media(min-width:751px) and (max-width:900px){.brand.portrait-brand{flex-basis:68px;min-width:68px;width:68px;height:68px}.header-identity{gap:10px}.header-tagline{font-size:16px}.header-tagline span+span{font-size:11px}.nav button{padding:9px 6px}.top-actions{display:none}}
 @media(max-width:750px){.header-identity{gap:13px;min-width:0}.header-tagline{font-size:clamp(15px,4.4vw,20px);white-space:normal}.header-tagline span+span{font-size:clamp(10px,2.8vw,13px);letter-spacing:0}.header-tagline span{display:block}.top-actions{display:none}.phone-welcome .hero-wordmark{margin-bottom:17px}}
 @media(max-width:750px){.topbar__inner{min-height:88px}.brand.portrait-brand{flex-basis:76px;min-width:76px;width:76px;height:76px}.home-hero{display:none}.phone-welcome{display:block;margin:16px 0 20px;padding:23px 19px;border:1px solid #ffffff70;border-radius:25px;background:linear-gradient(125deg,#13082736,#1308270d);box-shadow:inset 1px 1px 1px #ffffff66}.phone-welcome .hero-wordmark{font-size:clamp(29px,9.1vw,42px)}.phone-journey-heading{display:block;font-size:clamp(22px,5.8vw,32px);white-space:nowrap;line-height:1.3;margin:0}.home-greeting{margin-top:0}}
+/* Complete feature and spread directories use the same clear illustrated surfaces. */
+.tool-group .tiles{align-items:stretch}
+.tiles .explore-card{min-height:185px;height:100%;margin:0;padding:18px 16px;gap:12px;border-radius:26px}
+.explore-card .panel-illustration{flex-basis:94px;width:94px;height:94px}
+.explore-card .panel-title{font-size:22px;letter-spacing:-.4px;line-height:1.15}
+.explore-card .panel-description{font-size:14px;line-height:1.45}
+.explore-card .panel-copy{width:100%;overflow-wrap:anywhere}
+.explore-card .panel-arrow{width:27px;height:27px;flex-basis:27px;font-size:28px}
+.illustrated-spread .panel-illustration{width:68px;height:68px;flex-basis:68px}
+.illustrated-spread .panel-illustration img{position:absolute;width:200%;height:200%;max-width:none;left:calc(var(--cell-x)*-100%);top:calc(var(--cell-y)*-100%)}
+.result:not(.birth-report) .result-item{background:var(--clear-glass-fill);border:1px solid #ffffff40}
+.result:not(.birth-report) .result-field>strong,.result:not(.birth-report) .link{color:#fff1fb}
+@media(max-width:1050px){.tiles .explore-card{flex-direction:column;align-items:flex-start;min-height:265px;padding:16px 16px 38px}.explore-card .panel-illustration{align-self:center}.explore-card .panel-copy{flex:1}.explore-card .panel-arrow{position:absolute;right:12px;bottom:12px}}
+@media(max-width:420px){.tiles .explore-card{padding:13px 12px 38px;gap:10px}.explore-card .panel-title{font-size:21px}.explore-card .panel-description{font-size:13px}.explore-card[data-tool="natal"] .panel-title{font-size:23px}.explore-card .panel-illustration{flex-basis:84px;width:84px;height:84px}}

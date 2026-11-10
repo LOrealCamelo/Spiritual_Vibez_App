@@ -30,6 +30,27 @@ fills and reflective highlights. It has no blur dependency. Native surfaces do
 not implement the browser's SVG backdrop refraction. Both platforms retain the
 pink/purple/gold artwork and readable live labels.
 
+## Complete directories and regression checks
+
+Explore's former alternating pink/aqua CSS rules overrode the glass fill because
+their `nth-child` selectors had higher specificity. Its legacy emoji menu and the
+spread-list emoji tiles also bypassed the illustrated components. Those feature
+cards and spread rows now use the original high-resolution illustration packs
+and clear surfaces, with shared web/native bindings in
+`mobile/src/data/illustrationBindings.json`. The 24 original panel definitions,
+the tarot deck, header placement, and natal AM/PM calculations remain intact.
+
+The browser journey now covers Home, Spreads, Learn Tarot, Journal, Explore, and
+Cosmos at desktop and phone widths. It inspects computed background colors and
+gradient alpha values, so an overriding solid background fails the check even
+when the stylesheet contains a glass rule. It also opens all 18 feature cards,
+checks their illustrations, and rejects clipped card labels. The old opaque
+gradient was explicitly tested against this guard and correctly rejected.
+
+Core stylesheet/script URLs carry the `20261110-glass-directory` revision so
+browsers fetch this repair's components and styling together. Update that query
+revision when publishing subsequent changes to these frontend files.
+
 ## Journal storage
 
 The journal works: it saves reflections, completed readings and moods. The web

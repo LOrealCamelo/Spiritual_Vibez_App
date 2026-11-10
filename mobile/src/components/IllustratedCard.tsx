@@ -3,6 +3,7 @@ import React from 'react';
 import {Image,View,Text,TouchableOpacity,useWindowDimensions,StyleSheet,StyleProp,ViewStyle} from 'react-native';
 import {ClearGlassSurface} from './ClearGlassSurface';
 import catalog from '../data/uiPanels.json';
+import illustrationBindings from '../data/illustrationBindings.json';
 export const UI_PANELS=catalog;
 export type CardArtName=keyof typeof catalog;
 export const ILLUSTRATION_PACKS={
@@ -13,6 +14,15 @@ export const ILLUSTRATION_PACKS={
 };
 export function PanelIllustration({pack,cell,size=110}:{pack:keyof typeof ILLUSTRATION_PACKS,cell:number,size?:number}){
  return <View pointerEvents="none" accessible={false} style={{width:size,height:size,overflow:'hidden',flexShrink:0}}><Image source={ILLUSTRATION_PACKS[pack]} accessible={false} resizeMode="stretch" style={{position:'absolute',width:size*2,height:size*2,left:-(cell%2)*size,top:-Math.floor(cell/2)*size}}/></View>;
+}
+export function SpreadIllustration({category,size=68}:{category:string,size?:number}){
+ const art=illustrationBindings.spreads[category as keyof typeof illustrationBindings.spreads]||illustrationBindings.spreads.default;
+ return <PanelIllustration pack={art.pack as keyof typeof ILLUSTRATION_PACKS} cell={art.cell} size={size}/>;
+}
+export function IllustratedToolCard({tool,title,width,onPress}:{tool:string,title:string,width:number,onPress:()=>void}){
+ const art=illustrationBindings.tools[tool as keyof typeof illustrationBindings.tools];
+ if(!art)throw Error('Missing tool illustration: '+tool);
+ return <TouchableOpacity accessibilityRole="button" accessibilityLabel={title} onPress={onPress} style={{width,marginBottom:16}}><ClearGlassSurface radius={25} style={{minHeight:260,padding:14,paddingBottom:42,gap:14,alignItems:'center'}}><PanelIllustration pack={art.pack as keyof typeof ILLUSTRATION_PACKS} cell={art.cell} size={104}/><Text style={{alignSelf:'stretch',color:'#fff9fe',fontSize:tool==='natal'?24:23,lineHeight:28,fontWeight:'800'}}>{title}</Text><View accessible={false} style={[st.arrow,{position:'absolute',right:12,bottom:12}]}><Text style={{color:'#fff9fe',fontSize:28,lineHeight:29}}>›</Text></View></ClearGlassSurface></TouchableOpacity>;
 }
 type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode;progress?:{completed:number,total:number};meta?:string};
 export function IllustratedCard({asset,width,label,onPress,style,children,progress,meta}:Props){

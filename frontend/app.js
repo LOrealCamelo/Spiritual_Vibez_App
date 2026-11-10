@@ -80,7 +80,7 @@ function spreadsPage(){
  out+='<details class="glass spread-search"'+(state.searchOpen?' open':'')+'><summary>Search the full spread library</summary><label class="field">Search spreads<input id="spread-search" value="'+e(state.search)+'" placeholder="Try love, clarity, career, shadow..."></label><div class="chips">'+cats.map(c=>chip(c,'category',state.category===c,'data-category="'+e(c)+'"')).join('')+'</div>'+(state.online?'':notice('Preview mode: built-in sample spreads are active. Connect the existing backend for the full spread library.'))+'</details>';
  const matches=state.spreads.filter(s=>(state.category==='All'||s.category===state.category)&&matchesVibe(s,state.vibe)&&s.title.toLowerCase().includes(state.search.toLowerCase()));
  out+=[['Trust Your Gut','spreads_trust_gut'],['At a Crossroads','spreads_crossroads'],['The Next Phase','spreads_next_phase']].map(([title,file])=>{const spread=matches.find(x=>x.title===title);return spread?artButton(file,title,'select-spread','data-id="'+e(spread.id)+'"',spreadCaption(file,spread.cardCount)):''}).join('');
- out+='<div class="list">'+matches.map((s,i)=>'<button class="listbutton" data-action="select-spread" data-id="'+e(s.id)+'"><span class="glyph">'+['🔮','💫','🦋','💞','🌙','✨'][i%6]+'</span><span><strong>'+e(s.title)+'</strong><small>'+s.cardCount+' cards · '+e(s.category)+'</small><small>'+e(s.desc||'Your reflective reading')+'</small></span></button>').join('')+'</div>';
+ out+='<div class="list">'+matches.map(s=>'<button class="listbutton illustrated-spread" data-action="select-spread" data-id="'+e(s.id)+'">'+spreadIllustration(s.category)+'<span><strong>'+e(s.title)+'</strong><small>'+s.cardCount+' cards · '+e(s.category)+'</small><small>'+e(s.desc||'Your reflective reading')+'</small></span></button>').join('')+'</div>';
  return out;
 }
 function learningPage(){
@@ -107,7 +107,7 @@ function learningPage(){
 function cosmosPage(){return dailySkyPage()}
 function getTool(id){return allTools.find(t=>t[0]===id)}
 function explorePage(){
- if(!state.tool)return heading('Explore More ✨','Every part of your spiritual playground gets its own space.')+Object.entries(tools).map(([name,items])=>'<section class="tool-group"><h2>'+e(name)+'</h2><div class="tiles">'+items.map(([id,ico,title,detail])=>'<button class="tooltile" data-action="tool:'+id+'"><span class="emoji">'+ico+'</span><strong>'+e(title)+'</strong><span>'+e(detail)+'</span></button>').join('')+'</div></section>').join('');
+ if(!state.tool)return heading('Explore More ✨','Every part of your spiritual playground gets its own space.')+Object.entries(tools).map(([name,items])=>'<section class="tool-group"><h2>'+e(name)+'</h2><div class="tiles">'+items.map(([id,ico,title,detail])=>toolCard(id,title,detail)).join('')+'</div></section>').join('');
  const t=getTool(state.tool);if(!t)return '';const [id,ico,title,detail]=t;
  let out=btn('← All features','tool-back','cream')+'<div class="'+(id==='natal'?'natal-tool-heading':'tool-heading')+'">'+heading(ico+' '+e(title),e(detail))+'</div>';
  if(id==='store')return out+'<div class="glass"><p>All products and checkout are on the NeuroSpicy Mystic website.</p><a class="btn" href="'+STORE_URL+'" target="_blank" rel="noopener noreferrer">Visit my store ↗</a></div>';

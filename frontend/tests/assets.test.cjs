@@ -21,7 +21,7 @@ function appContext() {
 
 test('rendered images and CSS backgrounds resolve to real PNG uploads', () => {
   const {context} = appContext();
-  const html = ['home()','spreadsPage()','learningPage()','journalPage()'].map(code=>vm.runInContext(code,context)).join('');
+  const html = ['home()','spreadsPage()','learningPage()','journalPage()','explorePage()'].map(code=>vm.runInContext(code,context)).join('');
   const css = fs.readFileSync(path.join(root,'styles.css'),'utf8')+fs.readFileSync(path.join(root,'liquid-glass.css'),'utf8');
   const refs = [
     ...[...html.matchAll(/src="(assets\/[^"]+)"/g)].map(m=>m[1]),
@@ -117,4 +117,22 @@ test('clear glass uses refraction and reflective edges without frosted blur',()=
  assert.ok(css.includes('inset')&&css.includes('ffffff05'));
  assert.ok(artwork.includes('feDisplacementMap'));assert.ok(!artwork.includes('feGaussianBlur'));
  assert.ok(fs.readFileSync(path.join(root,'index.html'),'utf8').includes('liquid-glass.css'));
+});
+
+test('every feature and spread uses the shared original illustrations instead of emoji tiles',()=>{
+ const {context}=appContext();
+ const bindings=JSON.parse(fs.readFileSync(path.join(root,'../mobile/src/data/illustrationBindings.json'),'utf8'));
+ assert.equal(vm.runInContext('JSON.stringify(ILLUSTRATION_BINDINGS)',context),JSON.stringify(bindings));
+ const ids=Array.from(vm.runInContext('allTools.map(t=>t[0])',context));
+ assert.equal(ids.length,18);
+ assert.deepEqual(Object.keys(bindings.tools).sort(),ids.sort());
+ for(const art of [...Object.values(bindings.tools),...Object.values(bindings.spreads)]){
+  assert.ok(['cosmic','study','journal','ritual'].includes(art.pack));
+  assert.ok(Number.isInteger(art.cell)&&art.cell>=0&&art.cell<=3);
+ }
+ const html=vm.runInContext('state.tool=null;explorePage()',context);
+ assert.equal((html.match(/class="panel-illustration"/g)||[]).length,18);
+ assert.doesNotMatch(html,/class="emoji"|class="tooltile"/);
+ for(const id of ids)assert.ok(html.includes('data-action="tool:'+id+'"'));
+ assert.doesNotMatch(vm.runInContext('spreadsPage()',context),/class="glyph"/);
 });

@@ -17,6 +17,17 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 
+def assert_clear_surfaces(page):
+ """Inspect computed colors, so a more-specific legacy selector cannot slip by."""
+ issues=page.locator('.fresh-panel,.tooltile,.listbutton,.glass,.reading-board,.result:not(.birth-report),.result:not(.birth-report) .result-item,.btn,.chip,.deck-card,.bottomdock,.nav,.fresh-filter,.vibe-target').evaluate_all('''(nodes)=>nodes.flatMap(n=>{
+  const s=getComputedStyle(n);if(s.display==='none')return [];
+  const colors=(s.backgroundColor+' '+s.backgroundImage).match(/rgba?\\([^)]+\\)/g)||[];
+  const opaque=colors.some(c=>{const parts=c.slice(c.indexOf('(')+1,-1).split(',');return parts.length<4||Number(parts[3])>.3});
+  return opaque||s.backdropFilter.includes('blur(')?[{label:n.getAttribute('aria-label')||n.textContent.trim().slice(0,60),classes:n.className,background:s.backgroundImage,color:s.backgroundColor}]:[];
+ })''')
+ assert not issues,issues
+
+
 def exercise(base_url, screenshots):
  browser_path=os.environ.get('BROWSER_EXECUTABLE') or shutil.which('google-chrome') or shutil.which('chromium')
  if not browser_path:raise RuntimeError('Install Chrome/Chromium or set BROWSER_EXECUTABLE')
@@ -138,19 +149,30 @@ def exercise(base_url, screenshots):
   page.screenshot(path=str(screenshots/'web/desktop/daily-sky.png'))
   assert not failures,failures
   assert not errors,errors
-  print(json.dumps({'passedTools':requests,'extraFlows':['cycle','learn module','quiz','complete spread','synthesis','save reading','journal note','mood','transits'],'apiErrors':failures,'jsErrors':errors}))
   for width,height,label in [(1448,1086,'desktop'),(390,844,'mobile')]:
    page.set_viewport_size({'width':width,'height':height})
-   for name in ['home','spreads','learn','journal']:
+   for name in ['home','spreads','learn','journal','explore','cosmos']:
     page.evaluate('(name)=>{state.selected=null;state.learningModule=null;transition(name)}',name)
     page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)');page.evaluate('document.fonts.ready')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),(label,name)
     assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
-    assert page.locator('.fresh-panel').count()>0,(label,name)
+    if name!='cosmos':assert page.locator('.fresh-panel').count()>0,(label,name)
+    assert_clear_surfaces(page)
+    if name=='explore':
+     assert page.locator('.explore-card').count()==18
+     assert page.locator('.explore-card .panel-illustration img').count()==18
+     assert page.locator('.tooltile .emoji,.explore-card .emoji').count()==0
+     for tool in ['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','sound','rituals','cycle','shadow','runes','pendulum','oracle','store']:
+      page.locator('[data-action="tool:'+tool+'"]').click();assert page.evaluate('state.tool')==tool
+      page.get_by_role('button',name='← All features',exact=True).click()
+    if name=='spreads':
+     assert page.locator('.listbutton .glyph').count()==0
+     assert page.locator('.listbutton .panel-illustration').count()==page.locator('.listbutton').count()
     assert page.locator('.fresh-panel,.glass,.listbutton,.bottomdock').evaluate_all('(nodes)=>nodes.every(n=>!getComputedStyle(n).backdropFilter.includes("blur"))'),(label,name,'frosted glass')
     assert page.locator('.panel-illustration img').evaluate_all('(imgs)=>imgs.every(i=>i.naturalWidth>=1200&&i.naturalWidth>=6*i.parentElement.clientWidth)'),(label,name,'illustration density')
     assert page.locator('.panel-copy').evaluate_all('(nodes)=>nodes.every(n=>n.getBoundingClientRect().right<=n.closest(".fresh-panel").getBoundingClientRect().right+1)'),(label,name,'clipped copy')
     page.screenshot(path=str(screenshots/'web'/('phone' if label=='mobile' else 'desktop')/f'{name}.png'),full_page=True)
+    if name=='explore':page.screenshot(path=str(screenshots/'web'/('phone' if label=='mobile' else 'desktop')/'explore-viewport.png'))
   retina=b.new_context(viewport={'width':390,'height':844},device_scale_factor=3)
   retina_page=retina.new_page();retina_page.goto(base_url,wait_until='networkidle');retina_page.evaluate('document.fonts.ready')
   retina_page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)')
@@ -164,6 +186,9 @@ def exercise(base_url, screenshots):
   page.locator('[data-action="tool-run"]').click();page.wait_for_selector('.chart-wheel svg')
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
   page.locator('.chart-wheel').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web/phone/birth-chart.png'))
+  assert not failures,failures
+  assert not errors,errors
+  print(json.dumps({'passedTools':requests,'extraFlows':['cycle','learn module','quiz','complete spread','synthesis','save reading','journal note','mood','transits'],'apiErrors':failures,'jsErrors':errors}))
   b.close()
 
 

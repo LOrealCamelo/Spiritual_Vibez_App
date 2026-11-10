@@ -3,7 +3,7 @@ import TestRenderer,{act,ReactTestRenderer} from 'react-test-renderer';
 import {Image,Text,TextInput,TouchableOpacity,Linking} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,CosmosScreen} from '../App';
-import {IllustratedCard,UI_PANELS} from '../src/components/IllustratedCard';
+import {IllustratedCard,IllustratedToolCard,PanelIllustration,SpreadIllustration,UI_PANELS} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
 import {NativeChartReport,NativeMoonCalendar} from '../src/components/CosmicTools';
 import {matchesVibe} from '../src/api/spreads';
@@ -50,6 +50,25 @@ test('all 24 panels use fresh illustration sources and readable live labels',asy
   expect(image.props.style.width).toBeGreaterThan(0);expect(image.props.accessible).toBe(false);
   await press('Daily card');
   expect(onPress).toHaveBeenCalledTimes(1);
+});
+
+test('all 18 Explore features use clear illustrated cards and open their own tools',async()=>{
+ await render(<ExploreScreen route={{params:{}}} navigation={{goBack:jest.fn()}}/>);
+ const cards=tree.root.findAllByType(IllustratedToolCard);
+ expect(cards).toHaveLength(18);expect(tree.root.findAllByType(PanelIllustration)).toHaveLength(18);
+ const labels=cards.map(c=>c.props.title);
+ for(const label of labels){
+  await press(label);
+  expect(text()).toContain(label);
+  await press('Back to all features');
+  expect(tree.root.findAllByType(IllustratedToolCard)).toHaveLength(18);
+ }
+});
+
+test('the complete spread list uses original illustrations on glass surfaces',async()=>{
+ await render(<SpreadsScreen route={{params:{}}}/>);
+ expect(tree.root.findAllByType(SpreadIllustration).length).toBeGreaterThan(0);
+ for(const art of tree.root.findAllByType(SpreadIllustration))expect(art.findByType(PanelIllustration)).toBeDefined();
 });
 
 test('learning module progress comes from distinct studied cards and a quiz can only be answered once',async()=>{

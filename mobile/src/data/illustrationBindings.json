@@ -1,0 +1,110 @@
+{
+  "tools": {
+    "natal": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "moon": {
+      "pack": "journal",
+      "cell": 3
+    },
+    "bazi": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "houses": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "asteroids": {
+      "pack": "cosmic",
+      "cell": 3
+    },
+    "astro": {
+      "pack": "ritual",
+      "cell": 2
+    },
+    "calendar": {
+      "pack": "journal",
+      "cell": 3
+    },
+    "life": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "numbers": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "love": {
+      "pack": "journal",
+      "cell": 2
+    },
+    "sound": {
+      "pack": "ritual",
+      "cell": 3
+    },
+    "rituals": {
+      "pack": "ritual",
+      "cell": 1
+    },
+    "cycle": {
+      "pack": "journal",
+      "cell": 3
+    },
+    "shadow": {
+      "pack": "journal",
+      "cell": 0
+    },
+    "runes": {
+      "pack": "study",
+      "cell": 3
+    },
+    "pendulum": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "oracle": {
+      "pack": "study",
+      "cell": 3
+    },
+    "store": {
+      "pack": "study",
+      "cell": 0
+    }
+  },
+  "spreads": {
+    "daily": {
+      "pack": "cosmic",
+      "cell": 0
+    },
+    "wellbeing": {
+      "pack": "ritual",
+      "cell": 1
+    },
+    "love": {
+      "pack": "journal",
+      "cell": 2
+    },
+    "shadow": {
+      "pack": "journal",
+      "cell": 0
+    },
+    "crossroads": {
+      "pack": "ritual",
+      "cell": 2
+    },
+    "purpose": {
+      "pack": "ritual",
+      "cell": 0
+    },
+    "spirit": {
+      "pack": "study",
+      "cell": 3
+    },
+    "default": {
+      "pack": "cosmic",
+      "cell": 1
+    }
+  }
+}
