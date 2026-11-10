@@ -2,40 +2,64 @@
 'use strict';
 const zodiacLabels={tropical:'Tropical',sidereal:'Sidereal (Lahiri)'};
 const houseLabels={placidus:'Placidus',whole_sign:'Whole Sign',equal:'Equal'};
-const birthFormState={name:'',date:'',hour:'',minute:'00',city:'',country:'US',region:'',place:null,places:[],zodiac:'tropical',houses:'placidus',rulership:'modern',fold:'',busy:false};
+const birthFormState={name:'',date:'',hour:'',minute:'00',city:'',country:'US',region:'',place:null,places:[],zodiac:'tropical',houses:'placidus',rulership:'modern',fold:'',busy:false,manual:false,latitude:'',longitude:'',timezone:'',manualCity:'',asteroids:[1,2,3,4],aspectMode:'major',asteroidSort:'group'};
 const skyUI={date:'',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC',zodiac:'tropical',loading:false,error:'',request:0,lastFetch:0};
 function birthInput(label,key,type='text',attrs=''){
  const id=key==='date'?'birth-date':'birth-'+key;
  return '<label class="field">'+e(label)+'<input id="'+id+'" data-birth-key="'+key+'" type="'+type+'" value="'+e(birthFormState[key])+'" '+attrs+'></label>';
 }
+const birthLocations={countries:[],regions:[],cities:[],timezones:[],key:'',pending:'',request:0,loading:false,error:'',total:0};
+const birthSky={zodiac:'tropical',data:null,key:'',loading:false,error:'',lastFetch:0};
+function birthSelect(label,id,options,value,placeholder,extra=''){
+ return '<label class="field">'+e(label)+'<select id="'+id+'" '+extra+'><option value="">'+e(placeholder)+'</option>'+options.map(o=>'<option value="'+e(o.code||o.place_id)+'" '+((o.code||o.place_id)===value?'selected':'')+'>'+e(o.name||o.label)+'</option>').join('')+'</select></label>';
+}
 function birthForm(){const b=birthFormState;
- return '<div class="glass birth-form"><h3>Your birth details</h3>'+birthInput('Name (optional)','name','text','autocomplete="name" maxlength="80"')+
- '<div class="controls">'+birthInput('Date of birth','date','date','min="1900-01-01" max="2100-12-31"')+birthClockSelectors()+'</div>'+
- '<div class="controls">'+birthInput('Country name or code','country','text','placeholder="United States or US"')+birthInput('State / province','region','text','placeholder="New York or NY"')+birthInput('City of birth','city','text','placeholder="Enter your birth city"')+'</div>'+
- btn('Find my birth city','birth-search','cream',b.busy?'disabled':'')+'<div id="birth-place-results" aria-live="polite">'+birthPlaceResults()+'</div>'+
- '<div class="controls">'+selector('Zodiac','birth-zodiac',['tropical','sidereal'],b.zodiac,zodiacLabels)+(state.tool==='moon'?'':selector('House system','birth-houses',['placidus','whole_sign','equal'],b.houses,houseLabels)+selector('House rulers','birth-rulership',['modern','traditional'],b.rulership,{modern:'Modern (10 planets)',traditional:'Traditional (7 planets)'}))+'</div><p class="muted">Sidereal uses Lahiri. Your birth time is converted using the selected city’s historical timezone.</p>'+
- (state.error.includes('occurred twice')?'<label class="field">Repeated clock time<select id="birth-fold"><option value="">Choose an occurrence</option><option value="0" '+(b.fold==='0'?'selected':'')+'>First occurrence (before clocks moved back)</option><option value="1" '+(b.fold==='1'?'selected':'')+'>Second occurrence (after clocks moved back)</option></select></label>':'')+
- btn(b.busy?'Calculating…':state.tool==='moon'?'Find my natal Moon':'Create my birth chart','tool-run','',b.busy?'disabled':'')+
- (state.error?notice(state.error,'error'):'')+'</div>';
+ const locations='<div class="controls">'+birthSelect('Country','birth-country',birthLocations.countries,b.country,'Choose country','data-birth-key="country"')+birthSelect('State / province','birth-region',birthLocations.regions,b.region,'All states / provinces','data-birth-key="region"')+'</div><div class="controls">'+birthInput('Filter city list (optional)','city','search','placeholder="Type any part of your city name"')+btn(birthLocations.loading?'Loading cities…':'Search cities','birth-search','cream',birthLocations.loading?'disabled':'')+'</div>'+birthSelect('City of birth','birth-city-select',birthLocations.cities,b.place?.place_id||'','Choose your birth city')+'<p class="muted">'+birthLocations.total+' matching places. '+(birthLocations.total>300?'Showing the first 300; type a city name to narrow the list.':'Choose the correct state and city from the lists.')+'</p>'+(birthLocations.error?notice(birthLocations.error,'error'):'')+'<div id="birth-place-results" aria-live="polite">'+birthPlaceResults()+'</div>';
+ const manual='<details class="manual-birth-location" '+(b.manual?'open':'')+'><summary>Birthplace missing from the list?</summary><p>The directory includes cities and towns with population 500+. For an unlisted location, enter its exact coordinates and historical IANA timezone.</p><label><input id="birth-manual" type="checkbox" '+(b.manual?'checked':'')+'> Use an exact location instead of the city list</label>'+(b.manual?birthInput('Birthplace label','manualCity','text')+'<div class="controls">'+birthInput('Latitude (−90 to 90)','latitude','number','step="any" min="-90" max="90"')+birthInput('Longitude (−180 to 180)','longitude','number','step="any" min="-180" max="180"')+'</div>'+birthSelect('Birthplace timezone','birth-timezone',birthLocations.timezones.map(z=>({code:z,name:z})),b.timezone,'Choose an IANA timezone','data-birth-key="timezone"'):'')+'</details>';
+ const options=state.tool==='asteroids'?asteroidOptions():'';
+ return '<div class="birth-input-layout"><div class="glass birth-form"><h3>Your birth details</h3>'+birthInput('Name (optional)','name','text','autocomplete="name" maxlength="80"')+'<div class="controls">'+birthInput('Date of birth','date','date','min="1900-01-01" max="2100-12-31"')+birthClockSelectors()+'</div>'+locations+manual+'<div class="controls">'+selector('Zodiac','birth-zodiac',['tropical','sidereal'],b.zodiac,zodiacLabels)+(state.tool==='moon'?'':selector('House system','birth-houses',['placidus','whole_sign','equal'],b.houses,houseLabels)+selector('House rulers','birth-rulership',['modern','traditional'],b.rulership,{modern:'Modern (10 planets)',traditional:'Traditional (7 planets)'}))+'</div><p class="muted">Your local birth time is converted using the selected location’s historical timezone. Sidereal uses Lahiri.</p>'+options+(state.error.includes('occurred twice')?'<label class="field">Repeated clock time<select id="birth-fold"><option value="">Choose an occurrence</option><option value="0" '+(b.fold==='0'?'selected':'')+'>First occurrence</option><option value="1" '+(b.fold==='1'?'selected':'')+'>Second occurrence</option></select></label>':'')+btn(b.busy?'Calculating…':state.tool==='moon'?'Find my natal Moon':state.tool==='asteroids'?'Calculate asteroids':'Create my birth chart','tool-run','',b.busy?'disabled':'')+(state.error?notice(state.error,'error'):'')+'</div>'+currentBirthSky()+'</div>';
+}
+async function loadBirthDropdowns(force=false){
+ const b=birthFormState,key=[b.country,b.region,b.city,b.manual].join('|');
+ if((birthLocations.key===key&&!force)||birthLocations.pending===key)return;
+ const request=++birthLocations.request;birthLocations.pending=key;birthLocations.loading=true;birthLocations.error='';if(['natal','moon','asteroids'].includes(state.tool))render();
+ try{
+  const [countries,regions,cities,zones]=await Promise.all([
+   birthLocations.countries.length?{countries:birthLocations.countries}:api('/astrology/locations/countries'),
+   api('/astrology/locations/regions?'+new URLSearchParams({country:b.country})),
+   api('/astrology/locations/cities?'+new URLSearchParams({country:b.country,state:b.region,query:b.city})),
+   b.manual&&!birthLocations.timezones.length?api('/astrology/locations/timezones'):{timezones:birthLocations.timezones}
+  ]);
+  if(request!==birthLocations.request)return;
+  Object.assign(birthLocations,{countries:countries.countries,regions:regions.regions,cities:cities.places,total:cities.total,timezones:zones.timezones,key});
+ }catch(ex){if(request!==birthLocations.request)return;birthLocations.key=key;birthLocations.error=ex.message}
+ birthLocations.pending='';birthLocations.loading=false;if(['natal','moon','asteroids'].includes(state.tool))render();
+}
+function currentBirthSky(){if(state.tool==='moon')return '';
+ const d=birthSky.data?.zodiac===birthSky.zodiac?birthSky.data:null;
+ return '<aside class="glass current-planets"><h3>Current planets</h3>'+selector('Current sky zodiac','current-sky-zodiac',['tropical','sidereal'],birthSky.zodiac,zodiacLabels)+'<p class="muted">The sky now. Your birth placements appear after calculation.</p>'+(d?'<p>'+e(new Date(d.as_of).toLocaleString())+'</p><table><thead><tr><th>Planet</th><th>Position</th></tr></thead><tbody>'+d.planets.map(p=>'<tr><td>'+e(p.glyph+' '+p.planet)+'</td><td>'+symbolicPosition(p)+(p.retrograde?' R':'')+'</td></tr>').join('')+'</tbody></table>':birthSky.error?notice(birthSky.error,'error'):'<p>Loading current sky…</p>')+'</aside>';
+}
+async function loadCurrentBirthSky(){const key=birthSky.zodiac;if(birthSky.loading||(birthSky.key===key&&Date.now()-birthSky.lastFetch<60000))return;birthSky.loading=true;birthSky.key=key;
+ try{birthSky.data=await api('/astrology/daily-transits?'+new URLSearchParams({zodiac:key,timezone:skyUI.timezone}));birthSky.error=''}catch(ex){birthSky.data=null;birthSky.error=ex.message}
+ birthSky.loading=false;birthSky.lastFetch=Date.now();if(['natal','asteroids'].includes(state.tool))render();
 }
 function birthClockSelectors(){const b=birthFormState;
  const hours=['AM','PM'].map(period=>'<optgroup label="'+period+'">'+Array.from({length:12},(_,i)=>{const hour=String(i||12).padStart(2,'0'),value=hour+' '+period;return '<option value="'+value+'" '+(b.hour===value?'selected':'')+'>'+Number(hour)+' '+period+(i===0?(period==='AM'?' (midnight)':' (noon)'):'')+'</option>'}).join('')+'</optgroup>').join('');
  return '<label class="field">Hour (AM/PM)<select id="birth-hour" data-birth-key="hour"><option value="" '+(!b.hour?'selected':'')+'>Choose your birth hour</option>'+hours+'</select></label><label class="field">Minutes<select id="birth-minute" data-birth-key="minute">'+Array.from({length:60},(_,i)=>{const value=String(i).padStart(2,'0');return '<option value="'+value+'" '+(b.minute===value?'selected':'')+'>'+value+'</option>'}).join('')+'</select></label><p class="birth-time-hint">Use the local time on your birth record. 12 AM is midnight; 12 PM is noon.</p>';
 }
-function birthPlaceResults(){const b=birthFormState;return (b.place?'<p class="selected-place">✓ '+e(b.place.label)+' · '+e(b.place.timezone)+'</p>':'')+
- b.places.map(p=>'<button class="place-choice" data-action="birth-place" data-place-id="'+e(p.place_id)+'">'+e(p.label)+'<small>'+e(p.timezone)+'</small></button>').join('');}
-async function searchBirthCity(){const b=birthFormState;b.busy=true;b.place=null;b.places=[];state.error='';render();try{
- const r=await api('/astrology/locations/search?'+new URLSearchParams({city:b.city,country:b.country,state:b.region}));b.places=r.places;
- if(!b.places.length)state.error='No matching city found. Check the country and state, or try a nearby listed town. The city directory covers towns with at least 1,000 people.';
- }catch(ex){state.error=ex.message}b.busy=false;render();}
+function birthPlaceResults(){const p=birthFormState.place;return p?'<p class="selected-place">✓ '+e(p.label)+' · '+e(p.timezone)+'</p>':''}
+async function searchBirthCity(){return loadBirthDropdowns(true)}
 async function calculateBirth(){const b=birthFormState;state.error='';state.result=null;
- if(!b.place){state.error='Find and select your birth city first.';render();return}
+ if(!b.place&&!b.manual){state.error='Choose your birth city from the dropdown first.';render();return}
+ if(b.manual&&(!b.latitude||!b.longitude||!b.timezone)){state.error='Enter the exact latitude, longitude and IANA timezone for your birthplace.';render();return}
  if(!b.date||!/^(?:0[1-9]|1[0-2]) (?:AM|PM)$/.test(b.hour)||!/^\d{2}$/.test(b.minute)||Number(b.minute)>59){state.error='Enter a valid birth date, choose an AM or PM birth hour, and minutes (00–59).';render();return}
+ if(state.tool==='asteroids'&&!b.asteroids.length){state.error='Select at least one asteroid.';render();return}
  const [hour,period]=b.hour.split(' ');
- b.busy=true;render();try{state.result=await post('/astrology/'+(state.tool==='moon'?'moon-phase':'natal-chart'),{
- name:b.name,birth_date:b.date,birth_time:hour+':'+b.minute,birth_period:period,place_id:b.place.place_id,
+ b.busy=true;render();try{state.result=await post('/astrology/'+(state.tool==='moon'?'moon-phase':state.tool==='asteroids'?'asteroids/natal-chart':'natal-chart'),{
+ name:b.name,birth_date:b.date,birth_time:hour+':'+b.minute,birth_period:period,...(b.manual?{latitude:Number(b.latitude),longitude:Number(b.longitude),timezone:b.timezone,city:b.manualCity}:{place_id:b.place.place_id}),
+ ...(state.tool==='asteroids'?{asteroid_ids:b.asteroids,aspect_mode:b.aspectMode}:{}),
  zodiac:b.zodiac,house_system:b.houses,rulership:b.rulership,chart_system:'natal',time_fold:b.fold===''?null:Number(b.fold)
- });}catch(ex){state.error=ex.message}b.busy=false;render();document.querySelector('.birth-report')?.scrollIntoView({behavior:'smooth',block:'start'});}
+ },state.tool==='asteroids'?90000:15000);}catch(ex){state.error=ex.message}b.busy=false;render();document.querySelector('.birth-report')?.scrollIntoView({behavior:'smooth',block:'start'});}
 function birthLocalLabel(o){try{return new Date(o.birth_local_time).toLocaleString(undefined,{timeZone:o.location.timezone,year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZoneName:'short'})}catch{return o.birth_local_time}}
 function aspectLine(a){return e(a.planet_a)+' '+e(a.aspect)+' '+e(a.planet_b)+' · '+e(a.orb_formatted||a.orb.toFixed(2)+'°')+(a.motion?' · '+e(a.motion):'')}
 function symbolicPosition(p){return e(p.display_sign_glyph||p.sign_glyph||'')+' '+e(p.degree_formatted||p.formatted)+' <small>'+e(p.display_sign||p.sign)+'</small>'}
@@ -57,7 +81,7 @@ function moonCalendar(){
  if(moonUI.error)return html+notice(moonUI.error,'error')+btn('Retry calendar','moon-retry')+'</section>';
  if(!c)return html+'<p>The monthly calendar loads with your daily sky.</p></section>';
  html+='<h3>'+e(c.title)+'</h3><p>'+e(c.timezone)+' · '+e(zodiacLabels[c.zodiac])+'</p><div class="moon-calendar-grid">'+c.weekdays.map(d=>'<div class="moon-weekday">'+d+'</div>').join('')+Array(c.first_weekday).fill('<div class="moon-calendar-blank" aria-hidden="true"></div>').join('')+c.days.map(d=>{
-  const event=d.events[0];const label=event?.phase||d.phase||'Skipped date';const emoji=event?.emoji||d.emoji||'—';
+  const event=d.events[0];const label=event?.phase||d.phase||'Skipped date';const emoji=d.moon_image_svg||'—';
   return '<button class="moon-calendar-day '+(event?'moon-event-day ':'')+(selected?.date===d.date?'moon-day-selected':'')+'" data-action="moon-day" data-date="'+d.date+'" aria-label="'+d.date+' '+e(label)+'" '+(!d.available?'disabled':'')+'><b>'+d.day+'</b><span class="moon-day-emoji">'+emoji+'</span><small>'+e(d.moon_sign?.slice(0,3)||'—')+'</small></button>';
  }).join('')+'</div>';
  if(selected)html+='<div class="moon-selected-day"><h3>'+e(selected.date)+' · '+e(selected.phase||'Skipped date')+'</h3>'+(selected.available?'<p>'+selected.illumination_percent+'% illuminated at local noon · '+e(selected.moon_position)+'</p>':'<p>'+e(selected.note)+'</p>')+selected.events.map(x=>'<p><b>'+e(x.emoji+' '+x.phase)+'</b> · '+e(new Date(x.at_local).toLocaleString(undefined,{timeZone:c.timezone,dateStyle:'long',timeStyle:'short'}))+'</p>').join('')+'</div>';
@@ -80,7 +104,7 @@ function changeMoonMonth(step){const [y,m]=moonUI.month.split('-').map(Number);c
 function dailySkyPage(){const d=state.transit;
  let out=heading('Cosmos & Transits 🌙','Your daily Moon phase, planetary positions and zodiac reflections.');
  out+='<div class="glass"><h3>Daily Moon & Planetary Alignment</h3><div class="controls">'+field('Date (blank = today)','sky-date','date',skyUI.date)+selector('Zodiac','sky-zodiac',['tropical','sidereal'],skyUI.zodiac,zodiacLabels)+selector('Your zodiac sign','transit-sign',signs,state.sign)+'</div><p>Timezone: '+e(skyUI.timezone)+'. Today updates automatically; other dates show local noon.</p>'+btn(skyUI.loading?'Loading…':'Refresh my cosmic weather','get-transit','',skyUI.loading?'disabled':'')+(skyUI.error?notice(skyUI.error,'error'):'')+'</div>';
- if(d){out+='<div class="glass moon-detail"><h2>'+e(d.moon_emoji)+' '+e(d.moon_phase)+'</h2><p>'+d.illumination_percent+'% illuminated · '+(d.moon.waxing?'Waxing':'Waning')+'</p><p><b>Sky for '+e(d.date)+'</b> · '+e(new Date(d.as_of).toLocaleString(undefined,{timeZone:d.timezone,dateStyle:'long',timeStyle:'short'}))+'<br>'+e(d.zodiac_label)+'</p><p>Next '+e(d.moon.next_phase)+': '+e(new Date(d.moon.next_phase_at).toLocaleString())+'</p><small>'+e(d.moon.phase_convention)+'</small></div>'+
+ if(d){out+='<div class="glass moon-detail"><h2><span class="moon-day-emoji">'+(d.moon.image_svg||'')+'</span>'+e(d.moon_phase)+'</h2><p>'+d.illumination_percent+'% illuminated · '+(d.moon.waxing?'Waxing':'Waning')+'</p><p><b>Sky for '+e(d.date)+'</b> · '+e(new Date(d.as_of).toLocaleString(undefined,{timeZone:d.timezone,dateStyle:'long',timeStyle:'short'}))+'<br>'+e(d.zodiac_label)+'</p><p>Next '+e(d.moon.next_phase)+': '+e(new Date(d.moon.next_phase_at).toLocaleString())+'</p><small>'+e(d.moon.phase_convention)+'</small></div>'+
  moonCalendar()+'<div class="tiles">'+d.planets.map(p=>'<div class="glass"><h3>'+e(p.glyph)+' '+e(p.planet)+'</h3><p>'+e(p.formatted)+'</p><b class="'+(p.retrograde?'retrograde':'')+'">'+e(p.motion)+'</b></div>').join('')+'</div>'+
  '<div class="glass"><h2>Your '+e(d.selected_sign)+' daily reflection</h2>'+d.forecast.details.map(f=>'<h3>'+e(f.planet)+' · '+e(f.title)+'</h3><p>'+e(f.text)+'</p>').join('')+'<p class="muted">'+e(d.forecast.method)+'</p><small>'+e(d.forecast.note)+'</small></div>';
  }return out+'<div class="glass">'+btn('Create my birth chart','tool:natal')+' '+btn('Explore astrology tools','nav:explore','cream')+'</div>';}
@@ -89,14 +113,27 @@ async function fetchDailySky(){const request=++skyUI.request;skyUI.loading=true;
  catch(ex){if(request!==skyUI.request)return;state.transit=null;skyUI.error='Unable to load the sky: '+ex.message;}
  skyUI.loading=false;if(state.page==='cosmos')render();}
 function refreshSkyIfNeeded(force=false){if(state.page==='cosmos'&&!skyUI.loading&&(force||!state.transit||Date.now()-skyUI.lastFetch>60000))fetchDailySky();}
-function updateBirthField(ev){const key=ev.target.dataset?.birthKey;if(key){birthFormState[key]=ev.target.value;if(['date','hour','minute'].includes(key))birthFormState.fold='';if(['city','country','region'].includes(key)){birthFormState.place=null;birthFormState.places=[];birthFormState.fold='';const results=document.querySelector('#birth-place-results');if(results)results.innerHTML='';}}}
+function updateBirthField(ev){const key=ev.target.dataset?.birthKey;if(key){const previous=birthFormState[key];birthFormState[key]=ev.target.value;if(key==='country'&&previous!==ev.target.value){birthFormState.region='';birthLocations.regions=[];birthLocations.cities=[];}if(['date','hour','minute','timezone'].includes(key))birthFormState.fold='';if(['city','country','region'].includes(key)){birthFormState.place=null;birthFormState.places=[];birthFormState.fold='';const results=document.querySelector('#birth-place-results');if(results)results.innerHTML='';}}}
 document.addEventListener('input',updateBirthField);
+document.addEventListener('input',ev=>{if(ev.target.id==='asteroid-query')asteroidUI.query=ev.target.value});
 document.addEventListener('change',updateBirthField);
-document.addEventListener('change',ev=>{const id=ev.target.id;if(id==='report-zodiac'){birthFormState.zodiac=ev.target.value;calculateBirth();}if(id==='birth-zodiac')birthFormState.zodiac=ev.target.value;if(id==='birth-houses')birthFormState.houses=ev.target.value;if(id==='birth-rulership')birthFormState.rulership=ev.target.value;if(id==='birth-fold')birthFormState.fold=ev.target.value;
+document.addEventListener('change',ev=>{const id=ev.target.id;
+ if(['birth-country','birth-region'].includes(id)){state.result=null;loadBirthDropdowns(true)}
+ if(id==='birth-city-select'){birthFormState.place=birthLocations.cities.find(p=>p.place_id===ev.target.value)||null;birthFormState.manual=false;birthFormState.fold='';state.result=null;render()}
+ if(id==='birth-manual'){birthFormState.manual=ev.target.checked;birthFormState.fold='';state.result=null;render();loadBirthDropdowns(true)}
+ if(id==='current-sky-zodiac'){birthSky.zodiac=ev.target.value;birthSky.data=null;loadCurrentBirthSky()}
+ if(id==='asteroid-sort'){birthFormState.asteroidSort=ev.target.value;render()}
+ if(id==='asteroid-aspects')birthFormState.aspectMode=ev.target.value;
+ if(id==='asteroid-add'&&ev.target.value){const value=Number(ev.target.value);if(birthFormState.asteroids.length>=10){state.error='Choose up to 10 asteroids.';render();return}if(!birthFormState.asteroids.includes(value))birthFormState.asteroids.push(value);state.error='';state.result=null;render()}
+if(id==='report-zodiac'){birthFormState.zodiac=ev.target.value;calculateBirth();}if(id==='birth-zodiac')birthFormState.zodiac=ev.target.value;if(id==='birth-houses')birthFormState.houses=ev.target.value;if(id==='birth-rulership')birthFormState.rulership=ev.target.value;if(id==='birth-fold')birthFormState.fold=ev.target.value;
  if(id==='moon-month'&&/^\d{4}-\d{2}$/.test(ev.target.value)){moonUI.month=ev.target.value;moonUI.pinned=true;moonUI.selectedDate='';loadMoonCalendar();}
  if(id==='sky-date')moonUI.pinned=false;
  if(['sky-date','sky-zodiac','transit-sign'].includes(id)){skyUI.date=document.querySelector('#sky-date')?.value||'';skyUI.zodiac=document.querySelector('#sky-zodiac')?.value||'tropical';state.sign=document.querySelector('#transit-sign')?.value||state.sign;fetchDailySky();}});
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;
+ if(a==='asteroid-search'){ev.preventDefault();loadAsteroidCatalog(true)}
+ if(a==='asteroid-next'){ev.preventDefault();loadAsteroidCatalog(true,asteroidUI.offset+100)}
+ if(a==='asteroid-prev'){ev.preventDefault();loadAsteroidCatalog(true,Math.max(0,asteroidUI.offset-100))}
+ if(a==='asteroid-remove'){birthFormState.asteroids=birthFormState.asteroids.filter(id=>id!==Number(b.dataset.asteroidId));state.error='';state.result=null;render()}
  if(a==='birth-search'){ev.preventDefault();searchBirthCity()}
  if(a==='birth-place'){ev.preventDefault();birthFormState.place=birthFormState.places.find(p=>p.place_id===b.dataset.placeId);birthFormState.places=[];birthFormState.fold='';render()}
  if(a==='moon-prev-year'){ev.preventDefault();changeMoonMonth(-12)}
@@ -110,3 +147,11 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('focus',()=>refreshSkyIfNeeded(true));
 window.addEventListener('hashchange',()=>{if(typeof state!=='undefined'&&location.hash==='#cosmos')setTimeout(()=>refreshSkyIfNeeded(true),0)});
 if(typeof setInterval!=='undefined')setInterval(()=>{if(typeof state!=='undefined')refreshSkyIfNeeded()},60000);
+const asteroidUI={catalog:[],records:{},total:0,offset:0,more:false,query:'',loading:false,error:'',loaded:false};
+async function loadAsteroidCatalog(force=false,offset=0){if((asteroidUI.loaded&&!force)||asteroidUI.loading)return;asteroidUI.loading=true;asteroidUI.error='';
+ try{const data=await api('/astrology/asteroids?'+new URLSearchParams({query:asteroidUI.query,offset:String(offset)}),{timeoutMs:30000});asteroidUI.catalog=data.asteroids;asteroidUI.total=data.total;asteroidUI.offset=offset;asteroidUI.more=data.has_more;asteroidUI.loaded=true;(data.defaults||[]).concat(data.asteroids).forEach(a=>asteroidUI.records[a.id]=a)}catch(ex){asteroidUI.error=ex.message;asteroidUI.loaded=true}asteroidUI.loading=false;if(state.tool==='asteroids')render();
+}
+function asteroidOptions(){const b=birthFormState;const items=[...asteroidUI.catalog];if(b.asteroidSort==='name')items.sort((a,b)=>a.name.localeCompare(b.name));if(b.asteroidSort==='group')items.sort((a,b)=>a.group.localeCompare(b.group)||a.id-b.id);
+ return '<fieldset class="asteroid-picker"><legend>Select asteroids (up to 10)</legend><p>Search the full NASA/JPL numbered-asteroid catalog by name or number. The four major asteroids are defaults, not the complete list.</p><div class="controls"><label class="field">Find an asteroid<input id="asteroid-query" type="search" value="'+e(asteroidUI.query)+'" placeholder="Try Eros, Psyche, Eris, or a catalog number"></label>'+btn(asteroidUI.loading?'Searching…':'Search asteroids','asteroid-search','cream',asteroidUI.loading?'disabled':'')+'</div><p>'+Number(asteroidUI.total).toLocaleString()+' catalog matches · '+b.asteroids.length+' / 10 selected</p><label class="field">Add an asteroid<select id="asteroid-add"><option value="">Choose from the catalog</option>'+items.map(a=>'<option value="'+a.id+'" '+(b.asteroids.includes(a.id)?'disabled':'')+'>'+e(a.name)+' ('+a.id+')'+(b.asteroids.includes(a.id)?' — selected':'')+'</option>').join('')+'</select></label><div class="chips">'+b.asteroids.map(id=>'<button class="chip" data-action="asteroid-remove" data-asteroid-id="'+id+'" aria-label="Remove '+e(asteroidUI.records[id]?.name||String(id))+'">'+e(asteroidUI.records[id]?.name||String(id))+' ×</button>').join('')+'</div><div class="controls">'+(asteroidUI.offset?btn('Previous 100','asteroid-prev','cream'):'')+(asteroidUI.more?btn('Next 100','asteroid-next','cream'):'')+selector('Sort dropdown','asteroid-sort',['group','name','number'],b.asteroidSort,{group:'Thematic groups',name:'Alphabetical',number:'Catalog number'})+selector('Asteroid aspects','asteroid-aspects',['major','hide'],b.aspectMode,{major:'Show major aspects',hide:'Hide aspects'})+'</div><p class="muted">Positions use NASA/JPL Horizons. Only target IDs and your UTC birth instant are sent to JPL; your name and birthplace are not.</p>'+(asteroidUI.error?notice(asteroidUI.error,'error'):'')+'</fieldset>';
+}
+function asteroidReport(o){return '<article class="glass asteroid-report birth-report"><h2>Asteroids in your natal chart</h2><p>'+e(o.location.label)+' · '+e(birthLocalLabel(o))+'<br>'+e(o.zodiac_label)+' · '+e(houseLabels[o.house_system])+' houses</p><div class="chart-wheel">'+o.wheel_svg+'</div><h2>Your selected asteroids</h2><div class="reference-grid">'+o.asteroids.map(a=>'<section class="glass"><h3>'+e(a.glyph+' '+a.name)+'</h3><p><b>'+symbolicPosition(a)+' · House '+a.house+' · '+e(a.motion)+'</b></p>'+a.paragraphs.map(p=>'<p>'+e(p)+'</p>').join('')+'</section>').join('')+'</div>'+(o.aspect_mode==='major'?'<h2>Major asteroid aspects</h2>'+(o.asteroid_aspects.length?o.asteroid_aspects.map(a=>'<section class="glass"><h3>'+aspectLine(a)+'</h3><p>'+e(a.description)+'</p></section>').join(''):'<p>No major aspects within the selected orbs.</p>'):'')+'<p>'+e(o.ephemeris_source)+'</p><p>'+e(o.ephemeris_note)+'</p><a class="btn" href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener noreferrer">Ephemeris source</a> '+btn('Print / save asteroid report','print-chart','cream')+'</article>'}

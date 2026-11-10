@@ -1,4 +1,4 @@
-"""HTTP smoke tests for the Spiritual Vibez FastAPI application.
+"""HTTP smoke tests for the Spiritual Vibz FastAPI application.
 
 These tests verify routing and response shapes, unlike the legacy script
 which invokes Python functions directly.
@@ -41,7 +41,7 @@ def test_sample_tarot_draw():
 def test_web_app_has_new_branding():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Spiritual Vibez" in response.text
+    assert "Spiritual Vibz" in response.text
     assert "AuraMystic" not in response.text
 
 def test_new_css_js_and_illustration_are_served():
@@ -49,7 +49,7 @@ def test_new_css_js_and_illustration_are_served():
     script = client.get("/app.js")
     illustration = client.get("/guide.svg")
     assert stylesheet.status_code == 200 and "feature-grid" in stylesheet.text
-    assert script.status_code == 200 and "Spiritual Vibez" in script.text
+    assert script.status_code == 200 and "Spiritual Vibz" in script.text
     assert illustration.status_code == 200 and illustration.headers["content-type"].startswith("image/svg+xml")
 
 
@@ -63,4 +63,4 @@ def test_approved_illustrations():
     assert artwork.status_code == 200 and "CARD_PANELS" in artwork.text
     assert client.get("/assets/home_shuffle_spread.png").status_code == 404
     appjs=client.get("/app.js")
-    assert appjs.status_code == 200 and "Spiritual Vibez" in appjs.text
+    assert appjs.status_code == 200 and "Spiritual Vibz" in appjs.text

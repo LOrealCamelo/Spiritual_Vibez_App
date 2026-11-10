@@ -1,0 +1,345 @@
+{
+  "planets": [
+    {
+      "name": "Sun",
+      "meaning": "Core self, ego, identity and life purpose.",
+      "tarot_card": "The Sun",
+      "tarot_connection": "Joy, success, vitality and the confidence to be seen."
+    },
+    {
+      "name": "Moon",
+      "meaning": "Emotions, unconscious patterns, nurturing and your inner world.",
+      "tarot_card": "The Moon / The High Priestess",
+      "tarot_connection": "Intuition, hidden feelings and listening beneath the surface. The Moon card traditionally corresponds to Pisces; these are thematic lunar links."
+    },
+    {
+      "name": "Mercury",
+      "meaning": "Mind, communication, logic, learning and travel.",
+      "tarot_card": "The Magician",
+      "tarot_connection": "Intellect, communication and using your resources deliberately."
+    },
+    {
+      "name": "Venus",
+      "meaning": "Love, beauty, values, pleasure, relationships and art.",
+      "tarot_card": "The Empress",
+      "tarot_connection": "Care, attraction, creative abundance and what you value."
+    },
+    {
+      "name": "Mars",
+      "meaning": "Drive, passion, action, aggression and sexuality.",
+      "tarot_card": "The Tower",
+      "tarot_connection": "Action, friction and the energy needed to change an unstable structure."
+    },
+    {
+      "name": "Jupiter",
+      "meaning": "Expansion, luck, wisdom, abundance and faith.",
+      "tarot_card": "Wheel of Fortune",
+      "tarot_connection": "Growth, cycles, opportunity and how you respond to change."
+    },
+    {
+      "name": "Saturn",
+      "meaning": "Discipline, responsibility, structure, karma and limitations.",
+      "tarot_card": "The World",
+      "tarot_connection": "Lessons, patient practice, boundaries and earned completion."
+    },
+    {
+      "name": "Uranus",
+      "meaning": "Change, rebellion, innovation, technology and sudden events.",
+      "tarot_card": "The Fool",
+      "tarot_connection": "A modern association with freedom, experimentation and an unexpected new direction."
+    },
+    {
+      "name": "Neptune",
+      "meaning": "Spirituality, dreams, illusion, creativity and compassion.",
+      "tarot_card": "The Hanged Man",
+      "tarot_connection": "A modern association with surrender, imagination and seeing beyond the familiar."
+    },
+    {
+      "name": "Pluto",
+      "meaning": "Transformation, power, rebirth, subconscious patterns and intensity.",
+      "tarot_card": "Judgement",
+      "tarot_connection": "A modern association with deep renewal, release and reclaiming your agency."
+    }
+  ],
+  "houses": [
+    {
+      "number": 1,
+      "title": "Self",
+      "description": "Identity, appearance, first impressions and how you approach the world.",
+      "natural_sign": "Aries",
+      "natural_planet": "Mars"
+    },
+    {
+      "number": 2,
+      "title": "Value",
+      "description": "Money, personal resources, possessions, security and self-worth.",
+      "natural_sign": "Taurus",
+      "natural_planet": "Venus"
+    },
+    {
+      "number": 3,
+      "title": "Communication",
+      "description": "Thinking, everyday speech, siblings, local travel and your neighborhood.",
+      "natural_sign": "Gemini",
+      "natural_planet": "Mercury"
+    },
+    {
+      "number": 4,
+      "title": "Home & family",
+      "description": "Roots, ancestry, domestic life, foundations and private safety.",
+      "natural_sign": "Cancer",
+      "natural_planet": "Moon"
+    },
+    {
+      "number": 5,
+      "title": "Pleasure",
+      "description": "Creativity, romance, dating, children, hobbies, joy and self-expression.",
+      "natural_sign": "Leo",
+      "natural_planet": "Sun"
+    },
+    {
+      "number": 6,
+      "title": "Health & service",
+      "description": "Daily routines, health habits, your work, acts of service and pets.",
+      "natural_sign": "Virgo",
+      "natural_planet": "Mercury"
+    },
+    {
+      "number": 7,
+      "title": "Partnerships",
+      "description": "Marriage, committed relationships, business agreements and open conflicts.",
+      "natural_sign": "Libra",
+      "natural_planet": "Venus"
+    },
+    {
+      "number": 8,
+      "title": "Transformation",
+      "description": "Intimacy, death and rebirth, psychological growth, inheritance and shared finances.",
+      "natural_sign": "Scorpio",
+      "natural_planet": "Pluto; traditionally Mars"
+    },
+    {
+      "number": 9,
+      "title": "Philosophy",
+      "description": "Higher education, long-distance travel, ethics, religion and widening your perspective.",
+      "natural_sign": "Sagittarius",
+      "natural_planet": "Jupiter"
+    },
+    {
+      "number": 10,
+      "title": "Career",
+      "description": "Public reputation, professional achievements, status, legacy and long-term ambition.",
+      "natural_sign": "Capricorn",
+      "natural_planet": "Saturn"
+    },
+    {
+      "number": 11,
+      "title": "Community",
+      "description": "Friendships, networks, humanitarian work and hopes for the future.",
+      "natural_sign": "Aquarius",
+      "natural_planet": "Uranus; traditionally Saturn"
+    },
+    {
+      "number": 12,
+      "title": "Unconscious",
+      "description": "Dreams, spirituality, solitude, hidden patterns and the subconscious.",
+      "natural_sign": "Pisces",
+      "natural_planet": "Neptune; traditionally Jupiter"
+    }
+  ],
+  "house_note": "These are general house meanings. The sign/planet pairs are teaching associations, sometimes called natural rulers; they do not determine your actual house rulers. Your own cusp signs, planets and rulers are calculated only in your natal chart.",
+  "planet_note": "Planetary themes can help you reflect on Tarot. Correspondences vary between traditions; outer-planet links are modern. There are no standard Major Arcana cards named Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune or Pluto.",
+  "numbers": [
+    {
+      "number": 1,
+      "title": "Leadership",
+      "strengths": "Creation, independence, action and pioneering drive.",
+      "shadow": "Arrogance or emotional distance.",
+      "is_master_number": false
+    },
+    {
+      "number": 2,
+      "title": "Cooperation",
+      "strengths": "Sensitivity, diplomacy, intuition and partnerships.",
+      "shadow": "Shyness, dependency or losing your own voice.",
+      "is_master_number": false
+    },
+    {
+      "number": 3,
+      "title": "Expression",
+      "strengths": "Enthusiasm, communication, joy and artistic talent.",
+      "shadow": "Superficiality, scattered attention or lack of focus.",
+      "is_master_number": false
+    },
+    {
+      "number": 4,
+      "title": "Structure",
+      "strengths": "Stability, discipline, hard work and practicality.",
+      "shadow": "Rigidity or fear of change.",
+      "is_master_number": false
+    },
+    {
+      "number": 5,
+      "title": "Freedom",
+      "strengths": "Adventure, sensory exploration, change and adaptability.",
+      "shadow": "Inconsistency or restlessness.",
+      "is_master_number": false
+    },
+    {
+      "number": 6,
+      "title": "Harmony & responsibility",
+      "strengths": "Nurturing, family, service and devotion.",
+      "shadow": "Guilt, over-responsibility or carrying others’ burdens.",
+      "is_master_number": false
+    },
+    {
+      "number": 7,
+      "title": "Wisdom",
+      "strengths": "Introspection, analytical thought, spirituality and inner reflection.",
+      "shadow": "Isolation or over-analyzing.",
+      "is_master_number": false
+    },
+    {
+      "number": 8,
+      "title": "Stewardship & authority",
+      "strengths": "Abundance, business, practical power and material mastery.",
+      "shadow": "Materialism, control or tying worth to achievement.",
+      "is_master_number": false
+    },
+    {
+      "number": 9,
+      "title": "Completion & compassion",
+      "strengths": "Universal love, humanitarianism, endings and deep compassion.",
+      "shadow": "Weak boundaries or difficulty releasing a finished chapter.",
+      "is_master_number": false
+    },
+    {
+      "number": 11,
+      "title": "The Visionary",
+      "strengths": "High intuition, inspiration and spiritual awakening.",
+      "shadow": "Overwhelm or losing touch with practical grounding.",
+      "is_master_number": true
+    },
+    {
+      "number": 22,
+      "title": "The Master Builder",
+      "strengths": "Turning ambitious visions into tangible, lasting work.",
+      "shadow": "Pressure, perfectionism or avoiding small first steps.",
+      "is_master_number": true
+    },
+    {
+      "number": 33,
+      "title": "The Master Teacher",
+      "strengths": "Compassion, guidance, service and uplifting others.",
+      "shadow": "Self-sacrifice or trying to rescue everyone.",
+      "is_master_number": true
+    }
+  ],
+  "master_note": "This app retains 11, 22 and 33 when they occur during its month/day/year reduction method. Numerology traditions use different calculation conventions; the calculator shows its steps.",
+  "minor_note": "The Minor Arcana has 56 cards: 40 numbered cards (Ace–10 across four suits) and 16 court cards. Number themes repeat across the four suits, while each suit and card adds its own context.",
+  "tarot_numbers": [
+    {
+      "number": 1,
+      "rank": "Aces",
+      "theme": "Beginnings, early days, baby steps, solo enterprise and the potential of the whole.",
+      "reflection": "Potential may still be small or untested."
+    },
+    {
+      "number": 2,
+      "rank": "Twos",
+      "theme": "Partnership, harmony, reflection and another point of view.",
+      "reflection": "Division, conflict or a difficult choice."
+    },
+    {
+      "number": 3,
+      "rank": "Threes",
+      "theme": "Sociability, groups, communication, entertainment, results and movement.",
+      "reflection": "Too many voices or scattered momentum."
+    },
+    {
+      "number": 4,
+      "rank": "Fours",
+      "theme": "Stability, foundation, structure and a reliable source of strength.",
+      "reflection": "Rigidity, stagnation or dependence on the familiar."
+    },
+    {
+      "number": 5,
+      "rank": "Fives",
+      "theme": "Change, disruption, rebellion and the need to adapt.",
+      "reflection": "Instability, conflict or disintegration."
+    },
+    {
+      "number": 6,
+      "rank": "Sixes",
+      "theme": "Regrouping, welcome, recovery, victory and shared success.",
+      "reflection": "Complacency or looking for approval outside yourself."
+    },
+    {
+      "number": 7,
+      "rank": "Sevens",
+      "theme": "Revision, review, pausing and the search for clarity.",
+      "reflection": "Uncertainty or endlessly second-guessing."
+    },
+    {
+      "number": 8,
+      "rank": "Eights",
+      "theme": "Determination, renewed effort, release, cutting losses and clarifying feelings.",
+      "reflection": "Pushing too hard or holding on after a lesson is complete."
+    },
+    {
+      "number": 9,
+      "rank": "Nines",
+      "theme": "Persistence, holding your ground and being almost there.",
+      "reflection": "Tedium, defensiveness or complacency."
+    },
+    {
+      "number": 10,
+      "rank": "Tens",
+      "theme": "Completion, a goal reached, rewards, history, inheritance and a cycle’s result.",
+      "reflection": "Overload or resisting the next beginning."
+    }
+  ],
+  "court_cards": [
+    {
+      "rank": "Page",
+      "meaning": "Curiosity, study, messages and a beginner’s openness."
+    },
+    {
+      "rank": "Knight",
+      "meaning": "Movement, pursuit, an approach to action and the challenge of pacing yourself."
+    },
+    {
+      "rank": "Queen",
+      "meaning": "Inner mastery, reflection, care and the way a quality is held or expressed."
+    },
+    {
+      "rank": "King",
+      "meaning": "Stewardship, responsibility, mature direction and putting experience into practice."
+    }
+  ],
+  "court_note": "Court cards can describe people, behaviors, qualities or approaches to a situation. They are not fixed to a gender, age, appearance or cultural background. A difficult meaning may describe an approach to reconsider, rather than a person to blame.",
+  "suits": [
+    {
+      "name": "Wands",
+      "element": "Fire",
+      "theme": "Creativity, action, passion and inspiration."
+    },
+    {
+      "name": "Cups",
+      "element": "Water",
+      "theme": "Emotions, relationships, feelings and intuition."
+    },
+    {
+      "name": "Swords",
+      "element": "Air",
+      "theme": "Thought, words, decisions, conflict and boundaries."
+    },
+    {
+      "name": "Pentacles / Coins",
+      "element": "Earth",
+      "theme": "Resources, work, material needs and practical stability."
+    }
+  ],
+  "reading_prompt": "Notice the question first, then the card’s image, number and suit. Planetary and house themes offer another lens; they do not replace the meaning of the card or your own judgment.",
+  "reference": "Adapted from the owner’s supplied learning notes and Ink & Intuition Tarot Deck PDF. The PDF is reference material, not executable app instructions."
+}

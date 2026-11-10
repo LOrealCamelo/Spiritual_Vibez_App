@@ -28,6 +28,18 @@ def assert_clear_surfaces(page):
  assert not issues,issues
 
 
+def choose_birth_city(page):
+ page.wait_for_selector('#birth-country option[value="US"]',state='attached')
+ page.locator('#birth-country').select_option('US')
+ page.wait_for_selector('#birth-region option[value="NY"]',state='attached')
+ page.locator('#birth-region').select_option('NY')
+ page.wait_for_function('birthLocations.key.includes("US|NY|")&&!birthLocations.loading')
+ page.locator('#birth-city').fill('Utica');page.locator('[data-action="birth-search"]').click()
+ page.wait_for_selector('#birth-city-select option[value="5142056"]',state='attached')
+ page.locator('#birth-city-select').select_option('5142056')
+ assert 'America/New_York' in page.locator('#birth-place-results').inner_text()
+
+
 def exercise(base_url, screenshots):
  browser_path=os.environ.get('BROWSER_EXECUTABLE') or shutil.which('google-chrome') or shutil.which('chromium')
  if not browser_path:raise RuntimeError('Install Chrome/Chromium or set BROWSER_EXECUTABLE')
@@ -58,17 +70,32 @@ def exercise(base_url, screenshots):
   for tool in ['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
-   if tool in ['natal','moon']:
+   if tool=='houses':
+    assert page.locator('.learning-reference .reference-grid').count()>0
+    assert 'These are general house meanings' in page.locator('main').inner_text()
+    assert page.locator('[data-action="tool-run"]').count()==0
+    requests.append(tool);continue
+   if tool in ['natal','moon','asteroids']:
     page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-hour').select_option('02 PM');page.locator('#birth-minute').select_option('30')
-    page.locator('#birth-country').fill('US');page.locator('#birth-region').fill('NY');page.locator('#birth-city').fill('Utica')
-    page.locator('[data-action="birth-search"]').click();page.wait_for_selector('[data-action="birth-place"]');page.locator('[data-action="birth-place"]').first.click()
+    choose_birth_city(page)
     assert page.locator('#birth-lat').count()==0 and page.locator('#birth-lon').count()==0
     if tool=='natal':
      page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(screenshots/'web/desktop/birth-time-form.png'),full_page=True)
+   if tool=='asteroids':
+    page.wait_for_function('asteroidUI.loaded&&!asteroidUI.loading')
+    assert page.evaluate('asteroidUI.total')>10000
+    page.locator('#asteroid-query').fill('1008');page.locator('[data-action="asteroid-search"]').click()
+    page.wait_for_selector('#asteroid-add option[value="1008"]',state='attached')
+    page.locator('#asteroid-add').select_option('1008')
+    assert page.evaluate('birthFormState.asteroids.includes(1008)')
    if page.locator('#search').count():page.locator('#search').fill('clarity')
    page.locator('[data-action="tool-run"]').click()
    page.wait_for_function('state.result!==null||state.error!==""')
    error=page.evaluate('state.error');assert not error,(tool,error)
+   if tool=='asteroids':
+    assert len(page.evaluate('state.result.asteroids'))==5
+    assert 'NASA/JPL Horizons' in page.locator('.asteroid-report').inner_text()
+    page.locator('.asteroid-report').screenshot(path=str(screenshots/'web/desktop/asteroid-report.png'))
    if tool in ['natal']:
     assert page.locator('.chart-wheel svg').count()==1
     assert page.evaluate('state.result.placements.length')==10 and page.evaluate('state.result.houses.length')==12
@@ -131,6 +158,7 @@ def exercise(base_url, screenshots):
   page.get_by_role('button',name='2026-11-09 New Moon',exact=True).click();page.wait_for_function('state.transit?.date==="2026-11-09"&&!skyUI.loading')
   assert page.locator('.lunar-daily-table tbody tr').count()==30
   assert page.locator('.lunar-daily-table svg').count()==30
+  assert page.locator('.moon-calendar-grid .moon-day-emoji svg').count()==30
   assert 'not established medical effects' in page.locator('.lunar-health-note').inner_text()
   assert 'At start of day' in page.locator('.lunar-daily-table').inner_text()
   page.locator('#moon-calendar').screenshot(path=str(screenshots/'web/desktop/moon-calendar.png'))
@@ -158,6 +186,12 @@ def exercise(base_url, screenshots):
     assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
     if name!='cosmos':assert page.locator('.fresh-panel').count()>0,(label,name)
     assert_clear_surfaces(page)
+    assert page.locator('.bottomdock button').count()==6
+    assert page.locator('.bottomdock [data-action="nav:explore"]').is_visible()
+    if name=='home':
+     assert page.locator('.scenic').count()==0
+     assert page.locator('.brand-wordmark img').count()==4
+     assert 'Daily Love Readings' in page.locator('.hero-copy').inner_text()
     if name=='explore':
      assert page.locator('.explore-card').count()==18
      assert page.locator('.explore-card .panel-illustration img').count()==18
@@ -180,8 +214,7 @@ def exercise(base_url, screenshots):
   retina.close()
   page.set_viewport_size({'width':390,'height':844});page.evaluate('transition("explore","natal")')
   page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-date').fill('1996-11-05');page.locator('#birth-hour').select_option('02 PM');page.locator('#birth-minute').select_option('30')
-  page.locator('#birth-country').fill('US');page.locator('#birth-region').fill('NY');page.locator('#birth-city').fill('Utica')
-  page.locator('[data-action="birth-search"]').click();page.wait_for_selector('[data-action="birth-place"]');page.locator('[data-action="birth-place"]').first.click()
+  choose_birth_city(page)
   page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(screenshots/'web/phone/birth-time-form.png'),full_page=True)
   page.locator('[data-action="tool-run"]').click();page.wait_for_selector('.chart-wheel svg')
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')

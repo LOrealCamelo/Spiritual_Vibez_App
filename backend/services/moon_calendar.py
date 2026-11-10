@@ -33,9 +33,12 @@ def moon_disc_svg(angle):
     inner=[(mirror*cosine*math.sqrt(max(0,1-y*y)),y) for y in reversed(ys)]
     points=' '.join(f'{24+21*x:.3f},{24+21*y:.3f}' for x,y in outer+inner)
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">'
-            '<circle cx="24" cy="24" r="22" fill="#171129" stroke="#d2b9e4"/>'
-            f'<polygon points="{points}" fill="#ffedc5"/>'
-            '<circle cx="24" cy="24" r="21" fill="none" stroke="#bda7d3" stroke-width=".4"/></svg>')
+            '<circle cx="24" cy="24" r="22" fill="#161b28" stroke="#a7b3c8" stroke-width=".7"/>'
+            f'<polygon points="{points}" fill="#e2e7ed"/>'
+            '<ellipse cx="18" cy="17" rx="6" ry="4.5" fill="#59616e" opacity=".13"/>'
+            '<ellipse cx="27" cy="29" rx="7" ry="5" fill="#59616e" opacity=".12"/>'
+            '<ellipse cx="31" cy="17" rx="3" ry="5" fill="#59616e" opacity=".1"/>'
+            '<circle cx="24" cy="24" r="21" fill="none" stroke="#d0d9e6" stroke-width=".4"/></svg>')
 
 def moon_longitude(dt, zodiac):
     t=astro_time(dt)

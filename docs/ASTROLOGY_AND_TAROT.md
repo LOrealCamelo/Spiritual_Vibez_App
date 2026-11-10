@@ -12,7 +12,7 @@ the Python packages, then opens the web app and backend together.
 
 - Open Birth Chart from Home or Explore. Enter a name, birth date, local hour
   (12 AM through 11 AM, then 12 PM through 11 PM) and minutes (00–59), country,
-  state/province and city. Find the city and select its result. The hour must be
+  state/province and city from the dropdowns. Filter the city list by name when needed. The hour must be
   selected explicitly; 12 AM means midnight and 12 PM means noon.
 - Choose Tropical or Sidereal (Lahiri), and Placidus, Whole Sign or Equal houses.
   Calculate to see the wheel, ten planet placements, twelve house descriptions,
@@ -70,7 +70,7 @@ all 12 Placidus cusps within 0.001°). Swiss Ephemeris is a development referenc
 not an application dependency.
 
 GeoNames city data (through geonamescache 3.0.2) covers towns with population
-of at least 1,000. State/province names come from the bundled GeoNames admin1
+of at least 500. State/province names come from the bundled GeoNames admin1
 directory. Data is [GeoNames, CC BY 4.0](https://www.geonames.org/). No name or
 birth details are sent to an external geocoding service. For an absent small
 settlement, a nearby listed town can be selected; this can slightly change houses.

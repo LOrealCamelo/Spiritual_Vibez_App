@@ -4,8 +4,12 @@ AuraMystic Numerology (Life Path & Master Numbers 11, 22, 33) and Relationship S
 from fastapi import APIRouter, HTTPException
 from ..models import LifePathRequest, SynastryRequest
 from ..services.ephemeris_engine import MASTER_DATA, SIGN_ELEMENTS, SIGN_MODALITIES
+from datetime import date
+from pathlib import Path
+import json
 
 router = APIRouter()
+NUMBER_GUIDE = json.loads(Path(__file__).parents[1].joinpath('data/learning_library.json').read_text(encoding='utf-8'))
 
 ANGEL_SYNCHRONICITIES = {
     "1": "111 — Instant manifestation portal; keep your thoughts focused on sovereign creation, not fear.",
@@ -30,6 +34,10 @@ def reduce_numerology_number(num: int) -> int:
 @router.post("/life-path")
 def calculate_life_path(req: LifePathRequest):
     """Calculates Life Path Number preserving Master Numbers (11, 22, 33) with step-by-step breakdown."""
+    try:
+        date(req.birth_year, req.birth_month, req.birth_day)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail='Enter a valid calendar birth date.') from exc
     m_red = reduce_numerology_number(req.birth_month)
     d_red = reduce_numerology_number(req.birth_day)
     y_sum = sum(int(d) for d in str(req.birth_year))
@@ -38,8 +46,7 @@ def calculate_life_path(req: LifePathRequest):
     raw_total = m_red + d_red + y_red
     life_path = reduce_numerology_number(raw_total)
 
-    meanings = MASTER_DATA.get("lifePathMeanings", {})
-    info = meanings.get(str(life_path), meanings.get("1"))
+    info = next(n for n in NUMBER_GUIDE['numbers'] if n['number'] == life_path)
     is_master = life_path in (11, 22, 33)
 
     return {
@@ -47,7 +54,8 @@ def calculate_life_path(req: LifePathRequest):
         "life_path_number": life_path,
         "is_master_number": is_master,
         "title": info["title"],
-        "description": info["desc"],
+        "description": info["strengths"],
+        'shadow': info['shadow'],
         "angel_synchronicity": ANGEL_SYNCHRONICITIES.get(str(life_path), ""),
         "calculation_breakdown": {
             "month_reduced": m_red,
@@ -61,17 +69,9 @@ def calculate_life_path(req: LifePathRequest):
 @router.get("/numerology-lessons")
 def get_all_numerology_lessons():
     """Returns core esoteric meanings for single digits (1-9) and Master Numbers (11, 22, 33)."""
-    meanings = MASTER_DATA.get("lifePathMeanings", {})
-    lessons = []
-    for num_str, data in meanings.items():
-        lessons.append({
-            "number": int(num_str),
-            "is_master_number": int(num_str) in (11, 22, 33),
-            "title": data["title"],
-            "lesson": data["desc"],
-            "angel_number_message": ANGEL_SYNCHRONICITIES.get(num_str, "")
-        })
-    return {"lessons": lessons}
+    return {'lessons': [{**n, 'lesson': n['strengths']} for n in NUMBER_GUIDE['numbers']],
+            'tarot_numbers': NUMBER_GUIDE['tarot_numbers'], 'court_cards': NUMBER_GUIDE['court_cards'],
+            'court_note': NUMBER_GUIDE['court_note'], 'master_note': NUMBER_GUIDE['master_note']}
 
 @router.get("/numerology-lessons/{number}")
 def get_numerology_lesson_by_number(number: int):

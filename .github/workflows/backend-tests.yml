@@ -25,6 +25,7 @@ jobs:
           node --check frontend/app.js
           node --check frontend/cosmic.js
           node --check frontend/artwork.js
+          node --check frontend/learning.js
 
       - name: Install browser test driver
         run: pip install -r frontend/tests/requirements.txt

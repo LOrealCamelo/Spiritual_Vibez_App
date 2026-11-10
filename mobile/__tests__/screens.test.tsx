@@ -32,7 +32,7 @@ test('Home clean PNG cards navigate independently to learning, spreads, cosmos, 
   await render(<HomeScreen navigation={{navigate}}/>);
   for(const [label,route,params] of [
     ['Learn','Learn',undefined],['Spreads','Spreads',undefined],['Daily','Learn',{daily:true}],
-    ['Numerology','Explore',{tool:'life'}],['Moon Phase','Cosmos',undefined],
+    ['Numerology','Explore',{tool:'numbers'}],['Moon Phase','Cosmos',undefined],
     ['Saved Readings','Journal',undefined],['Birth','Explore',{tool:'natal'}],
   ] as const){
     await press(label);
@@ -69,6 +69,26 @@ test('the complete spread list uses original illustrations on glass surfaces',as
  await render(<SpreadsScreen route={{params:{}}}/>);
  expect(tree.root.findAllByType(SpreadIllustration).length).toBeGreaterThan(0);
  for(const art of tree.root.findAllByType(SpreadIllustration))expect(art.findByType(PanelIllustration)).toBeDefined();
+});
+
+test('asteroid dropdown searches the complete catalog and adds a non-major body',async()=>{
+ const defaults=[{id:1,name:'Ceres'},{id:2,name:'Pallas'},{id:3,name:'Juno'},{id:4,name:'Vesta'}];
+ globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/locations/countries')?{countries:[{code:'US',name:'United States'}]}:url.includes('/locations/regions')?{regions:[]}:url.includes('/locations/cities')?{places:[]}:url.includes('query=1008')?{asteroids:[{id:1008,name:'La Paz'}],total:1,defaults}:{asteroids:defaults,total:895910,defaults,has_more:true}}));
+ await render(<ExploreScreen route={{params:{tool:'asteroids'}}} navigation={{goBack:jest.fn()}}/>);
+ await act(async()=>tree.root.findAllByType(TextInput).find(x=>x.props.accessibilityLabel==='Find an asteroid by name or number')!.props.onChangeText('1008'));
+ await press('Search asteroids');await press('Add an asteroid');await press('Select La Paz (1008)');
+ expect(text().replace(/\s+/g,' ')).toContain('5 / 10 selected');
+ await press('Remove La Paz');expect(text().replace(/\s+/g,' ')).toContain('4 / 10 selected');
+});
+
+test('houses and numerology teach general meanings and include Tarot connections',async()=>{
+ await render(<ExploreScreen route={{params:{tool:'houses'}}} navigation={{goBack:jest.fn()}}/>);
+ expect(text()).toContain('These are general house meanings');expect(text()).toContain('Planets & Tarot connections');
+ expect(tree.root.findAllByType(TextInput)).toHaveLength(0);
+ await act(async()=>tree.unmount());
+ await render(<ExploreScreen route={{params:{tool:'numbers'}}} navigation={{goBack:jest.fn()}}/>);
+ for(const label of ['The Master Builder','The Master Teacher','The numbers of Tarot','Court cards'])expect(text()).toContain(label);
+ expect(tree.root.findAllByType(TextInput).some(x=>x.props.placeholder==='1996-11-05')).toBe(true);
 });
 
 test('learning module progress comes from distinct studied cards and a quiz can only be answered once',async()=>{
@@ -138,9 +158,9 @@ test('connected spread artwork uses canonical API IDs and the full backend layou
 
 test.each([
   ['bazi','/astrology/bazi','POST'],
-  ['houses','/astrology/houses','GET'],['asteroids','/astrology/asteroids','GET'],
+
   ['astro','/astrology/astrocartography','GET'],['calendar','/astrology/lunar-calendar/1','GET'],
-  ['life','/synastry/life-path','POST'],['numbers','/synastry/numerology-lessons','GET'],
+  ['life','/synastry/life-path','POST'],['numbers','/synastry/life-path','POST'],
   ['love','/synastry/compatibility','POST'],['sound','/rituals/frequencies','GET'],
   ['rituals','/rituals/search','GET'],['shadow','/wellness/shadow-prompts','GET'],
   ['runes','/divination/runes/cast','POST'],['pendulum','/divination/pendulum','POST'],
@@ -155,7 +175,7 @@ test.each([
   const [url,options]=(globalThis.fetch as jest.Mock).mock.calls.at(-1)!;
   expect(String(url).replace(/^https?:\/\/[^/]+/,'').split('?')[0]).toBe('/api'+path);
   expect(options?.method||'GET').toBe(method);
-  if(date)expect(JSON.parse(options.body)).toMatchObject(tool==='life'||tool==='bazi'?{birth_year:1996,birth_month:11,birth_day:5}:{birth_date:'1996-11-05',birth_time:'12:00'});
+  if(date)expect(JSON.parse(options.body)).toMatchObject(['life','numbers','bazi'].includes(tool)?{birth_year:1996,birth_month:11,birth_day:5}:{birth_date:'1996-11-05',birth_time:'12:00'});
   expect(text()).toContain('true');
 });
 
@@ -169,17 +189,17 @@ test('store shows one website link without loading a product catalog',async()=>{
 });
 
 
-test.each([['natal','AM'],['natal','PM'],['moon','AM'],['moon','PM']])('native %s submits an explicit %s birth time and selected city',async(tool,period)=>{
+test.each([['natal','AM'],['natal','PM'],['moon','AM'],['moon','PM'],['asteroids','PM']])('native %s submits an explicit %s birth time and selected city',async(tool,period)=>{
  const place={place_id:'5142056',label:'Utica, New York, United States',timezone:'America/New_York'};
- globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/locations/search')?{places:[place]}:{emoji:'🌘',natal_moon_phase:'Waning Crescent',illumination_percentage:21,description:'Birth Moon',moon_position:'Virgo 2°',birth_local_time:'1996-11-05T14:30:00-05:00',location:place}}));
+ globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/locations/countries')?{countries:[{code:'US',name:'United States'}]}:url.includes('/locations/regions')?{regions:[{code:'NY',name:'New York'}]}:url.includes('/locations/cities')?{places:[place]}:url.endsWith('/astrology/asteroids')?{asteroids:[{id:1,name:'Ceres'},{id:2,name:'Pallas'},{id:3,name:'Juno'},{id:4,name:'Vesta'}]}:{emoji:'🌘',natal_moon_phase:'Waning Crescent',illumination_percentage:21,description:'Birth Moon',moon_position:'Virgo 2°',birth_local_time:'1996-11-05T14:30:00-05:00',location:place}}));
  await render(<ExploreScreen route={{params:{tool}}} navigation={{goBack:jest.fn()}}/>);
  const fill=async(label:string,value:string)=>act(async()=>tree.root.findAllByType(TextInput).find(x=>x.props.accessibilityLabel===label)!.props.onChangeText(value));
- await fill('Name (optional)','Mystic');await fill('Birth date YYYY-MM-DD','1996-11-05');await press('Hour (AM/PM)');await press('Select 2 '+period);await press('Minutes');await press('Select 30');await fill('State / province','NY');await fill('City of birth','Utica');
+ await fill('Name (optional)','Mystic');await fill('Birth date YYYY-MM-DD','1996-11-05');await press('Hour (AM/PM)');await press('Select 2 '+period);await press('Minutes');await press('Select 30');await press('State / province');await press('Select New York');await fill('Filter city list','Utica');
  expect(text()).not.toContain('Birth latitude');expect(text()).not.toContain('Birth longitude');
- await press('Find my birth city');expect(String((globalThis.fetch as jest.Mock).mock.calls[0][0])).toContain('city=Utica');await press('Select '+place.label);
- await press('Sidereal (Lahiri)');if(tool==='natal')await press('Traditional (7 planets)');await press(tool==='moon'?'Find my natal Moon':'Create my birth chart');
+ await press('Search cities');expect((globalThis.fetch as jest.Mock).mock.calls.some(([url])=>String(url).includes('query=Utica'))).toBe(true);await press('City of birth');await press('Select '+place.label);
+ await press('Sidereal (Lahiri)');if(tool==='natal')await press('Traditional (7 planets)');await press(tool==='moon'?'Find my natal Moon':tool==='asteroids'?'Calculate asteroids':'Create my birth chart');
  const [url,options]=(globalThis.fetch as jest.Mock).mock.calls.at(-1)!;
- expect(url).toContain('/astrology/'+(tool==='moon'?'moon-phase':'natal-chart'));
+ expect(url).toContain('/astrology/'+(tool==='moon'?'moon-phase':tool==='asteroids'?'asteroids/natal-chart':'natal-chart'));
  expect(JSON.parse(options.body)).toMatchObject({name:'Mystic',birth_date:'1996-11-05',birth_time:'02:30',birth_period:period,place_id:'5142056',zodiac:'sidereal',rulership:tool==='natal'?'traditional':'modern',chart_system:'natal'});
  expect(text()).toContain('Waning Crescent');
 });
@@ -234,7 +254,7 @@ test('monthly Moon calendar stays in the Moon section and supports day and month
  await render(<NativeMoonCalendar timezone="UTC" zodiac="tropical" currentDate="2026-11-08" selectedDate="" onSelect={onSelect}/>);
  expect(text()).toContain('Monthly Moon Phases');expect(text()).toContain('November 2026');
  expect(text()).toContain('Day-by-day lunar calendar');expect(text()).toContain('Heart, aorta');expect(text()).toContain('Ask your surgical team');
- expect(tree.root.findAllByType(SvgXml)).toHaveLength(30);
+ expect(tree.root.findAllByType(SvgXml)).toHaveLength(60);
  await press('Next year →');expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('year=2027');
  await press('← Previous year');
  await press('2026-11-09 New Moon');expect(onSelect).toHaveBeenCalledWith('2026-11-09');

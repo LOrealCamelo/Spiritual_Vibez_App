@@ -29,6 +29,11 @@ class BaZiRequest(BaseModel):
     birth_hour: Optional[int] = Field(14, ge=0, le=23)
     polarity: Optional[str] = Field("Yin Feminine", description="Yin Feminine | Yang Masculine | Balanced Sovereign")
 
+
+class AsteroidBirthRequest(BirthDataRequest):
+    asteroid_ids: List[int] = Field(default_factory=lambda: [1, 2, 3, 4], min_length=1, max_length=10)
+    aspect_mode: Literal['hide', 'major'] = 'major'
+
 class RelocationRequest(BaseModel):
     city: str = Field("Utica, NY", description="Target city name")
     latitude: Optional[float] = None

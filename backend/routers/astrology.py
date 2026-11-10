@@ -4,7 +4,11 @@ AuraMystic Astrology, Ephemeris, Natal/Placidus Charts, 13-Month Calendar, BaZi 
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from datetime import datetime
-from ..models import BirthDataRequest, BaZiRequest, RelocationRequest
+import json
+from pathlib import Path
+from zoneinfo import available_timezones
+from ..models import BirthDataRequest, AsteroidBirthRequest, BaZiRequest, RelocationRequest
+from ..services.asteroid_charts import search_asteroids, asteroid_chart, EphemerisUnavailable
 from ..services.ephemeris_engine import (
     compute_planetary_positions,
     calculate_13_month_calendar,
@@ -12,11 +16,12 @@ from ..services.ephemeris_engine import (
     calculate_astrocartography,
     MASTER_DATA
 )
-from ..services.birth_locations import birth_time_24h, resolve_birth, search_places, catalog
+from ..services.birth_locations import birth_time_24h, resolve_birth, search_places, catalog, region_choices, city_choices
 from ..services.sky_engine import daily_transits, natal_chart
-from ..services.moon_calendar import monthly_moon_calendar
+from ..services.moon_calendar import monthly_moon_calendar, moon_disc_svg
 
 router = APIRouter()
+LEARNING_LIBRARY = json.loads(Path(__file__).parents[1].joinpath('data/learning_library.json').read_text(encoding='utf-8'))
 
 @router.get("/daily-transits")
 def get_daily_transits(
@@ -25,7 +30,9 @@ def get_daily_transits(
 ):
     """Returns real-time daily moon phase, planetary alignments, and personalized zodiac mood forecast."""
     try:
-        return daily_transits(sign=sign, date_str=date, timezone_name=timezone, zodiac=zodiac)
+        result = daily_transits(sign=sign, date_str=date, timezone_name=timezone, zodiac=zodiac)
+        result['moon']['image_svg'] = moon_disc_svg(result['moon']['phase_angle_deg'])
+        return result
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -33,6 +40,27 @@ def get_daily_transits(
 @router.get('/locations/countries')
 def birth_countries():
     return {'countries': sorted([{'code': k, 'name': v['name']} for k,v in catalog().get_countries().items()], key=lambda c:c['name'])}
+
+
+@router.get('/locations/regions')
+def birth_regions(country: str):
+    try:
+        return {'regions': region_choices(country)}
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get('/locations/timezones')
+def birth_timezones():
+    return {'timezones': sorted(available_timezones())}
+
+
+@router.get('/locations/cities')
+def birth_cities(country: str, state: str = '', query: str = ''):
+    try:
+        return city_choices(country, state, query)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.get('/moon-calendar')
@@ -75,7 +103,8 @@ def calculate_natal_moon_phase(data: BirthDataRequest):
         "spiritual_gifts": lp["gifts"],
         "illumination_percentage": lp["illumination_percent"],
         "moon_sign": lp["moon_sign"],
-        "moon_position": lp["moon_formatted"]
+        "moon_position": lp["moon_formatted"],
+        'moon_image_svg': moon_disc_svg(lp['phase_angle_deg'])
     }
 
 @router.post("/natal-chart")
@@ -96,12 +125,33 @@ def generate_natal_chart(data: BirthDataRequest):
 @router.get("/houses")
 def get_twelve_houses():
     """Returns the 12 Sacred Astrological Houses encyclopedia with ruling planets and meanings."""
-    return {"houses": MASTER_DATA.get("housesData", [])}
+    return {"houses": LEARNING_LIBRARY['houses'], 'note': LEARNING_LIBRARY['house_note'],
+            'planets': LEARNING_LIBRARY['planets'], 'tarot_note': LEARNING_LIBRARY['planet_note']}
+
+
+@router.get('/learning-library')
+def learning_library():
+    return LEARNING_LIBRARY
 
 @router.get("/asteroids")
-def get_major_asteroids():
-    """Returns Chiron, Black Moon Lilith, Ceres, Pallas Athena, Juno, and Vesta placements and interpretations."""
-    return {"asteroids": MASTER_DATA.get("asteroids", [])}
+def get_major_asteroids(query: str = '', offset: int = 0):
+    """Search/page the full JPL numbered-asteroid catalog."""
+    try:
+        return search_asteroids(query, offset)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except EphemerisUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.post('/asteroids/natal-chart')
+def calculate_asteroid_birth_chart(data: AsteroidBirthRequest):
+    try:
+        return asteroid_chart(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except EphemerisUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 @router.get("/lunar-calendar/{month_num}")
 def get_lunar_calendar(month_num: int = 13):

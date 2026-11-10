@@ -15,6 +15,7 @@ function appContext() {
     localStorage:{getItem:()=>null},
   });
   vm.runInContext(fs.readFileSync(path.join(root,'artwork.js'),'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(root,'learning.js'),'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root,'app.js'),'utf8'), context);
   return {context,app};
 }
@@ -44,7 +45,7 @@ test('hero has separate character/background layers and accessible HTML actions'
   const html=vm.runInContext('home()',context);
   assert.match(html,/assets\/cartoon_me_transparent3.png/);
   assert.match(html,/<h1>Your journey starts here<\/h1>/);
-  for(const action of ['nav:spreads','nav:learn','daily-card','nav:journal','nav:cosmos','tool:natal','tool:life','tool:rituals']){
+  for(const action of ['nav:spreads','nav:learn','daily-card','nav:journal','nav:cosmos','tool:natal','tool:numbers','tool:rituals']){
     assert.ok(html.includes(`data-action="${action}"`),`Missing interactive action: ${action}`);
   }
 });
@@ -135,4 +136,30 @@ test('every feature and spread uses the shared original illustrations instead of
  assert.doesNotMatch(html,/class="emoji"|class="tooltile"/);
  for(const id of ids)assert.ok(html.includes('data-action="tool:'+id+'"'));
  assert.doesNotMatch(vm.runInContext('spreadsPage()',context),/class="glyph"/);
+});
+
+test('the new app name uses two separate transparent PNGs and the full welcome copy',()=>{
+ const {context}=appContext();const html=vm.runInContext('home()',context);
+ assert.ok(html.includes('aria-label="Spiritual Vibz"'));
+ assert.ok(html.includes('Daily Love Readings, Moon Cycles, Manifest'));
+ assert.ok(html.includes('Journal it all here on the app.'));
+ assert.doesNotMatch(html,/class="scenic"/);
+ for(const word of ['spiritual','vibz']){
+  const name='assets/brand-'+word+'.png';const bytes=fs.readFileSync(path.join(root,name));
+  assert.equal(bytes[25],6,'Expected RGBA logo with alpha');
+  assert.ok(bytes.readUInt32BE(16)>1500);
+  assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile',name)));
+  assert.ok(html.includes(name));
+ }
+});
+
+test('the full learning reference is shared and linked from Tarot, houses and numerology',()=>{
+ const {context}=appContext();const native=JSON.parse(fs.readFileSync(path.join(root,'../mobile/src/data/learningLibrary.json'),'utf8'));
+ assert.equal(vm.runInContext('JSON.stringify(LEARNING_LIBRARY)',context),JSON.stringify(native));
+ assert.deepEqual(native,JSON.parse(fs.readFileSync(path.join(root,'../backend/data/learning_library.json'),'utf8')));
+ assert.equal(native.houses.length,12);assert.equal(native.planets.length,10);assert.equal(native.numbers.length,12);
+ const html=vm.runInContext('state.tool="numbers";explorePage()',context);
+ for(const text of ['Master numbers: 11, 22, 33','The numbers of Tarot','Court cards','Life Path calculator'])assert.ok(html.includes(text));
+ const houses=vm.runInContext('state.tool="houses";explorePage()',context);
+ assert.ok(houses.includes('general house meanings'));assert.ok(!houses.includes('data-action="tool-run"'));
 });

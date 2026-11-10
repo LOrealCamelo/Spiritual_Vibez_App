@@ -10,7 +10,9 @@ from pathlib import Path
 import re
 import unicodedata
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from threading import Lock
 import geonamescache
+_CITY_LOAD_LOCK = Lock()
 
 
 def normalized(value):
@@ -19,7 +21,14 @@ def normalized(value):
 
 @lru_cache(maxsize=1)
 def catalog():
-    return geonamescache.GeonamesCache(min_city_population=1000)
+    return geonamescache.GeonamesCache(min_city_population=500)
+
+
+@lru_cache(maxsize=1)
+def city_records():
+    # Avoid parsing the larger directory twice during concurrent first requests.
+    with _CITY_LOAD_LOCK:
+        return catalog().get_cities()
 
 
 @lru_cache(maxsize=1)
@@ -50,7 +59,7 @@ def search_places(city, country, state=''):
     if not code:
         raise ValueError('Choose a country name or its two-letter code, for example United States or US.')
     found = []
-    for c in catalog().get_cities().values():
+    for c in city_records().values():
         if c['countrycode'] != code:
             continue
         if region and region not in [normalized(c['admin1code']), normalized(regions().get(code + '.' + c['admin1code'], ''))]:
@@ -61,6 +70,32 @@ def search_places(city, country, state=''):
             found.append((not exact, -c['population'], c))
     found.sort(key=lambda row: row[:2])
     return [place_record(c) for _, _, c in found[:15]]
+
+
+@lru_cache(maxsize=256)
+def region_choices(country):
+    code = country.upper()
+    if code not in catalog().get_countries():
+        raise ValueError('Choose a country from the list.')
+    return sorted([{'code': key.split('.', 1)[1], 'name': name}
+                   for key, name in regions().items() if key.startswith(code + '.')],
+                  key=lambda item: item['name'])
+
+
+@lru_cache(maxsize=128)
+def city_choices(country, state='', query=''):
+    code = country.upper()
+    if code not in catalog().get_countries():
+        raise ValueError('Choose a country from the list.')
+    term = normalized(query.split(',')[0])
+    matches = [c for c in city_records().values()
+               if c['countrycode'] == code and (not state or c['admin1code'] == state)
+               and (not term or term in normalized(c['name'])
+                    or any(term in normalized(a) for a in c.get('alternatenames', [])))]
+    matches.sort(key=lambda c: (normalized(c['name']) != term, normalized(c['name'])))
+    return {'places': [place_record(c) for c in matches[:300]], 'total': len(matches),
+            'limited': len(matches) > 300,
+            'note': 'GeoNames towns and cities with population 500+. Search to narrow the dropdown. For an unlisted birthplace, use its coordinates and historical timezone below.'}
 
 
 def birth_time_24h(data):
@@ -84,7 +119,7 @@ def birth_time_24h(data):
 
 def resolve_birth(data):
     if data.place_id:
-        city = catalog().get_cities().get(str(data.place_id))
+        city = city_records().get(str(data.place_id))
         if not city:
             raise ValueError('Select your birth city from the search results.')
         location = place_record(city)
