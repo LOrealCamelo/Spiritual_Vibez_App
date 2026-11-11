@@ -126,3 +126,11 @@ and twelve responsive browser widths pass. The separate downloadable
 `frontend/assets/home-portrait-with-logo.png` contains only the top room artwork,
 guide, desk and approved logo, excluding navigation, feature cards and the lower
 portal section. It is exported from the rendered hero at 1824×912 pixels.
+
+Shoulder/ankh refinement uses `home-mystic-room-final.png`: the shoulder is
+reduced to natural proportions, Virgo moves to the outer upper arm and the
+small lotus moves inward/right. The larger turquoise Eye of Horus is joined
+with its black ankh as one chest design. A smaller, higher dreamcatcher/feather
+visually hangs beneath the neck moon. The top-only PNG retains the exact
+approved logo. Eleven Web checks and twelve browser widths pass; the existing
+portal and clear-glass surfaces remain intact.

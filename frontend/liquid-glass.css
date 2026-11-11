@@ -118,7 +118,7 @@ body[data-page="cosmos"] .moon-weekday,body[data-page="cosmos"] .moon-calendar h
 body[data-page="home"]{background:#28112f}
 body[data-page="home"]:before{background:radial-gradient(ellipse at 15% 20%,#70334d40,transparent 58%),linear-gradient(#28112f,#31162e 60%,#24112d)}
 .home-room-hero{position:relative;width:100vw;margin-left:calc(50% - 50vw);aspect-ratio:2/1;border:0;outline:0;box-shadow:none;background:transparent}
-.home-room-scene{position:absolute;inset:0;border:0;box-shadow:none;background:url('assets/home-mystic-room-personalized.png') center/cover no-repeat;mask-image:linear-gradient(#000 0 87%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0 87%,transparent 100%)}
+.home-room-scene{position:absolute;inset:0;border:0;box-shadow:none;background:url('assets/home-mystic-room-final.png') center/cover no-repeat;mask-image:linear-gradient(#000 0 87%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0 87%,transparent 100%)}
 .home-room-brand{position:absolute;z-index:1;top:clamp(26px,4vw,64px);left:max(24px,calc((100vw - 1380px)/2));width:clamp(280px,31vw,480px)}
 .home-room-brand .brand-wordmark{width:100%;margin:0}
 .room-welcome.hero-copy{width:100%;max-width:960px;padding:0 0 20px;margin:-8px 0 0;position:relative}
