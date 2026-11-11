@@ -1,6 +1,6 @@
 # Spiritual Vibz: branding, navigation, learning and birth tools
 
-Verified November 10, 2026.
+Core features verified November 10, 2026; light-portal update verified November 11.
 
 The app now uses the user-approved `spiritual-vibz-logo-compact.png` in Web and native
 Home, replacing the earlier separate recreated word images. The approved artwork
@@ -91,3 +91,14 @@ Twelve browser widths from 320 to 1920px pass, with intact logo proportions, no
 horizontal overflow, functional hero actions, no duplicate avatar or logo,
 and no JavaScript errors. Eleven Web asset/content checks pass. Current previews:
 [desktop](reading-room/web-desktop.png) and [phone](reading-room/web-phone.png).
+
+Light-portal follow-up: the area below the desk now transitions into a light
+pearl/lavender/blush portal illustration. It is anchored below the room and
+scrolls with the page, fading into a matching pale background. The room and
+approved logo assets are unchanged. Home labels, arrows, welcome copy and footer
+use dark-plum ink for contrast; clear-glass fills remain transparent and unfrosted.
+Other pages retain their existing backgrounds and colors. Eleven Web checks and
+twelve browser widths pass, including glass-opacity checks and hero navigation.
+Current previews: [room transition](light-portal/web-desktop.png),
+[desktop cards](light-portal/cards-desktop.png), and
+[phone cards](light-portal/cards-phone.png).
