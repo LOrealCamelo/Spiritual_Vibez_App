@@ -116,3 +116,13 @@ glass checks, hero actions and eleven Web content/asset checks pass.
 The downloadable `frontend/assets/homepage-redesign-preview.png` is refreshed.
 Current previews: [desktop](personal-tattoos/web-desktop.png) and
 [phone](personal-tattoos/web-phone.png).
+
+Tattoo-placement corrections use `home-mystic-room-personalized.png`: the
+shoulder lotus is smaller beside the Virgo glyph/constellation/arrow design;
+necklaces are removed; the upper chest has the referenced dreamcatcher/feather
+and Eye of Horus. The approved logo, triple-moon neck motif, remaining room,
+light lower-edge blend and clear-glass cards are retained. Eleven Web checks
+and twelve responsive browser widths pass. The separate downloadable
+`frontend/assets/home-portrait-with-logo.png` contains only the top room artwork,
+guide, desk and approved logo, excluding navigation, feature cards and the lower
+portal section. It is exported from the rendered hero at 1824×912 pixels.
