@@ -134,3 +134,13 @@ with its black ankh as one chest design. A smaller, higher dreamcatcher/feather
 visually hangs beneath the neck moon. The top-only PNG retains the exact
 approved logo. Eleven Web checks and twelve browser widths pass; the existing
 portal and clear-glass surfaces remain intact.
+
+Reference-geometry refinement uses `home-mystic-room-geometry.png`: the elbow
+medallion has a dense triangular sacred-geometry center, the space above it is
+filled with the other geometric motif, the Virgo components align vertically,
+and the turquoise eye is reduced to fit the black ankh. The shoulder is narrowed
+using the original illustrated reference. The owner accepted this tattoo version
+and requested the logo be added. The final top-only composition includes the
+unchanged approved Spiritual Vibz logo and is also saved with the explicit name
+`frontend/assets/home-top-with-spiritual-vibz-logo.png`. Eleven Web checks and
+twelve responsive widths pass; no changes were made to the approved logo art.
