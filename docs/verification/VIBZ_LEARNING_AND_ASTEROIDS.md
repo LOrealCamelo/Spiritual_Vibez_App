@@ -74,3 +74,14 @@ tests, TypeScript and native asset validation pass. Browser checks at 1448, 1100
 visible without overflow; clear glass and the NeuroSpicy Mystic footer remain.
 Updated previews: [desktop](approved-logo/web-desktop.png) and
 [phone](approved-logo/web-phone.png).
+
+Homepage composition follow-up: the logo and welcome text now sit directly over
+the single page background, with no card border, fill or shadow. The duplicated
+landscape background and the hero's bottom dividing line are removed. The logo
+is scaled together to a 480px desktop maximum. Desktop and phone Web both use
+the existing standalone transparent avatar; the phone's framed greeting image
+is no longer part of Home. Ten browser widths pass computed-style checks for
+transparent, borderless hero surfaces, intact logo proportions and no overflow.
+Eleven Web asset/content checks pass. Current previews:
+[desktop](continuous-home/web-desktop.png) and
+[phone](continuous-home/web-phone.png).
