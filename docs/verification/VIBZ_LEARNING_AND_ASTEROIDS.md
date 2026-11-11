@@ -102,3 +102,17 @@ twelve browser widths pass, including glass-opacity checks and hero navigation.
 Current previews: [room transition](light-portal/web-desktop.png),
 [desktop cards](light-portal/cards-desktop.png), and
 [phone cards](light-portal/cards-phone.png).
+
+Personal-tattoo follow-up: Web Home now uses `home-mystic-room-tattoos.png`,
+adapting the owner's tattoo references into the existing illustrated scene.
+Visible motifs include lotus petals, sacred geometric mandalas, the colored
+wrist mandala and bead chains, Egyptian wings, and a triple-moon neck design.
+The original reference photographs are not published in the repository.
+The owner clarified that the Spiritual Vibz name logo should be larger; its
+unchanged transparent artwork now scales up at both desktop and phone widths.
+The room artwork has a pale lower-edge mist, no border or shadow, and a lighter
+transition beneath it into the existing portal. Twelve browser widths, clear
+glass checks, hero actions and eleven Web content/asset checks pass.
+The downloadable `frontend/assets/homepage-redesign-preview.png` is refreshed.
+Current previews: [desktop](personal-tattoos/web-desktop.png) and
+[phone](personal-tattoos/web-phone.png).

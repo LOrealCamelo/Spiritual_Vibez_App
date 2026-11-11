@@ -117,9 +117,9 @@ body[data-page="cosmos"] .moon-weekday,body[data-page="cosmos"] .moon-calendar h
 /* Home is one extended reading room, with the guide painted into the scene. */
 body[data-page="home"]{background:#28112f}
 body[data-page="home"]:before{background:radial-gradient(ellipse at 15% 20%,#70334d40,transparent 58%),linear-gradient(#28112f,#31162e 60%,#24112d)}
-.home-room-hero{position:relative;width:100vw;margin-left:calc(50% - 50vw);aspect-ratio:2/1;border:0;background:transparent}
-.home-room-scene{position:absolute;inset:0;background:url('assets/home-mystic-room.png') center/cover no-repeat;mask-image:linear-gradient(#000 0 87%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0 87%,transparent 100%)}
-.home-room-brand{position:absolute;z-index:1;top:clamp(26px,4vw,64px);left:max(24px,calc((100vw - 1380px)/2));width:clamp(230px,25vw,360px)}
+.home-room-hero{position:relative;width:100vw;margin-left:calc(50% - 50vw);aspect-ratio:2/1;border:0;outline:0;box-shadow:none;background:transparent}
+.home-room-scene{position:absolute;inset:0;border:0;box-shadow:none;background:url('assets/home-mystic-room-tattoos.png') center/cover no-repeat;mask-image:linear-gradient(#000 0 87%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0 87%,transparent 100%)}
+.home-room-brand{position:absolute;z-index:1;top:clamp(26px,4vw,64px);left:max(24px,calc((100vw - 1380px)/2));width:clamp(280px,31vw,480px)}
 .home-room-brand .brand-wordmark{width:100%;margin:0}
 .room-welcome.hero-copy{width:100%;max-width:960px;padding:0 0 20px;margin:-8px 0 0;position:relative}
 .room-welcome.hero-copy h1{white-space:normal}
@@ -127,7 +127,7 @@ body[data-page="home"]:before{background:radial-gradient(ellipse at 15% 20%,#703
 @media(max-width:750px){
  .home-room-hero{height:620px;aspect-ratio:auto}
  .home-room-scene{top:80px;background-size:auto 540px;background-position:56% top;mask-image:linear-gradient(transparent 0,#000 8%,#000 88%,transparent 100%);-webkit-mask-image:linear-gradient(transparent 0,#000 8%,#000 88%,transparent 100%)}
- .home-room-brand{top:18px;left:14px;width:min(240px,64vw)}
+ .home-room-brand{top:18px;left:14px;width:min(288px,76vw)}
  .room-welcome.hero-copy{max-width:none;margin:0;padding-bottom:12px}
  .room-welcome.hero-copy h1{font-size:clamp(24px,6.5vw,32px)}
  .room-welcome.hero-copy>p{font-size:15px;max-width:none}
@@ -137,7 +137,7 @@ body[data-page="home"]:before{background:radial-gradient(ellipse at 15% 20%,#703
 
 /* A light portal opens beneath the desk; cards retain clear, unfrosted glass. */
 body[data-page="home"]{--home-desk-edge:calc(124px + 50vw);position:relative;background:#eee5f7}
-body[data-page="home"]:before{position:absolute;background:linear-gradient(to bottom,#28112f 0 calc(var(--home-desk-edge) - 130px),#d7c4ee calc(var(--home-desk-edge) - 20px),#eee5f7 calc(var(--home-desk-edge) + 500px),#f6e8f1)}
+body[data-page="home"]:before{position:absolute;background:linear-gradient(to bottom,#28112f 0 calc(var(--home-desk-edge) - 190px),#d7c4ee calc(var(--home-desk-edge) - 70px),#eee5f7 calc(var(--home-desk-edge) + 500px),#f6e8f1)}
 body[data-page="home"] .container{position:relative;isolation:isolate}
 body[data-page="home"] .container:before{content:"";position:absolute;z-index:-1;pointer-events:none;top:calc(50vw - 70px);left:50%;transform:translateX(-50%);width:100vw;height:clamp(800px,70vw,1250px);background:url('assets/home-light-portal.png') center/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent)}
 body[data-page="home"] .room-welcome h1,body[data-page="home"] .room-welcome>p,body[data-page="home"] .section-heading h2,body[data-page="home"] .section-heading a,body[data-page="home"] .footer{color:#35174d}
