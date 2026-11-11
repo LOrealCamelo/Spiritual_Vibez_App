@@ -40,10 +40,11 @@ test('rendered images and CSS backgrounds resolve to real PNG uploads', () => {
   }
 });
 
-test('hero has separate character/background layers and accessible HTML actions', () => {
+test('Home uses one extended room scene and accessible HTML actions', () => {
   const {context} = appContext();
   const html=vm.runInContext('home()',context);
-  assert.match(html,/assets\/cartoon_me_transparent3.png/);
+  assert.match(html,/home-room-scene/);
+  assert.doesNotMatch(html,/hero-character|home-greeting|phone-welcome|me_hero2/);
   assert.match(html,/<h1>Your journey starts here<\/h1>/);
   for(const action of ['nav:spreads','nav:learn','daily-card','nav:journal','nav:cosmos','tool:natal','tool:numbers','tool:rituals']){
     assert.ok(html.includes(`data-action="${action}"`),`Missing interactive action: ${action}`);
@@ -149,7 +150,7 @@ test('the app name uses the intact approved transparent logo and the full welcom
  assert.equal(bytes.readUInt32BE(16),1984);
  assert.equal(bytes.readUInt32BE(20),793);
  assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile',name)));
- assert.equal((html.match(/assets\/spiritual-vibz-logo-compact\.png/g)||[]).length,2);
+ assert.equal((html.match(/assets\/spiritual-vibz-logo-compact\.png/g)||[]).length,1);
  assert.doesNotMatch(html,/brand-spiritual\.png|brand-vibz\.png/);
 });
 

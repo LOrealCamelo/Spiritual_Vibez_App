@@ -75,13 +75,19 @@ visible without overflow; clear glass and the NeuroSpicy Mystic footer remain.
 Updated previews: [desktop](approved-logo/web-desktop.png) and
 [phone](approved-logo/web-phone.png).
 
-Homepage composition follow-up: the logo and welcome text now sit directly over
-the single page background, with no card border, fill or shadow. The duplicated
-landscape background and the hero's bottom dividing line are removed. The logo
-is scaled together to a 480px desktop maximum. Desktop and phone Web both use
-the existing standalone transparent avatar; the phone's framed greeting image
-is no longer part of Home. Ten browser widths pass computed-style checks for
-transparent, borderless hero surfaces, intact logo proportions and no overflow.
-Eleven Web asset/content checks pass. Current previews:
-[desktop](continuous-home/web-desktop.png) and
-[phone](continuous-home/web-phone.png).
+Homepage room redesign: Home now uses one extended reading-room illustration
+based on the supplied white-top portrait. The speech bubble is removed and the
+covered torso, forearm and table are restored in the artwork. The guide sits at
+the central reading table; there is no separate avatar on the right. The room is
+extended to both sides rather than stretching the original square portrait. The
+unchanged approved logo sits toward the upper left without a card, with welcome
+text and working reading/learning actions beneath the scene. A soft transition
+into the matching room-colored page avoids a rectangular picture edge. Phone Web
+uses the same scene with proportional cropping and no duplicate portrait.
+
+Other Web tabs retain the starry background and all clear-glass cards and footer
+navigation remain. This room redesign does not change the native Home artwork.
+Twelve browser widths from 320 to 1920px pass, with intact logo proportions, no
+horizontal overflow, functional hero actions, no duplicate avatar or logo,
+and no JavaScript errors. Eleven Web asset/content checks pass. Current previews:
+[desktop](reading-room/web-desktop.png) and [phone](reading-room/web-phone.png).
