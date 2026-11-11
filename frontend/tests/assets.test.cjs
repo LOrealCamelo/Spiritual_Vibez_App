@@ -144,12 +144,12 @@ test('the app name uses the intact approved transparent logo and the full welcom
  assert.ok(html.includes('Daily Love Readings, Moon Cycles, Manifest'));
  assert.ok(html.includes('Journal it all here on the app.'));
  assert.doesNotMatch(html,/class="scenic"/);
- const name='assets/spiritual-vibz-logo.png';const bytes=fs.readFileSync(path.join(root,name));
+ const name='assets/spiritual-vibz-logo-compact.png';const bytes=fs.readFileSync(path.join(root,name));
  assert.equal(bytes[25],6,'Expected RGBA logo with alpha');
- assert.equal(bytes.readUInt32BE(16),1774);
- assert.equal(bytes.readUInt32BE(20),887);
+ assert.equal(bytes.readUInt32BE(16),1984);
+ assert.equal(bytes.readUInt32BE(20),793);
  assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile',name)));
- assert.equal((html.match(/assets\/spiritual-vibz-logo\.png/g)||[]).length,2);
+ assert.equal((html.match(/assets\/spiritual-vibz-logo-compact\.png/g)||[]).length,2);
  assert.doesNotMatch(html,/brand-spiritual\.png|brand-vibz\.png/);
 });
 
