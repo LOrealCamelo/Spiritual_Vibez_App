@@ -2,11 +2,12 @@
 
 Verified November 10, 2026.
 
-The app uses separate transparent `brand-spiritual.png` and `brand-vibz.png`
-images in Web and native Home. These are fresh recreations of the supplied pink
-script/tuning-fork design, rather than pixel-for-pixel extractions from the
-multi-image attachment. Both PNGs have actual alpha transparency and retain their
-original generated resolution. The user was informed of this distinction.
+The app now uses the user-approved `spiritual-vibz-logo.png` in Web and native
+Home, replacing the earlier separate recreated word images. The approved artwork
+is copied unchanged at 1774×887 with actual alpha transparency. One image keeps
+Spiritual above left, Vibz below right, and the prominent silver/purple tuning
+fork with cyan vibration marks on both sides. Responsive sizing scales the entire
+composition together, preserving its proportions without clipping or cropping.
 The app display name is Spiritual Vibz; native registration/bundle identifiers
 remain stable. The requested welcome paragraph appears on desktop, phone Web,
 and native Home.
@@ -66,3 +67,10 @@ Screenshots: [Home](web/desktop/vibz-home-header.png),
 [birthplace dropdowns](web/desktop/birthplace-dropdowns.png),
 [asteroid report](web/desktop/asteroid-report.png),
 [phone Moon calendar](web/phone/silver-moon-calendar.png).
+
+Approved logo follow-up: eleven Web asset/content checks, 34 native interaction
+tests, TypeScript and native asset validation pass. Browser checks at 1448, 1100,
+1024, 1001, 1000, 800, 751, 750, 390 and 320px confirm the complete 2:1 logo is
+visible without overflow; clear glass and the NeuroSpicy Mystic footer remain.
+Updated previews: [desktop](approved-logo/web-desktop.png) and
+[phone](approved-logo/web-phone.png).

@@ -53,7 +53,7 @@ function matchesVibe(spread,vibe){if(vibe==='All')return true;const text=[spread
 function vibeFilter(){return '<section class="vibe-filter fresh-filter" data-panel="spreads_filters" role="group" aria-label="Filter by Vibe"><h3>Filter by Vibe</h3><div>'+['All','Love','Career','Growth'].map((v,i)=>'<button class="vibe-target'+(state.vibe===v?' is-selected':'')+'" data-action="vibe" data-vibe="'+v+'" aria-label="Filter by '+v+'" aria-pressed="'+(state.vibe===v)+'">'+e(v)+' <span aria-hidden="true">'+['✦','♡','💼','🌱'][i]+'</span></button>').join('')+'</div></section>'}
 function spreadCaption(file,count){return '<span class="panel-meta">'+count+' cards · '+e(CARD_PANELS[file].description)+'</span>'}
 
-function heroWordmark(){return '<div class="hero-wordmark brand-wordmark" role="img" aria-label="Spiritual Vibz"><img class="brand-spiritual-word" src="assets/brand-spiritual.png" alt="" aria-hidden="true"><img class="brand-vibz-word" src="assets/brand-vibz.png" alt="" aria-hidden="true"></div>'}
+function heroWordmark(){return '<div class="hero-wordmark brand-wordmark" role="img" aria-label="Spiritual Vibz"><img src="assets/spiritual-vibz-logo.png" width="1774" height="887" alt="" aria-hidden="true"></div>'}
 function home(){
  const feats=[['daily','home_daily_card','Daily Card','daily-card'],['spreads','home_shuffle_spread','Shuffle a Spread','nav:spreads'],['learn','home_learn_tarot','Learn Tarot','nav:learn'],['birth','home_birth_chart','Birth Chart','tool:natal']];
  const fave=[['Reset Your Energy','me_reset_your_energy.png'],['Trust Your Gut','spread_trust_your_gut.png'],['The Next Phase','me_the_next_phase.png'],['Grounding','grounding_ui_card.png']];

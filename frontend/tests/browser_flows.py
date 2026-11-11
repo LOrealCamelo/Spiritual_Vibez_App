@@ -190,7 +190,7 @@ def exercise(base_url, screenshots):
     assert page.locator('.bottomdock [data-action="nav:explore"]').is_visible()
     if name=='home':
      assert page.locator('.scenic').count()==0
-     assert page.locator('.brand-wordmark img').count()==4
+     assert page.locator('.brand-wordmark img').count()==2
      assert 'Daily Love Readings' in page.locator('.hero-copy').inner_text()
     if name=='explore':
      assert page.locator('.explore-card').count()==18

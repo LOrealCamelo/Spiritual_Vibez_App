@@ -138,19 +138,19 @@ test('every feature and spread uses the shared original illustrations instead of
  assert.doesNotMatch(vm.runInContext('spreadsPage()',context),/class="glyph"/);
 });
 
-test('the new app name uses two separate transparent PNGs and the full welcome copy',()=>{
+test('the app name uses the intact approved transparent logo and the full welcome copy',()=>{
  const {context}=appContext();const html=vm.runInContext('home()',context);
  assert.ok(html.includes('aria-label="Spiritual Vibz"'));
  assert.ok(html.includes('Daily Love Readings, Moon Cycles, Manifest'));
  assert.ok(html.includes('Journal it all here on the app.'));
  assert.doesNotMatch(html,/class="scenic"/);
- for(const word of ['spiritual','vibz']){
-  const name='assets/brand-'+word+'.png';const bytes=fs.readFileSync(path.join(root,name));
-  assert.equal(bytes[25],6,'Expected RGBA logo with alpha');
-  assert.ok(bytes.readUInt32BE(16)>1500);
-  assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile',name)));
-  assert.ok(html.includes(name));
- }
+ const name='assets/spiritual-vibz-logo.png';const bytes=fs.readFileSync(path.join(root,name));
+ assert.equal(bytes[25],6,'Expected RGBA logo with alpha');
+ assert.equal(bytes.readUInt32BE(16),1774);
+ assert.equal(bytes.readUInt32BE(20),887);
+ assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile',name)));
+ assert.equal((html.match(/assets\/spiritual-vibz-logo\.png/g)||[]).length,2);
+ assert.doesNotMatch(html,/brand-spiritual\.png|brand-vibz\.png/);
 });
 
 test('the full learning reference is shared and linked from Tarot, houses and numerology',()=>{

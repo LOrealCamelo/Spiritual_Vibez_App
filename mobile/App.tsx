@@ -52,7 +52,7 @@ const exploreGroups=[
 
 async function get(path:string){const r=await fetch(BACKEND+path);if(!r.ok)throw Error('Backend unavailable ('+r.status+')');return r.json()}
 async function post(path:string,payload:any){const r=await fetch(BACKEND+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw Error('Backend unavailable ('+r.status+')');return r.json()}
-function BrandWordmark(){const {width}=useWindowDimensions();const h=Math.min(58,(width-56)/4.72);return <View accessible accessibilityRole="image" accessibilityLabel="Spiritual Vibz" style={{flexDirection:'row',alignItems:'center',gap:14,marginBottom:7}}><Image source={require('./assets/brand-spiritual.png')} accessible={false} resizeMode="contain" style={{height:h,width:h*2066/761}}/><Image source={require('./assets/brand-vibz.png')} accessible={false} resizeMode="contain" style={{height:h,width:h*2}}/></View>}
+function BrandWordmark(){const {width}=useWindowDimensions();const logoWidth=Math.min(348,width-48);return <Image accessibilityRole="image" accessibilityLabel="Spiritual Vibz" source={require('./assets/spiritual-vibz-logo.png')} resizeMode="contain" style={{width:logoWidth,height:logoWidth/2,marginBottom:7}}/>}
 function Header({label='Spiritual Vibz',subtitle='ZODIAC, TAROT & MORE'}:{label?:string,subtitle?:string}){
  return <View style={st.header}>{label==='Spiritual Vibz'?<BrandWordmark/>:<Text style={st.brand}>☾ {label} ✦</Text>}<Text style={st.tagline}>{subtitle}</Text></View>;
 }
