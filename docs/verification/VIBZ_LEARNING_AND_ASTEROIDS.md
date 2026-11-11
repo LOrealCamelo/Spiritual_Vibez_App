@@ -144,3 +144,10 @@ and requested the logo be added. The final top-only composition includes the
 unchanged approved Spiritual Vibz logo and is also saved with the explicit name
 `frontend/assets/home-top-with-spiritual-vibz-logo.png`. Eleven Web checks and
 twelve responsive widths pass; no changes were made to the approved logo art.
+
+Arabic collarbone addition uses `home-mystic-room-arabic.png`, referenced from
+the owner's photograph of «لا تخف من شيء» above the ankh. The existing approved
+tattoo arrangement remains. The exact transparent name logo now sits farther
+left in the wall area marked by the owner. The top-only PNG exports include
+the logo permanently in the image; no annotations, navigation or lower page
+are included. Eleven Web checks and twelve responsive widths pass.
