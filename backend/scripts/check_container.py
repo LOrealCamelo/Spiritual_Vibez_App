@@ -35,7 +35,8 @@ def main():
                 content=response.read()
                 assert response.status==200,path
                 if path.endswith('.png'):assert content.startswith(b'\x89PNG\r\n\x1a\n'),path
-                if path=='/app.js':assert b'Your journey starts here' in content
+                if path=='/app.js':assert b'HOME_DESIGN.heading' in content,path
+                if path=='/artwork.js':assert b'Your journey starts here' in content,path
                 if path=='/liquid-glass.css':assert b'cosmos-night-sky.png' in content
         with http.open(address+'/api/tarot/cards',timeout=10) as response:assert json.load(response)['count']==78
         with http.open(address+'/api/astrology/moon-calendar?year=2026&month=11&timezone=America%2FNew_York',timeout=20) as response:assert len(json.load(response)['days'])==30
