@@ -175,3 +175,18 @@ Previews: [large screen](welcome-layout/web-large-screen.png),
 [desktop](welcome-layout/web-desktop.png), [phone](welcome-layout/web-phone.png),
 and [footer](welcome-layout/footer-desktop.png). The downloadable top-only and
 whole-homepage PNGs are refreshed with the current layout.
+
+Left-wall tagline follow-up: the table lettering is removed. A transparent
+two-line word-art asset, referenced from the approved logo's ivory/opal pink
+"Spiritual" lettering, now sits below the welcome paragraph with a 64–96px gap.
+Its restrained size follows the paragraph's type scale, approximately two sizes
+larger, and remains substantially smaller than the main name logo. Centering it
+within the left column clears the foreground leaves. Smaller layouts stack this
+column above the room to preserve the artwork. Accessible alternative text keeps
+the full tagline available to screen readers.
+
+Eleven content/asset checks and seventeen Chromium widths pass, including six
+navigation pages, both home actions, clear-glass surfaces, paragraph-to-tagline
+spacing and no JavaScript errors. Updated previews: [large screen](wall-tagline/web-large-screen.png),
+[desktop](wall-tagline/web-desktop.png) and [phone](wall-tagline/web-phone.png).
+The top-only and whole-homepage downloadable PNGs are refreshed as well.
