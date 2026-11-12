@@ -32,7 +32,7 @@ def exercise_homepage(page, screenshots):
   assert page.get_by_role('heading',name='Your journey starts here',exact=True).count()==1
   assert page.locator('.home-feature').count()==6
   assert page.locator('.bottomdock button').count()==6
-  assert page.locator('.header-tagline,.home-wall-tagline,.favorite-grid,.more-grid').count()==0
+  assert page.locator('.header-tagline,.home-wall-tagline,.mystic-home .favorite-grid,.mystic-home .more-grid').count()==0
   logo=page.locator('.brand-wordmark img').bounding_box();assert abs(logo['width']/logo['height']-1984/793)<.01
   title=page.locator('.mystic-copy h1').bounding_box();assert title['x']>=0 and title['x']+title['width']<=width+1,label
   assert page.locator('.home-feature').evaluate_all('nodes=>nodes.every(n=>n.clientHeight>=44&&n.getBoundingClientRect().left>=0&&n.getBoundingClientRect().right<=innerWidth)'),label

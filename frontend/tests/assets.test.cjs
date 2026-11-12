@@ -178,7 +178,8 @@ test('reference homepage has exactly six live cards and shared native routes',()
  assert.equal(vm.runInContext('JSON.stringify(HOME_DESIGN)',context),JSON.stringify(design));
  assert.equal((html.match(/data-home-feature=/g)||[]).length,6);
  for(const feature of design.features){assert.ok(html.includes('aria-label="'+feature.label+'"'));assert.ok(html.includes('data-action="'+feature.action+'"'));}
- assert.doesNotMatch(html,/Pick your adventure|Fan-favorite|More to explore|Track your|home-wall-tagline/);
+ assert.doesNotMatch(html.split('<section class="home-light-portal"')[0],/Pick your adventure|Fan-favorite|More to explore|Track your|home-wall-tagline/);
+ assert.match(html,/home-light-portal/);
  for(const file of ['home-tarot-moon.png','home-feature-icons.png']){
   const bytes=fs.readFileSync(path.join(root,'assets',file));assert.equal(bytes[25],6);
   assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile/assets',file)));

@@ -18,6 +18,7 @@ from playwright.sync_api import sync_playwright
 from share_flows import exercise_sharing
 from homepage_flows import exercise_homepage
 from icon_flows import exercise_icons
+from portal_flows import exercise_portal
 
 
 def assert_clear_surfaces(page):
@@ -59,6 +60,7 @@ def exercise(base_url, screenshots):
   page.wait_for_function('state.online===true')
   exercise_icons(page,screenshots)
   exercise_homepage(page,screenshots)
+  exercise_portal(page,screenshots)
   page.set_viewport_size({'width':1448,'height':1086})
   for title,spread_id in [('Reset Your Energy','reset-energy'),('Trust Your Gut','trust-your-gut'),('The Next Phase','stepping-into-new-timeline'),('Grounding','mindfulness-calm')]:
    page.evaluate('transition("spreads")')

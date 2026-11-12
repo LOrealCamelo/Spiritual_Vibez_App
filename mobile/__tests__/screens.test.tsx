@@ -1,6 +1,8 @@
 import React from 'react';
 import TestRenderer,{act,ReactTestRenderer} from 'react-test-renderer';
-import {Image,Text,TextInput,TouchableOpacity,Linking,Alert} from 'react-native';
+import {Image,Text,TextInput,TouchableOpacity,Linking,Alert,ScrollView,StyleSheet,View} from 'react-native';
+import * as SafeArea from 'react-native-safe-area-context';
+import {ReferenceHome} from '../src/components/ReferenceHome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,CosmosScreen} from '../App';
 import {IllustratedCard,IllustratedToolCard,PanelIllustration,SpreadIllustration,UI_PANELS} from '../src/components/IllustratedCard';
@@ -302,4 +304,37 @@ test('a failed journal write reports the error and never claims success',async()
  await press('Add My reflection to journal');
  expect(alert).toHaveBeenCalledWith('Could not add to journal',expect.any(String));
  expect(text()).not.toContain('Added to your journal.');
+});
+
+
+test('mobile Home restores the original portal cards alongside the six approved hero links',async()=>{
+ const navigate=jest.fn();await render(<HomeScreen navigation={{navigate}}/>);
+ const hero=tree.root.findByType(ReferenceHome);
+ expect(hero.findAllByType(TouchableOpacity).map(n=>n.props.accessibilityLabel)).toEqual(['Daily Readings','Moon Cycles','Manifest','Natal Reading','Tarot','Journal']);
+ for(const [label,screen,params] of [
+  ['Daily','Learn',{daily:true}],['Spreads','Spreads',undefined],['Learn','Learn',undefined],['Birth','Explore',{tool:'natal'}],
+  ['Moon Phase','Cosmos',undefined],['Numerology','Explore',{tool:'numbers'}],['Saved Readings','Journal',undefined],['Rituals','Explore',{tool:'rituals'}],
+  ['Trust Your Gut','Spreads',{favorite:'Trust Your Gut'}],['At a Crossroads','Spreads',{favorite:'At a Crossroads'}],['The Next Phase','Spreads',{favorite:'The Next Phase'}],['Reset Your Energy','Spreads',{favorite:'Reset Your Energy'}],['Grounding','Spreads',{favorite:'Grounding'}],
+ ] as const){await press(label);expect(navigate.mock.calls.at(-1)[0]).toBe(screen);if(params)expect(navigate.mock.calls.at(-1)[1]).toEqual(params);}
+ expect(tree.root.findAllByType(Image).some(n=>n.props.source===require('../assets/home-light-portal.png'))).toBe(true);
+});
+
+test('iPhone Home reserves the bottom safe area for both scrolling and the fixed dock',async()=>{
+ jest.spyOn(require('react-native'),'useWindowDimensions').mockReturnValue({width:390,height:844,scale:3,fontScale:1});
+ jest.spyOn(SafeArea,'useSafeAreaInsets').mockReturnValue({top:47,bottom:34,left:0,right:0});
+ await render(<App/>);
+ const scroll=tree.root.findAllByType(ScrollView).find(n=>n.props.contentContainerStyle)!;
+ expect(StyleSheet.flatten(scroll.props.contentContainerStyle).paddingBottom).toBeGreaterThanOrEqual(138);
+ expect(scroll.props.scrollIndicatorInsets.bottom).toBe(122);
+ const dock=tree.root.findAllByType(View).find(n=>{const v=StyleSheet.flatten(n.props.style);return v?.position==='absolute'&&v?.height===88&&v?.bottom===34});
+ expect(dock).toBeDefined();
+});
+
+test('desktop Home retains its existing composition and scroll spacing',async()=>{
+ jest.spyOn(require('react-native'),'useWindowDimensions').mockReturnValue({width:1024,height:900,scale:1,fontScale:1});
+ jest.spyOn(SafeArea,'useSafeAreaInsets').mockReturnValue({top:0,bottom:34,left:0,right:0});
+ await render(<HomeScreen navigation={{navigate:jest.fn()}}/>);
+ expect(tree.root.findAllByType(IllustratedCard)).toHaveLength(0);
+ const scroll=tree.root.findAllByType(ScrollView).find(n=>n.props.contentContainerStyle)!;expect(StyleSheet.flatten(scroll.props.contentContainerStyle).paddingBottom).toBe(110);
+ expect(tree.root.findByType(ReferenceHome).findAllByType(TouchableOpacity)).toHaveLength(6);
 });
