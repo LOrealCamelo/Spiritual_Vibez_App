@@ -207,3 +207,27 @@ The six reported commits were checked against their GitHub job logs. `15e0ecd`,
 `e07f977` and `66cb568` failed the retina all-images wait. All six passed the
 28 endpoint checks and 103 pytest tests. The workflow is now named "Backend and
 browser tests" to reflect both parts of the job in future notifications.
+
+Bright Sunshine follow-up applies to Web, phone browsers and the native Home
+screen. The owner's supplied pink capitals, including the tuning fork in Vibz,
+are prepared as a transparent PNG and enlarged beneath the welcome copy. The
+owner's Ace of Cups/crystal-ball reference and approved blue rainbow sun are
+transparent ornaments on the left and right. The original approved Spiritual
+Vibz name logo and room/tattoo illustration remain intact. The stacked welcome
+section now uses the portal's pale lavender/blush palette with dark-plum copy,
+removing the burgundy mobile backdrop. The Web desktop room retains its artwork.
+
+Native Home now has the matching pale avatar/Explore bar, current reading-room
+scene, portal, creator logo and new tagline/decorations instead of the older
+Hey Mystic illustration. Home glass panels and navigation use plum ink on the
+pale background. Other native screens retain their existing palette. The same
+Home PNGs are bundled in Web and native; the asset check verifies byte equality.
+The native Explore shortcut is covered by the existing Home navigation test.
+TypeScript, 34 native UI tests, six asset-validator tests, asset/native-host
+checks and Android/iOS Metro production bundles pass locally. Native artwork
+changes ship in a new app build; an installed native app does not update through
+Render. The responsive browser check covers seventeen widths, and the downloadable
+top-only and full-homepage PNGs are refreshed. Previews:
+[desktop](bright-sunshine/web-desktop.png),
+[wide desktop](bright-sunshine/web-large-screen.png) and
+[phone](bright-sunshine/web-phone.png).

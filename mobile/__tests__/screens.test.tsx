@@ -31,7 +31,7 @@ test('Home clean PNG cards navigate independently to learning, spreads, cosmos, 
   const navigate=jest.fn();
   await render(<HomeScreen navigation={{navigate}}/>);
   for(const [label,route,params] of [
-    ['Learn','Learn',undefined],['Spreads','Spreads',undefined],['Daily','Learn',{daily:true}],
+    ['Explore','Explore',undefined],['Learn','Learn',undefined],['Spreads','Spreads',undefined],['Daily','Learn',{daily:true}],
     ['Numerology','Explore',{tool:'numbers'}],['Moon Phase','Cosmos',undefined],
     ['Saved Readings','Journal',undefined],['Birth','Explore',{tool:'natal'}],
   ] as const){

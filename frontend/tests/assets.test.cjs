@@ -150,6 +150,11 @@ test('the app name uses the intact approved transparent logo and the full welcom
  assert.equal(bytes.readUInt32BE(16),1984);
  assert.equal(bytes.readUInt32BE(20),793);
  assert.deepEqual(bytes,fs.readFileSync(path.join(root,'../mobile',name)));
+ for(const asset of ['daily-vibz-bright-sunshine.png','rainbow-sun-face.png','ace-cups-crystal-ball.png','home-mystic-room-arabic.png','home-light-portal.png','neurospicy-mystic-logo.png']){
+  const shared=fs.readFileSync(path.join(root,'assets',asset));
+  assert.deepEqual(shared,fs.readFileSync(path.join(root,'../mobile/assets',asset)),`Web/native Home artwork differs: ${asset}`);
+  if(['daily-vibz-bright-sunshine.png','rainbow-sun-face.png','ace-cups-crystal-ball.png'].includes(asset))assert.equal(shared[25],6,`Expected transparent RGBA: ${asset}`);
+ }
  assert.equal((html.match(/assets\/spiritual-vibz-logo-compact\.png/g)||[]).length,1);
  assert.doesNotMatch(html,/brand-spiritual\.png|brand-vibz\.png/);
 });

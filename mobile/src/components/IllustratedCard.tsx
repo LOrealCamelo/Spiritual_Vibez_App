@@ -1,10 +1,11 @@
 /** Original art, live labels and scalable decoration shared by all 24 panels. */
-import React from 'react';
+import React,{createContext,useContext} from 'react';
 import {Image,View,Text,TouchableOpacity,useWindowDimensions,StyleSheet,StyleProp,ViewStyle} from 'react-native';
 import {ClearGlassSurface} from './ClearGlassSurface';
 import catalog from '../data/uiPanels.json';
 import illustrationBindings from '../data/illustrationBindings.json';
 export const UI_PANELS=catalog;
+export const HomePaletteContext=createContext(false);
 export type CardArtName=keyof typeof catalog;
 export const ILLUSTRATION_PACKS={
  cosmic:require('../../assets/illustrations/cosmic.png'),
@@ -27,7 +28,8 @@ export function IllustratedToolCard({tool,title,width,onPress}:{tool:string,titl
 type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode;progress?:{completed:number,total:number};meta?:string};
 export function IllustratedCard({asset,width,label,onPress,style,children,progress,meta}:Props){
  const {width:screenWidth}=useWindowDimensions();const w=width??Math.min(screenWidth-24,580);
- const p=catalog[asset],theme={ink:'#fff9fe',accent:'#fff'};const compact=w<260,header=p.kind==='header',random=p.kind==='randomize';
+ const light=useContext(HomePaletteContext);
+ const p=catalog[asset],theme={ink:light?'#35174d':'#fff9fe',accent:light?'#603282':'#fff'};const compact=w<260,header=p.kind==='header',random=p.kind==='randomize';
  const percent=progress?Math.max(0,Math.min(100,Math.round(progress.completed/Math.max(progress.total,1)*100))):0;
  const size=compact?104:random?72:header?112:106;
  const content=<ClearGlassSurface radius={25} style={[st.surface,{flexDirection:compact?'column':header?'row-reverse':'row',minHeight:compact?250:random?112:156,padding:compact?14:16,gap:compact?12:14}]}>
