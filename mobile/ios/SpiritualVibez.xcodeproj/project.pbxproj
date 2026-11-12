@@ -14,6 +14,8 @@
 		A20000000000000000000001 /* Pacifico-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* Pacifico-Regular.ttf */; };
 		A20000000000000000000002 /* KaushanScript-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* KaushanScript-Regular.ttf */; };
 		A20000000000000000000003 /* FontLicenses.txt in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* FontLicenses.txt */; };
+		A20000000000000000000004 /* GreatVibes-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* GreatVibes-Regular.ttf */; };
+		A20000000000000000000005 /* GreatVibes-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* GreatVibes-OFL.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,8 @@
 		A10000000000000000000001 /* Pacifico-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Pacifico-Regular.ttf"; path = "SpiritualVibez/Fonts/Pacifico-Regular.ttf"; sourceTree = "<group>"; };
 		A10000000000000000000002 /* KaushanScript-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "KaushanScript-Regular.ttf"; path = "SpiritualVibez/Fonts/KaushanScript-Regular.ttf"; sourceTree = "<group>"; };
 		A10000000000000000000003 /* FontLicenses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = FontLicenses.txt; path = SpiritualVibez/Fonts/FontLicenses.txt; sourceTree = "<group>"; };
+		A10000000000000000000004 /* GreatVibes-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "GreatVibes-Regular.ttf"; path = "SpiritualVibez/Fonts/GreatVibes-Regular.ttf"; sourceTree = "<group>"; };
+		A10000000000000000000005 /* GreatVibes-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "GreatVibes-OFL.txt"; path = "SpiritualVibez/Fonts/GreatVibes-OFL.txt"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +51,8 @@
 		13B07FAE1A68108700A75B9A /* SpiritualVibez */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000004 /* GreatVibes-Regular.ttf */,
+				A10000000000000000000005 /* GreatVibes-OFL.txt */,
 				A10000000000000000000003 /* FontLicenses.txt */,
 				A10000000000000000000001 /* Pacifico-Regular.ttf */,
 				A10000000000000000000002 /* KaushanScript-Regular.ttf */,
@@ -166,6 +172,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A20000000000000000000004 /* GreatVibes-Regular.ttf in Resources */,
+				A20000000000000000000005 /* GreatVibes-OFL.txt in Resources */,
 				A20000000000000000000003 /* FontLicenses.txt in Resources */,
 				A20000000000000000000001 /* Pacifico-Regular.ttf in Resources */,
 				A20000000000000000000002 /* KaushanScript-Regular.ttf in Resources */,

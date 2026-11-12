@@ -16,6 +16,8 @@ import urllib.request
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 from share_flows import exercise_sharing
+from homepage_flows import exercise_homepage
+from icon_flows import exercise_icons
 
 
 def assert_clear_surfaces(page):
@@ -55,9 +57,12 @@ def exercise(base_url, screenshots):
   page.goto(base_url,wait_until='networkidle')
   page.on('dialog',lambda d:d.accept())
   page.wait_for_function('state.online===true')
+  exercise_icons(page,screenshots)
+  exercise_homepage(page,screenshots)
+  page.set_viewport_size({'width':1448,'height':1086})
   for title,spread_id in [('Reset Your Energy','reset-energy'),('Trust Your Gut','trust-your-gut'),('The Next Phase','stepping-into-new-timeline'),('Grounding','mindfulness-calm')]:
-   page.evaluate('transition("home")')
-   page.get_by_role('button',name='Open '+title+' spread',exact=True).click()
+   page.evaluate('transition("spreads")')
+   page.locator('[data-action="select-spread"][data-id="'+spread_id+'"]').first.click()
    assert page.evaluate('state.selected.id')==spread_id,(title,spread_id)
    page.get_by_role('button',name='← All spreads',exact=True).click()
   page.evaluate('transition("spreads")');page.get_by_role('button',name='Filter by Career',exact=True).click()
@@ -186,17 +191,18 @@ def exercise(base_url, screenshots):
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),(label,name)
     if name=='home':
      assert page.locator('.home-room-scene').evaluate('(n)=>getComputedStyle(n).backgroundImage.includes("home-mystic-room-arabic.png")'),(label,name,'room backdrop')
-     assert page.locator('main.container').evaluate('(n)=>getComputedStyle(n,"::before").backgroundImage.includes("home-light-portal.png")'),(label,name,'portal backdrop')
+     assert page.locator('.mystic-tarot-art').count()==1,(label,name,'new tarot artwork')
     else:
      assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
-    if name!='cosmos':assert page.locator('.fresh-panel').count()>0,(label,name)
+    if name not in ['cosmos','home']:assert page.locator('.fresh-panel').count()>0,(label,name)
     assert_clear_surfaces(page)
     assert page.locator('.bottomdock button').count()==6
     assert page.locator('.bottomdock [data-action="nav:explore"]').is_visible()
     if name=='home':
      assert page.locator('.scenic').count()==0
      assert page.locator('.brand-wordmark img').count()==1
-     assert 'Daily Love Readings' in page.locator('.hero-copy').inner_text()
+     assert 'Daily spiritual tools' in page.locator('.mystic-copy').inner_text()
+     assert page.locator('.home-feature').count()==6
     if name=='explore':
      assert page.locator('.explore-card').count()==18
      assert page.locator('.explore-card .panel-illustration img').count()==18
@@ -218,7 +224,7 @@ def exercise(base_url, screenshots):
   # including the creator logo. Load them before waiting on every image.
   retina_page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")')
   retina_page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)')
-  retina_page.locator('.feature-grid').screenshot(path=str(screenshots/'web/phone/panels-3x.png'))
+  retina_page.locator('.home-feature-grid').screenshot(path=str(screenshots/'web/phone/panels-3x.png'))
   retina.close()
   page.set_viewport_size({'width':390,'height':844});page.evaluate('transition("explore","natal")')
   page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-date').fill('1996-11-05');page.locator('#birth-hour').select_option('02 PM');page.locator('#birth-minute').select_option('30')

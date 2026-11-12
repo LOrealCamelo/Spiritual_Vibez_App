@@ -79,7 +79,8 @@ def exercise_sharing(page, screenshots):
   page.evaluate('(route)=>transition(route)',route)
   if route=='learn':page.evaluate('state.learningModule="all";render()')
   cards=page.locator('main .content-card')
-  assert cards.count()>0 or route=='cosmos',route
+  assert cards.count()>0 or route in ['cosmos','home'],route
+  if route=='home':assert page.locator('.home-feature').count()==6
   assert cards.evaluate_all('nodes=>nodes.every(n=>n.querySelectorAll(":scope > .content-actions > button").length===2)'),route
   assert page.locator('main button button').count()==0,route
   if route=='learn':assert page.locator('.deck-card').count()==78

@@ -31,9 +31,8 @@ test('Home clean PNG cards navigate independently to learning, spreads, cosmos, 
   const navigate=jest.fn();
   await render(<HomeScreen navigation={{navigate}}/>);
   for(const [label,route,params] of [
-    ['Explore','Explore',undefined],['Learn','Learn',undefined],['Spreads','Spreads',undefined],['Daily','Learn',{daily:true}],
-    ['Numerology','Explore',{tool:'numbers'}],['Moon Phase','Cosmos',undefined],
-    ['Saved Readings','Journal',undefined],['Birth','Explore',{tool:'natal'}],
+    ['Explore','Explore',undefined],['Daily Readings','Learn',{daily:true}],['Moon Cycles','Cosmos',undefined],
+    ['Manifest','Explore',{tool:'rituals'}],['Natal Reading','Explore',{tool:'natal'}],['Tarot','Spreads',undefined],['Journal','Journal',undefined],
   ] as const){
     await press(label);
     expect(navigate.mock.calls.at(-1)?.[0]).toBe(route);
@@ -139,7 +138,7 @@ test('real tab navigator exposes six destinations and opens the independent lear
   await render(<App/>);
   const output=JSON.stringify(tree.toJSON());
   for(const label of ['Home','Spreads','Learn','Cosmos','Explore','Journal'])expect(output).toContain(label);
-  for(const [label,asset] of [['Learn','learn_header'],['Spreads','spreads_header']] as const){
+  for(const [label,asset] of [['Learn Tarot','learn_header'],['Spreads','spreads_header']] as const){
     let button=tree.root.findAllByType(Text).filter(x=>x.props.children===label).at(-1)!;
     while(!button.props.onPress && button.parent)button=button.parent;
     expect(button.props.onPress).toBeInstanceOf(Function);

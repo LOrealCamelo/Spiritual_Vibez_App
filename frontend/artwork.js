@@ -319,3 +319,87 @@ function toolCard(id,title,description){const art=ILLUSTRATION_BINDINGS.tools[id
  return '<button class="fresh-panel explore-card" data-tool="'+id+'" data-action="tool:'+id+'" aria-label="'+e(title)+'">'+panelIllustration(art.pack,art.cell)+'<span class="panel-copy"><span class="panel-title">'+e(title)+'</span><span class="panel-description">'+e(description)+'</span></span><span class="panel-arrow" aria-hidden="true">›</span></button>';
 }
 function spreadIllustration(category){const art=ILLUSTRATION_BINDINGS.spreads[category]||ILLUSTRATION_BINDINGS.spreads.default;return panelIllustration(art.pack,art.cell)}
+
+/* Homepage copy and routes shared with the native app. */
+const HOME_DESIGN={
+  "heading": "Your journey starts here",
+  "description": "Daily spiritual tools, lunar guidance, and soul-aligned insights to help you manifest, understand your purpose, and stay connected to your highest self.",
+  "sectionHeading": "Explore Your Spiritual Vibz",
+  "features": [
+    {
+      "id": "daily",
+      "label": "Daily Readings",
+      "lines": [
+        "Daily",
+        "Readings"
+      ],
+      "action": "daily-card",
+      "screen": "Learn",
+      "params": {
+        "daily": true
+      },
+      "icon": 0
+    },
+    {
+      "id": "moon",
+      "label": "Moon Cycles",
+      "lines": [
+        "Moon",
+        "Cycles"
+      ],
+      "action": "nav:cosmos",
+      "screen": "Cosmos",
+      "params": null,
+      "icon": 1
+    },
+    {
+      "id": "manifest",
+      "label": "Manifest",
+      "lines": [
+        "Manifest"
+      ],
+      "action": "tool:rituals",
+      "screen": "Explore",
+      "params": {
+        "tool": "rituals"
+      },
+      "icon": 2
+    },
+    {
+      "id": "natal",
+      "label": "Natal Reading",
+      "lines": [
+        "Natal",
+        "Reading"
+      ],
+      "action": "tool:natal",
+      "screen": "Explore",
+      "params": {
+        "tool": "natal"
+      },
+      "icon": 3
+    },
+    {
+      "id": "tarot",
+      "label": "Tarot",
+      "lines": [
+        "Tarot"
+      ],
+      "action": "nav:spreads",
+      "screen": "Spreads",
+      "params": null,
+      "icon": 4
+    },
+    {
+      "id": "journal",
+      "label": "Journal",
+      "lines": [
+        "Journal"
+      ],
+      "action": "nav:journal",
+      "screen": "Journal",
+      "params": null,
+      "icon": 5
+    }
+  ]
+};
