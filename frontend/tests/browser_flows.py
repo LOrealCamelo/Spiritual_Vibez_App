@@ -199,7 +199,8 @@ def exercise(base_url, screenshots):
     if name not in ['cosmos','home']:assert page.locator('.fresh-panel').count()>0,(label,name)
     assert_clear_surfaces(page)
     assert page.locator('.bottomdock button').count()==6
-    assert page.locator('.bottomdock [data-action="nav:explore"]').is_visible()
+    assert page.locator('.bottomdock [data-action="nav:explore"]').is_visible()==(label=='mobile')
+    assert page.locator('.topbar .nav').is_visible()==(label=='desktop')
     if name=='home':
      assert page.locator('.scenic').count()==0
      assert page.locator('.brand-wordmark img').count()==1

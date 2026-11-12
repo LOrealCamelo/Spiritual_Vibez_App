@@ -324,3 +324,28 @@ body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1
  .home-light-portal .home-quick-actions{margin-top:0}
  .home-light-portal .content-card{min-width:0}
 }
+
+/* The same Home content uses the approved room composition on larger screens.
+   Size the entire 2:1 scene from its artwork, rather than clipping a fixed strip. */
+.home-responsive{display:contents}
+@media(min-width:960px){
+ .topbar .nav,body[data-page="home"] .topbar .nav{display:flex}
+ .topbar .top-actions,body[data-page="home"] .bottomdock,.bottomdock{display:none}
+ html[data-page="home"]{--site-header-height:86px;scroll-padding-bottom:24px}
+ body[data-page="home"] main.container{padding-bottom:0}
+ .home-responsive{display:grid;grid-template-areas:"room" "features";grid-template-columns:minmax(0,1fr)}
+ .home-responsive .mystic-home,.home-responsive .mystic-intro{display:contents}
+ body[data-page="home"] .mystic-room-continuation{grid-area:room;width:100%;height:auto;aspect-ratio:1774/887;background-size:contain;background-position:center;mask-image:none;-webkit-mask-image:none}
+ .home-responsive .mystic-copy{grid-area:room;align-self:start;justify-self:start;width:clamp(240px,25vw,520px);margin:clamp(24px,4vw,72px) 0 0 2vw;text-align:left}
+ .home-responsive .mystic-copy .brand-wordmark{width:100%;margin:0 0 12px}
+ .home-responsive .mystic-copy h1{font-size:clamp(27px,2.6vw,54px);line-height:1.25;margin:0;color:#fff4f7;text-shadow:0 1px 2px #28112f88}
+ .home-responsive .mystic-copy .home-flourish{margin:2px 0 8px;width:70%}
+ .home-responsive .mystic-copy p{font-size:clamp(14px,1.1vw,20px);line-height:1.5;color:#fff4f7;margin:0;text-shadow:0 1px 2px #28112f88}
+ .home-responsive .mystic-tarot-art{display:none}
+ .home-responsive .mystic-features{grid-area:features;width:100%;max-width:1664px;padding:24px 32px 32px;margin:0 auto}
+ .home-responsive .home-feature{font-size:clamp(18px,1.45vw,24px);gap:8px;padding:12px 8px}
+ .home-responsive .home-feature-icon{width:clamp(48px,4vw,64px);height:clamp(48px,4vw,64px)}
+}
+@media(min-width:1200px){
+ .home-responsive .home-feature-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+}
