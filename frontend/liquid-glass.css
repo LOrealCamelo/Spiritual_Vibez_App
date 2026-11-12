@@ -173,28 +173,45 @@ html{scroll-padding-top:calc(var(--site-header-height) + 20px)}
 body[data-page="home"] .home-room-brand .room-welcome h1{font-size:clamp(24px,1.7vw,60px);line-height:1.25;white-space:normal;color:#fff4f7;margin-bottom:.65em}
 body[data-page="home"] .home-room-brand .room-welcome>p{font-size:clamp(14px,.95vw,32px);line-height:1.6;max-width:90%;color:#fff4f7;text-shadow:0 1px 2px #28112f88}
 /* Supplied Bright Sunshine Caps lettering, with its tuning-fork i. */
-.home-wall-tagline{position:relative;width:93%;max-width:100%;margin:clamp(24px,1vw,48px) auto 0;padding-bottom:8%}
+.home-wall-tagline{position:relative;width:93%;max-width:100%;margin:12px auto 0;padding-top:19%;padding-bottom:24%}
 .home-wall-tagline .tagline-lettering{display:block;width:100%;height:auto}
-.home-wall-tagline .tagline-sun,.home-wall-tagline .tagline-cards{position:absolute;bottom:0;display:block;width:20%;height:auto;object-fit:contain}
-.home-wall-tagline .tagline-sun{right:0}
-.home-wall-tagline .tagline-cards{left:0;bottom:-8px}
+.home-wall-tagline .tagline-sun,.home-wall-tagline .tagline-sun-top,.home-wall-tagline .tagline-cards,.home-wall-tagline .tagline-ball{position:absolute;display:block;height:auto;object-fit:contain}
+.home-wall-tagline .tagline-sun{right:0;bottom:-6px;width:35%}
+.home-wall-tagline .tagline-sun-top{right:0;top:-7.3%;width:27%}
+.home-wall-tagline .tagline-cards{left:0;top:0;width:23%}
+.home-wall-tagline .tagline-ball{left:0;bottom:-8px;width:30%}
 @media(min-width:1401px){
- .home-room-brand .room-welcome{margin-top:16px}
- body[data-page="home"] .home-room-brand .room-welcome h1{line-height:1.15;margin-bottom:.35em}
- body[data-page="home"] .home-room-brand .room-welcome>p{line-height:1.5}
- .home-wall-tagline{width:88%;margin-top:16px;padding-bottom:0}
- .home-wall-tagline .tagline-sun{width:14%;bottom:23%;right:-3%}
- .home-wall-tagline .tagline-cards{width:20%;bottom:0;left:-15%}
+ .home-room-brand{top:8%}
+ .home-room-brand .room-welcome{margin-top:8px}
+ body[data-page="home"] .home-room-brand .room-welcome h1{line-height:1.15;margin-bottom:.25em}
+ body[data-page="home"] .home-room-brand .room-welcome>p{line-height:1.4}
+ .home-wall-tagline{width:88%;margin-top:8px;padding-top:12%;padding-bottom:7%}
+ .home-wall-tagline .tagline-sun{width:25%;bottom:-4px;right:0}
+ .home-wall-tagline .tagline-sun-top{width:21%;right:0;top:-6%}
+ .home-wall-tagline .tagline-cards{width:20%;left:-3%}
+ .home-wall-tagline .tagline-ball{width:18%;bottom:-10px;left:-3%}
 }
 .home-quick-actions{margin:12px 0 24px;flex-wrap:wrap}
 body[data-page="home"]{--home-desk-edge:calc(var(--site-header-height) + 50vw)}
 body[data-page="home"] .container:before{top:var(--portal-top,calc(50vw - 70px))}
 .footer .creator-logo{display:block;width:clamp(180px,16vw,260px);height:auto;margin:0 auto;background:transparent}
+.content-card{min-width:0;margin:0 0 16px}
+.content-card>button{width:100%;margin-bottom:0}
+.content-card .content-actions{margin-top:8px}
+.content-actions{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+.content-actions button{flex:1;min-width:0;min-height:44px;border:1px solid #ffffff80;border-radius:18px;background:#ffffff08;color:#fff9fe;padding:8px;font-size:12px;font-weight:700;line-height:1.3}
+body[data-page="home"] .content-actions button{color:#35174d;border-color:#754a9880}
+.share-preview{width:min(94vw,720px);max-height:92vh;overflow:auto;border:1px solid #8861a0;border-radius:24px;background:linear-gradient(120deg,#f4ecff,#f7e9f2);color:#35174d;padding:16px;box-shadow:0 12px 48px #14062580}
+.share-preview::backdrop{background:#1c1027a6}
+.share-preview-art{max-height:35vh;overflow:auto;margin:14px 0;border-radius:12px}
+.share-preview-art img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;margin:0}
+.share-preview label{display:block;font-weight:700}.share-preview textarea{display:block;width:100%;max-height:90px;margin:8px 0;color:#35174d;background:#ffffff80;border:1px solid #8861a080;border-radius:12px;padding:12px;font:14px/1.5 'DM Sans',Arial,sans-serif}
+.share-preview-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.share-preview .btn{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px;text-align:center;color:#35174d;border-color:#754a9880;background:#ffffff18;font-size:14px}
 @media(max-width:1400px){
  .home-room-hero{display:flex;flex-direction:column;aspect-ratio:auto;height:auto;padding-top:22px;background:linear-gradient(110deg,#f4ecff,#eadcf7,#f7e9f2)}
  .home-room-brand{position:relative;top:auto;left:auto;order:0;width:calc(100% - 32px);max-width:650px;margin:0 16px 24px}
  .home-room-brand .brand-wordmark{width:min(420px,80vw)}
- .home-wall-tagline{width:min(100%,420px);margin-top:48px}
+ .home-wall-tagline{width:min(100%,420px);margin-top:12px;padding-top:min(19%,80px);padding-bottom:min(24%,101px)}
  .home-room-brand .room-welcome{margin-top:18px}
  body[data-page="home"] .home-room-brand .room-welcome h1{font-size:28px;color:#35174d}
  body[data-page="home"] .home-room-brand .room-welcome>p{font-size:16px;line-height:1.6;max-width:none;color:#35174d;text-shadow:none}
@@ -212,7 +229,7 @@ body[data-page="home"] .container:before{top:var(--portal-top,calc(50vw - 70px))
  .home-room-brand .brand-wordmark{width:min(350px,86vw)}
  body[data-page="home"] .home-room-brand .room-welcome h1{font-size:clamp(23px,6.4vw,30px)}
  body[data-page="home"] .home-room-brand .room-welcome>p{font-size:15px}
- .home-wall-tagline{width:100%;margin-top:48px}
+ .home-wall-tagline{width:100%;margin-top:12px;padding-top:19%;padding-bottom:24%}
  .home-room-scene{height:540px;aspect-ratio:auto;background-size:auto 540px;background-position:56% top}
  body[data-page="home"] .container:before{top:var(--portal-top,900px)}
 }

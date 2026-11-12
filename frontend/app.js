@@ -58,7 +58,7 @@ function home(){
  const feats=[['daily','home_daily_card','Daily Card','daily-card'],['spreads','home_shuffle_spread','Shuffle a Spread','nav:spreads'],['learn','home_learn_tarot','Learn Tarot','nav:learn'],['birth','home_birth_chart','Birth Chart','tool:natal']];
  const fave=[['Reset Your Energy','me_reset_your_energy.png'],['Trust Your Gut','spread_trust_your_gut.png'],['The Next Phase','me_the_next_phase.png'],['Grounding','grounding_ui_card.png']];
  const more=[['cosmos','journal_moon_phase','Moon Phase','nav:cosmos'],['life','journal_numerology','Numerology','tool:numbers'],['journal','journal_saved_readings','Saved Readings','nav:journal'],['rituals','journal_rituals','Rituals','tool:rituals']];
- return '<section class="home-room-hero" aria-label="Your mystical reading room"><div class="home-room-scene" role="img" aria-label="Your tarot guide centered at her reading table in a cozy purple room with plants, candles, crystals and a city window."></div><div class="home-room-brand">'+heroWordmark()+'<div class="hero-copy room-welcome"><h1>Your journey starts here</h1><p>'+e(WELCOME_COPY)+'</p></div><div class="home-wall-tagline"><img class="tagline-lettering" src="assets/daily-vibz-bright-sunshine.png" alt="Track your Daily Vibz with Zodiac, Tarot &amp; More" width="1962" height="801"><img class="tagline-cards" src="assets/ace-cups-crystal-ball.png" alt="" aria-hidden="true" width="1290" height="1219"><img class="tagline-sun" src="assets/rainbow-sun-face.png" alt="" aria-hidden="true" width="1254" height="1254"></div></div></section><div class="hero-actions home-quick-actions">'+btn('<span class="hero-button-icon">'+navIcon('spreads')+'</span><span>Try a spread</span>','nav:spreads')+btn('<span class="hero-button-icon">'+navIcon('learn')+'</span><span>Learn tarot</span>','nav:learn','cream')+'</div>'+
+ return '<section class="home-room-hero" aria-label="Your mystical reading room"><div class="home-room-scene" role="img" aria-label="Your tarot guide centered at her reading table in a cozy purple room with plants, candles, crystals and a city window."></div><div class="home-room-brand">'+heroWordmark()+'<div class="hero-copy room-welcome"><h1>Your journey starts here</h1><p>'+e(WELCOME_COPY)+'</p></div><div class="home-wall-tagline"><img class="tagline-lettering" src="assets/daily-vibz-crystal-pink.png" alt="Track your Daily Vibz with Zodiac, Tarot &amp; More" width="1964" height="801"><img class="tagline-cards" src="assets/ace-cups-deck.png" alt="" aria-hidden="true" width="1058" height="1486"><img class="tagline-ball" src="assets/galaxy-crystal-ball.png" alt="" aria-hidden="true" width="1140" height="1380"><img class="tagline-sun-top" src="assets/purple-yellow-sun-face.png" alt="" aria-hidden="true" width="1254" height="1254"><img class="tagline-sun" src="assets/purple-yellow-sun-face.png" alt="" aria-hidden="true" width="1254" height="1254"></div></div></section><div class="hero-actions home-quick-actions">'+btn('<span class="hero-button-icon">'+navIcon('spreads')+'</span><span>Try a spread</span>','nav:spreads')+btn('<span class="hero-button-icon">'+navIcon('learn')+'</span><span>Learn tarot</span>','nav:learn','cream')+'</div>'+
  '<div class="section-heading"><h2>Pick your adventure 💫</h2></div><div class="feature-grid">'+feats.map(([id,file,title,action])=>'<button class="picture-tile '+panelClasses(file)+'" data-panel="'+file+'" data-action="'+action+'" aria-label="Open '+title+'">'+panelContents(file)+'</button>').join('')+'</div>'+
  '<div class="section-heading"><h2>Fan-favorite spreads ♡</h2><a href="#spreads" data-action="nav:spreads">See all →</a></div><div class="favorite-grid">'+fave.map(([name,file])=>'<button class="favorite-card" data-action="favorite" data-name="'+e(name)+'" aria-label="Open '+e(name)+' spread"><img src="assets/'+file+'" alt="'+e(name)+' illustrated spread" loading="lazy"></button>').join('')+'</div>'+
  '<div class="section-heading section-heading--more"><h2>More to explore ✨</h2></div><div class="more-grid">'+more.map(([id,file,title,action])=>'<button class="extra-card '+panelClasses(file)+'" data-panel="'+file+'" data-action="'+action+'" aria-label="Open '+title+'">'+panelContents(file)+'</button>').join('')+'</div><p class="home-explore">'+btn('Explore all features','nav:explore','cream')+'</p>';
@@ -72,7 +72,7 @@ function spreadsPage(){
   out+='<div class="list" style="margin-bottom:15px">'+qs.map(q=>'<div class="glass"><b>'+q.slot+'. '+e(q.title)+'</b><p>'+e(q.q)+'</p>'+(state.drawn[q.slot]?'<p><b>'+e(state.drawn[q.slot].card.name)+' ('+e(state.drawn[q.slot].card.orientation)+')</b><br>'+e(state.drawn[q.slot].card.meaning)+'</p>':'')+'</div>').join('')+'</div>';
   out+=notice('Readings are for self-reflection, not certain predictions.');
   out+=btn('✨ Interpret all my cards','interpret','',Object.keys(state.drawn).length===qs.length?'':'disabled')+' '+btn('🔀 Start again','reset-spread','cream');
-  if(state.reading)out+='<div class="glass"><h3>💗 Your combined reading</h3><p>'+e(state.reading)+'</p>'+btn('Share this reading','share-reading')+' '+btn('Save to journal','save-reading','cream')+'</div>';
+  if(state.reading)out+='<div class="glass"><h3>💗 Your combined reading</h3><p>'+e(state.reading)+'</p>'+'<div class="content-actions" data-content-actions>'+btn('Share','share-reading')+' '+btn('Add to journal','save-reading','cream')+'</div></div>';
   return out;
  }
  out+=artButton('spreads_randomize','Randomize a Spread','random-spread');
@@ -145,7 +145,7 @@ function renderResult(o){let s='';if(o.oracle_response)s='<p>'+e(o.oracle_respon
  else if(o.houses)s=o.houses.map(x=>'<p><b>'+e(x.name||x.title||'House')+'</b><br>'+e(x.desc||x.meaning||x.description||'')+'</p>').join('');
  else if(o.cycle_day)s='<p>Cycle day '+e(o.cycle_day)+'</p><p>Next estimated period: '+e(o.next_period)+'</p>';
  else s=readableResult(o);
- return '<div class="result"><h3>✨ Your '+e(getTool(state.tool)?.[2]||'cosmic')+' result</h3>'+s+'<p>'+btn('Share result','share-result','cream')+'</p></div>';
+ return '<div class="result"><h3>✨ Your '+e(getTool(state.tool)?.[2]||'cosmic')+' result</h3>'+s+'</div>';
 }
 function journalPage(){let saved=[],moods=[];try{saved=JSON.parse(localStorage.getItem('sv_private_journal')||'[]');moods=JSON.parse(localStorage.getItem('sv_moods')||'[]')}catch{}
  let out=artHeader('journal_header','My Journal — reflect, track your journey and explore more spiritual tools');
@@ -164,7 +164,7 @@ function render(){
  const dock=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'current':'')+'" data-action="nav:'+id+'"><span>'+navIcon(id)+'</span>'+label+'</button>').join('');
  const pageContent={home,spreads:spreadsPage,learn:learningPage,cosmos:cosmosPage,explore:explorePage,journal:journalPage}[state.page]||home;
  $('#app').innerHTML=clearGlassFilter()+'<header class="topbar"><div class="topbar__inner"><div class="header-identity"><a href="#home" class="brand portrait-brand" aria-label="Spiritual Vibz Home"><img src="assets/cartoon_me_transparent1.png" alt="Your tarot guide, shown from her headphones down to her hips."></a></div><nav class="nav" aria-label="Primary">'+nav+'</nav><div class="top-actions"><button aria-label="Find a feature" data-action="nav:explore">'+navIcon('explore')+'<span class="feature-label">Explore</span></button></div></div></header><main class="container '+(state.page==='home'?'':'main-page')+'">'+(['spreads','learn','journal'].includes(state.page)?'<div class="art-page">'+pageContent()+'</div>':pageContent())+'</main><footer class="footer"><img class="creator-logo" src="assets/neurospicy-mystic-logo.png" alt="NeuroSpicy Mystic" loading="lazy"></footer><nav class="bottomdock" aria-label="Mobile navigation">'+dock+'</nav>';
- if(document.body){window.requestAnimationFrame(syncHomeLayout);document.fonts?.ready.then(syncHomeLayout)}
+ if(document.body){installContentActions();window.requestAnimationFrame(syncHomeLayout);document.fonts?.ready.then(syncHomeLayout)}
  if(['natal','moon','asteroids'].includes(state.tool)){loadBirthDropdowns();if(state.tool!=='moon')loadCurrentBirthSky();if(state.tool==='asteroids')loadAsteroidCatalog()}
 }
 function syncHomeLayout(){
@@ -177,7 +177,6 @@ function syncHomeLayout(){
 }
 function val(id){return document.getElementById(id)?.value??''}
 function save(title,text){let arr=[];try{arr=JSON.parse(localStorage.getItem('sv_private_journal')||'[]')}catch{}arr.push({title,text,date:new Date().toLocaleDateString()});localStorage.setItem('sv_private_journal',JSON.stringify(arr.slice(-100)));}
-function share(text){if(navigator.share){navigator.share({title:'Spiritual Vibz',text}).catch(()=>{});}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste it into a text, email, or social post.')).catch(()=>prompt('Copy this:',text));}else prompt('Copy this:',text)}
 let ac=null,osc=null;function stopAudio(){try{osc?.stop();ac?.close()}catch{}osc=null;ac=null}
 function startAudio(){stopAudio();try{ac=new (window.AudioContext||window.webkitAudioContext)();osc=ac.createOscillator();const gain=ac.createGain();osc.type='sine';osc.frequency.value=Number(val('hz'))||528;gain.gain.value=Math.max(0,Math.min(.10,Number(val('volume'))||.04));osc.connect(gain);gain.connect(ac.destination);osc.start()}catch(ex){alert('Audio could not start: '+ex.message)}}
 function pickSpread(s){state.selected=s;state.drawn={};state.reading='';transition('spreads')}
@@ -195,7 +194,7 @@ async function runTool(){if(['natal','moon','asteroids'].includes(state.tool))re
 function quizFallback(){const c=state.cards[Math.floor(Math.random()*state.cards.length)];const good=c.upright.split(',')[0].trim();state.quiz={card_id:c.id,card_name:c.name,correct_answer:good,options:[good,'Stagnation','Certainty','Avoidance'].sort(()=>Math.random()-.5)};}
 async function askQuiz(){state.answer='';state.learningModule='quiz';try{if(!state.online)throw Error('offline');state.quiz=await api('/tarot/study/quiz')}catch{quizFallback()}render()}
 async function transitFetch(){return fetchDailySky()}
-document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action]');if(!b)return;ev.preventDefault();const a=b.dataset.action;if(a.startsWith('nav:'))return transition(a.slice(4));if(a.startsWith('tool:'))return transition('explore',a.slice(5));
+document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-action]');if(!b)return;ev.preventDefault();const a=b.dataset.action;if(a==='content-share')return previewContentShare(contentItems.get(b.dataset.content));if(a==='content-journal')return addContentToJournal(contentItems.get(b.dataset.content));if(a==='content-send')return sendContentPreview();if(a==='content-copy')return copyContentPreviewText();if(a==='content-close')return closeContentPreview();if(a.startsWith('nav:'))return transition(a.slice(4));if(a.startsWith('tool:'))return transition('explore',a.slice(5));
  if(a==='favorite'){const s=state.spreads.find(x=>x.title.toLowerCase()===b.dataset.name.toLowerCase());if(s)pickSpread(s);else{transition('spreads');alert('Please choose an available spread from the complete list.')}return}
  if(a==='random-spread')return pickSpread(state.spreads[Math.floor(Math.random()*state.spreads.length)]);
  if(a==='learn-module'){state.learningModule=b.dataset.module;state.filter=['all','reversed'].includes(b.dataset.module)?'all':b.dataset.module;state.cardDetail=null;return render()}
@@ -212,7 +211,7 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
  if(a==='draw'){return draw(Number(b.dataset.slot))}
  if(a==='interpret'){return interpret()}
  if(a==='reset-spread'){state.drawn={};state.reading='';return render()}
- if(a==='share-reading')return share(state.selected.title+'\n\n'+state.reading);
+ if(a==='share-reading')return previewContentShare(ContentFormat.snapshot({title:state.selected.title,text:state.reading,route:'spreads'}));
  if(a==='save-reading'){save(state.selected.title,state.reading);return alert('Saved to the Journal on this device.');}
  if(a==='learn-filter'){state.filter=b.dataset.filter;return render()}
  if(a==='card'){state.cardDetail=state.cards.find(x=>String(x.id)===b.dataset.card);if(!state.studied.includes(state.cardDetail.id))state.studied.push(state.cardDetail.id);render();document.querySelector('#selected-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
@@ -220,10 +219,10 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
  if(a==='quiz'){return askQuiz()}
  if(a==='quiz-answer'){if(state.answer)return;state.answer=b.dataset.answer===state.quiz.correct_answer?'Correct! ✨ You got it!':'Keep learning! The answer is '+state.quiz.correct_answer;state.quizProgress++;if(b.dataset.answer===state.quiz.correct_answer){const card=state.cards.find(c=>c.name===state.quiz.card_name);if(card&&!state.studied.includes(card.id))state.studied.push(card.id)}return render()}
  if(a==='get-transit')return transitFetch()
- if(a==='share-transit')return share(state.sign+': '+state.transit.forecast?.content)
+ if(a==='share-transit')return previewContentShare(currentContent())
  if(a==='tool-back')return transition('explore')
  if(a==='tool-run')return runTool()
- if(a==='share-result')return share(JSON.stringify(state.result,null,2))
+ if(a==='share-result')return previewContentShare(currentContent())
  if(a==='save-note'){const t=val('journal-text').trim();if(!t)return alert('Write your reflection first.');save('Journal reflection',t);return render()}
  if(a==='audio-play')return startAudio();if(a==='audio-stop')return stopAudio();});
 document.addEventListener('toggle',ev=>{if(ev.target.matches?.('.spread-search'))state.searchOpen=ev.target.open},true);

@@ -24,7 +24,9 @@
     "react-native-linear-gradient": "^2.8.3",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "4.25.2",
-    "react-native-svg": "^15.12.1"
+    "react-native-share": "12.3.1",
+    "react-native-svg": "^15.12.1",
+    "react-native-view-shot": "5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

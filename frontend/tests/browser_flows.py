@@ -15,6 +15,7 @@ import time
 import urllib.request
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from share_flows import exercise_sharing
 
 
 def assert_clear_surfaces(page):
@@ -226,6 +227,7 @@ def exercise(base_url, screenshots):
   page.locator('[data-action="tool-run"]').click();page.wait_for_selector('.chart-wheel svg')
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
   page.locator('.chart-wheel').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web/phone/birth-chart.png'))
+  exercise_sharing(page,screenshots)
   assert not failures,failures
   assert not errors,errors
   print(json.dumps({'passedTools':requests,'extraFlows':['cycle','learn module','quiz','complete spread','synthesis','save reading','journal note','mood','transits'],'apiErrors':failures,'jsErrors':errors}))

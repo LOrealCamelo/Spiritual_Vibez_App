@@ -1,10 +1,11 @@
 import React from 'react';
 import {Text,View,StyleSheet} from 'react-native';
+import {ContentActions,collectContentText} from './ContentActions';
 import {ClearGlassSurface} from './ClearGlassSurface';
 import library from '../data/learningLibrary.json';
 const Title=({children}:{children:React.ReactNode})=><Text accessibilityRole="header" style={s.title}>{children}</Text>;
 const Body=({children}:{children:React.ReactNode})=><Text style={s.body}>{children}</Text>;
-function Card({title,children}:{title:string,children:React.ReactNode}){return <ClearGlassSurface style={s.card}><Text style={s.heading}>{title}</Text>{children}</ClearGlassSurface>}
+function Card({title,children}:{title:string,children:React.ReactNode}){return <ClearGlassSurface style={s.card}><Text style={s.heading}>{title}</Text>{children}<ContentActions title={title} text={collectContentText(children)}/></ClearGlassSurface>}
 export function PlanetLessons(){return <View><Title>Planets & Tarot connections</Title><Body>{library.planet_note}</Body>{library.planets.map(p=><Card key={p.name} title={p.name}><Body>{p.meaning}</Body><Text style={s.label}>{p.tarot_card}</Text><Body>{p.tarot_connection}</Body></Card>)}<Body>{library.reading_prompt}</Body></View>}
 export function TarotNumberLessons(){return <View><Title>The numbers of Tarot</Title><Body>{library.minor_note}</Body>{library.tarot_numbers.map(n=><Card key={n.number} title={n.rank}><Body>{n.theme}</Body><Body>Another side: {n.reflection}</Body></Card>)}<Title>Court cards</Title><Body>{library.court_note}</Body>{library.court_cards.map(c=><Card key={c.rank} title={c.rank}><Body>{c.meaning}</Body></Card>)}<Title>The four suits</Title>{library.suits.map(suit=><Card key={suit.name} title={suit.name+' · '+suit.element}><Body>{suit.theme}</Body></Card>)}</View>}
 export function HouseLessons(){return <View><Title>The twelve astrological houses</Title><Body>{library.house_note}</Body>{library.houses.map(h=><Card key={h.number} title={h.number+'. '+h.title}><Body>{h.description}</Body><Body>Teaching association: {h.natural_sign} · {h.natural_planet}</Body></Card>)}<PlanetLessons/></View>}

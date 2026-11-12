@@ -1,6 +1,6 @@
 import React from 'react';
 import TestRenderer,{act,ReactTestRenderer} from 'react-test-renderer';
-import {Image,Text,TextInput,TouchableOpacity,Linking} from 'react-native';
+import {Image,Text,TextInput,TouchableOpacity,Linking,Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,CosmosScreen} from '../App';
 import {IllustratedCard,IllustratedToolCard,PanelIllustration,SpreadIllustration,UI_PANELS} from '../src/components/IllustratedCard';
@@ -260,4 +260,47 @@ test('monthly Moon calendar stays in the Moon section and supports day and month
  await press('2026-11-09 New Moon');expect(onSelect).toHaveBeenCalledWith('2026-11-09');
  await press('Next month →');expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('month=12');
  await press('← Previous month');expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)![0])).toContain('month=11');
+});
+
+test('all feature cards and all 78 study cards expose independent share and journal actions',async()=>{
+ const {ContentActions}=require('../src/components/ContentActions');
+ await render(<ExploreScreen route={{params:{}}} navigation={{goBack:jest.fn()}}/>);
+ for(const card of tree.root.findAllByType(IllustratedToolCard)){
+  const actions=card.findByType(ContentActions);
+  expect(actions.props.title).toBe(card.props.title);
+  expect(actions.findAllByType(TouchableOpacity).map(x=>x.props.accessibilityLabel)).toEqual(['Share '+card.props.title,'Add '+card.props.title+' to journal']);
+ }
+ await act(async()=>tree.unmount());await render(<LearnScreen route={{params:{}}}/>);await press('Card Meanings: 0 / 78 cards');
+ const actions=tree.root.findAllByType(ContentActions).filter(x=>x.props.value?.suit);
+ expect(actions).toHaveLength(78);
+ for(const entry of actions)expect(entry.findAllByType(TouchableOpacity)).toHaveLength(2);
+});
+
+test('BaZi shares a PNG plus readable results and invitation, and saves the same full reading',async()=>{
+ const {ContentActions}=require('../src/components/ContentActions');
+ const {captureRef}=require('react-native-view-shot');const NativeShare=require('react-native-share').default;
+ const reading={birth_year:1977,animal_sign:'Fire Snake',pillars:{day_master:{title:'Yin Earth Snake',domain:'Core Soul Identity & Spouse Palace'}}};
+ await render(<ContentActions title="Chinese Zodiac & BaZi" value={reading} route="explore/bazi"/>);
+ await press('Share Chinese Zodiac & BaZi');
+ const send=()=>tree.root.findAllByType(TouchableOpacity).find(x=>x.props.accessibilityLabel==='Share image and text')!;
+ expect(send().props.disabled).toBe(true);
+ await act(async()=>{tree.root.findAllByType(Image).forEach(n=>n.props.onLoadEnd?.());tree.root.findAll(n=>typeof n.props.onLayout==='function').forEach(n=>n.props.onLayout({nativeEvent:{layout:{width:342,height:1400}}}))});
+ expect(send().props.disabled).toBe(false);await press('Share image and text');
+ expect(captureRef).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({format:'png',snapshotContentContainer:true}));
+ const payload=NativeShare.open.mock.calls[0][0];expect(payload.type).toBe('image/png');expect(payload.url).toMatch(/^file:\/\/.+\.png$/);
+ expect(payload.message).toContain('Zodiac animal: Fire Snake');expect(payload.message).toContain('Core Soul Identity');expect(payload.message).toContain('Get your own here: https://spiritual-vibez-app.onrender.com/#explore/bazi');expect(payload.message).not.toMatch(/birth_year|day_master|[{}]/);
+ await press('Close share preview');await press('Add Chinese Zodiac & BaZi to journal');
+ const saved=JSON.parse((await AsyncStorage.getItem('sv_readings'))||'[]');expect(saved[0].title).toBe('Chinese Zodiac & BaZi');expect(saved[0].text).toContain('Core Soul Identity');
+ await act(async()=>tree.unmount());await render(<JournalScreen navigation={{navigate:jest.fn()}}/>);await press('Saved Readings');expect(text()).toContain('Yin Earth Snake');
+});
+
+
+test('a failed journal write reports the error and never claims success',async()=>{
+ const {ContentActions}=require('../src/components/ContentActions');
+ const alert=jest.spyOn(Alert,'alert').mockImplementation(()=>{});
+ (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(new Error('Device storage full'));
+ await render(<ContentActions title="My reflection" text="A meaningful reading" route="journal"/>);
+ await press('Add My reflection to journal');
+ expect(alert).toHaveBeenCalledWith('Could not add to journal',expect.any(String));
+ expect(text()).not.toContain('Added to your journal.');
 });

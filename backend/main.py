@@ -103,6 +103,15 @@ def serve_cosmic_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'cosmic.js'), media_type='text/javascript')
 
 
+@app.get('/content-format.js', include_in_schema=False)
+def content_format_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'content-format.js'), media_type='text/javascript')
+
+
+@app.get('/content-actions.js', include_in_schema=False)
+def content_actions_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'content-actions.js'), media_type='text/javascript')
+
 @app.get('/learning.js', include_in_schema=False)
 def serve_learning_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'learning.js'), media_type='text/javascript')

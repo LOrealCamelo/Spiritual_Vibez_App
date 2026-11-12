@@ -13,3 +13,5 @@ jest.mock('react-native-screens', () => {
   const {View} = require('react-native');
   return {...screens, Screen:View, ScreenContainer:View};
 });
+jest.mock('react-native-share',()=>({__esModule:true,default:{open:jest.fn().mockResolvedValue({success:true})}}));
+jest.mock('react-native-view-shot',()=>({captureRef:jest.fn().mockResolvedValue('file:///tmp/spiritual-vibz-result.png')}));

@@ -26,6 +26,10 @@ jobs:
           node --check frontend/cosmic.js
           node --check frontend/artwork.js
           node --check frontend/learning.js
+          node --check frontend/content-format.js
+          node --check frontend/content-actions.js
+      - name: Check shared result formatting and PNG assets
+        run: node --test frontend/tests/*.test.cjs
 
       - name: Install browser test driver
         run: pip install -r frontend/tests/requirements.txt
