@@ -58,6 +58,20 @@ def exercise_homepage(page, screenshots):
    # There is no empty fixed-height continuation or spacer below the cards.
    moon=page.locator('.mystic-features .home-flourish--moons').bounding_box()
    assert features['y']+features['height']-(moon['y']+moon['height'])<=40,label
+   # Leave breathing room after the full desk, including its printed triple moon.
+   title=page.locator('.mystic-features h2').bounding_box()
+   assert title['y']>=room['y']+room['height']+43,(label,room,title)
+   scene=page.locator('.mystic-room-continuation')
+   scene.evaluate('(n)=>n.scrollIntoView({block:"end",behavior:"instant"})')
+   # Sample the complete three-card/triple-moon area in original image coordinates.
+   # Foreground sections and navigation must not intercept the visible desk area.
+   assert scene.evaluate('''(n)=>{
+    const r=n.getBoundingClientRect();
+    for(let x=750;x<=1150;x+=40)for(let y=710;y<=850;y+=20){
+     if(document.elementFromPoint(r.x+x*r.width/1774,r.y+y*r.height/887)!==n)return false;
+    }
+    return true;
+   }'''),(label,'desk artwork is covered')
   else:
    room=page.locator('.mystic-room-continuation').bounding_box();portal=page.locator('.home-light-portal').bounding_box()
    assert portal['y']>=room['y']+room['height'],label
