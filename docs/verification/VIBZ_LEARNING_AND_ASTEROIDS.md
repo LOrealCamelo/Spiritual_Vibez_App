@@ -151,3 +151,27 @@ tattoo arrangement remains. The exact transparent name logo now sits farther
 left in the wall area marked by the owner. The top-only PNG exports include
 the logo permanently in the image; no annotations, navigation or lower page
 are included. Eleven Web checks and twelve responsive widths pass.
+
+Welcome/menu follow-up: the approved Spiritual Vibz wordmark is larger and
+lower on the empty left wall, below the leaves. The welcome heading and full
+paragraph sit directly beneath it; the duplicate introduction above the feature
+cards is removed. The former header tagline now uses locally hosted, licensed
+Cinzel Decorative lettering in the clear desk space above the tarot cards.
+At smaller widths the introduction stacks above the room and the tagline sits
+below it so neither covers the guide or cards. The room/tattoo illustration,
+approved wordmark pixels, portal artwork and clear-glass surfaces are unchanged.
+
+The top menu uses pale portal colors, larger dark-plum labels/icons and larger
+targets; phone layouts have an Explore shortcut alongside the portrait and the
+existing six-item navigation dock. A prepared transparent NeuroSpicy Mystic logo
+with its paper backing replaces the old footer text line. The creator logo was
+prepared from the owner's supplied reference with image generation; the original
+private tattoo photographs remain unpublished.
+
+Validation: all eleven Web content/asset checks pass. A Chromium check covers
+seventeen widths from 320 to 3730 pixels, six navigation pages, both home actions,
+logo proportions, clear-glass opacity, tagline placement and JavaScript errors.
+Previews: [large screen](welcome-layout/web-large-screen.png),
+[desktop](welcome-layout/web-desktop.png), [phone](welcome-layout/web-phone.png),
+and [footer](welcome-layout/footer-desktop.png). The downloadable top-only and
+whole-homepage PNGs are refreshed with the current layout.

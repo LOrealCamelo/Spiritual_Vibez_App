@@ -183,7 +183,11 @@ def exercise(base_url, screenshots):
     page.evaluate('(name)=>{state.selected=null;state.learningModule=null;transition(name)}',name)
     page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)');page.evaluate('document.fonts.ready')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),(label,name)
-    assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
+    if name=='home':
+     assert page.locator('.home-room-scene').evaluate('(n)=>getComputedStyle(n).backgroundImage.includes("home-mystic-room-arabic.png")'),(label,name,'room backdrop')
+     assert page.locator('main.container').evaluate('(n)=>getComputedStyle(n,"::before").backgroundImage.includes("home-light-portal.png")'),(label,name,'portal backdrop')
+    else:
+     assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
     if name!='cosmos':assert page.locator('.fresh-panel').count()>0,(label,name)
     assert_clear_surfaces(page)
     assert page.locator('.bottomdock button').count()==6
