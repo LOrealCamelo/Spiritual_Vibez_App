@@ -213,6 +213,9 @@ def exercise(base_url, screenshots):
     if name=='explore':page.screenshot(path=str(screenshots/'web'/('phone' if label=='mobile' else 'desktop')/'explore-viewport.png'))
   retina=b.new_context(viewport={'width':390,'height':844},device_scale_factor=3)
   retina_page=retina.new_page();retina_page.goto(base_url,wait_until='networkidle');retina_page.evaluate('document.fonts.ready')
+  # Full-page verification includes lazy images below the phone viewport,
+  # including the creator logo. Load them before waiting on every image.
+  retina_page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")')
   retina_page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)')
   retina_page.locator('.feature-grid').screenshot(path=str(screenshots/'web/phone/panels-3x.png'))
   retina.close()

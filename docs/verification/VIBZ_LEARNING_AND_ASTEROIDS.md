@@ -190,3 +190,20 @@ navigation pages, both home actions, clear-glass surfaces, paragraph-to-tagline
 spacing and no JavaScript errors. Updated previews: [large screen](wall-tagline/web-large-screen.png),
 [desktop](wall-tagline/web-desktop.png) and [phone](wall-tagline/web-phone.png).
 The top-only and whole-homepage downloadable PNGs are refreshed as well.
+
+CI browser-image repair: the retina phone screenshot check now explicitly loads
+off-screen lazy images, matching the existing desktop/phone image checks, before
+asserting that every image has loaded. The creator footer logo exposed this
+missing setup step; the previous all-images assertion timed out without scrolling
+to it. The earlier home-backdrop assertion was already updated for the room and
+portal. No image validity or application checks are skipped. The full connected
+browser suite passes locally, including fifteen tool routes, the retina capture,
+saved readings, journal, quiz, moon calendar and transit flows, with no API or
+JavaScript errors. CI now uploads available screenshots after a failed check so
+future failures retain their visual evidence.
+
+The six reported commits were checked against their GitHub job logs. `15e0ecd`,
+`ab9b1b9`, `707191e` and `24f240e` failed the obsolete home-backdrop assertion;
+`e07f977` and `66cb568` failed the retina all-images wait. All six passed the
+28 endpoint checks and 103 pytest tests. The workflow is now named "Backend and
+browser tests" to reflect both parts of the job in future notifications.

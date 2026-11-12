@@ -1,4 +1,4 @@
-name: Backend tests
+name: Backend and browser tests
 on:
   push:
     branches: [main, design/spiritual-vibez-mobile-refresh]
@@ -34,8 +34,9 @@ jobs:
           BROWSER_EXECUTABLE: /usr/bin/google-chrome
         run: python frontend/tests/browser_flows.py --screenshots "$RUNNER_TEMP/web-evidence"
       - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
         with:
           name: spiritual-vibez-web-evidence
           path: ${{ runner.temp }}/web-evidence
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
