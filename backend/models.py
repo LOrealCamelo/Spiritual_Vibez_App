@@ -34,12 +34,12 @@ class AsteroidBirthRequest(BirthDataRequest):
     asteroid_ids: List[int] = Field(default_factory=lambda: [1, 2, 3, 4], min_length=1, max_length=10)
     aspect_mode: Literal['hide', 'major'] = 'major'
 
-class RelocationRequest(BaseModel):
-    city: str = Field("Utica, NY", description="Target city name")
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    birth_date: Optional[str] = "1996-11-05"
-    birth_time: Optional[str] = "14:30"
+class AstrocartographyRequest(BirthDataRequest):
+    focus: Literal['home', 'relationships', 'career', 'growth', 'retreat', 'reinvention'] = 'home'
+
+class RelocationRequest(AstrocartographyRequest):
+    """Legacy endpoint body, now requiring real birth details instead of defaulting them."""
+    pass
 
 class LifePathRequest(BaseModel):
     birth_month: int = Field(..., ge=1, le=12)

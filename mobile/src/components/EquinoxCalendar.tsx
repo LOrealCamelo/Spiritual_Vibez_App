@@ -1,0 +1,25 @@
+import React,{useEffect,useRef,useState} from 'react';
+import {ActivityIndicator,StyleSheet,Text,TextInput,TouchableOpacity,View} from 'react-native';
+import {API_BASE_URL} from '../api/spiritualVibezClient';
+import {ContentActions} from './ContentActions';
+
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+function Button({label,onPress,selected=false}:{label:string,onPress:()=>void,selected?:boolean}){return <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected}} onPress={onPress} style={[s.button,selected?s.selected:null]}><Text style={s.text}>{label}</Text></TouchableOpacity>}
+export function EquinoxCalendar({onResult}:{onResult:(value:any)=>void}){
+ const [date,setDate]=useState(today),[data,setData]=useState<any>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const version=useRef(0);useEffect(()=>()=>{version.current++},[]);
+ const zone=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+ const load=async(chosen=date,view?:{year:number,month:number})=>{
+  const ticket=++version.current;setError('');setBusy(true);setData(null);onResult(null);
+  const params='date='+encodeURIComponent(chosen)+'&timezone='+encodeURIComponent(zone)+(view?'&year='+view.year+'&month='+view.month:'');
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),20000);
+  try{const r=await fetch(API_BASE_URL+'/astrology/calendar-13-month?'+params,{signal:controller.signal});const result=await r.json();if(!r.ok)throw Error(result.detail||'Unable to calculate this date.');if(ticket===version.current){setData(result);onResult(result)}}
+  catch(ex:any){if(ticket===version.current)setError(ex.message||'Unable to load the calendar.')}
+  finally{clearTimeout(timeout);if(ticket===version.current)setBusy(false)}
+ };
+ const choose=(value:string)=>{setDate(value);load(value)};
+ return <View style={s.panel}><Text style={s.text}>Thirteen months of 28 days, beginning on the March spring equinox.</Text><Text style={s.text}>Gregorian date (YYYY-MM-DD)</Text><TextInput accessibilityLabel="Calendar Gregorian date" placeholder="YYYY-MM-DD" placeholderTextColor="#bba2c7" value={date} onChangeText={setDate} style={s.input}/><Text style={s.text}>{zone}</Text><View style={s.row}><Button label="Show calendar" onPress={()=>load()}/><Button label="Today" onPress={()=>choose(today())}/></View>
+ {busy?<ActivityIndicator accessibilityLabel="Loading 13-month calendar"/>:null}{error?<Text accessibilityRole="alert" style={s.text}>{error}</Text>:null}
+ {data?<><Text accessibilityRole="header" style={s.title}>{data.converted_date.label}</Text><Text style={s.text}>{data.selected_date} · {data.timezone}</Text><Text style={s.text}>Equinox year {data.year}: {data.year_start} to {data.next_year_start} ({data.year_days} days)</Text><Text style={s.title}>{data.month_name}</Text><Text style={s.text}>{data.months[data.month_number-1].start_date} – {data.months[data.month_number-1].end_date}</Text><View style={s.row}>{data.previous?<Button label="Previous month" onPress={()=>load(date,data.previous)}/>:null}{data.next?<Button label="Next month" onPress={()=>load(date,data.next)}/>:null}</View><View style={s.row}>{data.months.map((m:any)=><Button key={m.number} label={'Month '+m.number} selected={data.month_number===m.number} onPress={()=>load(date,{year:data.year,month:m.number})}/>)}</View><Text style={s.text}>Four weeks · seven days in every week</Text><View style={s.grid}>{data.days.map((d:any)=><TouchableOpacity key={d.day} accessibilityRole="button" accessibilityLabel={'Month '+data.month_number+', Day '+d.day+' · '+d.gregorian_date} accessibilityState={{selected:d.is_selected}} onPress={()=>choose(d.gregorian_date)} style={[s.day,d.is_selected?s.selected:null]}><Text style={s.text}>{d.day}</Text><Text style={s.small}>{d.gregorian_date.slice(5)}</Text>{d.is_today?<Text style={s.small}>Today</Text>:null}</TouchableOpacity>)}</View><Text style={s.title}>Days outside the months and weeks</Text>{data.extra_days.map((d:any)=><Button key={d.gregorian_date} label={d.label+' · '+d.gregorian_date} selected={d.is_selected} onPress={()=>choose(d.gregorian_date)}/>)}<Text style={s.text}>{data.note}</Text><ContentActions title={data.title} value={data} route="explore/calendar"/></>:null}</View>;
+}
+const s=StyleSheet.create({panel:{borderWidth:1,borderColor:'#ffffff80',borderRadius:20,padding:12,gap:12},text:{color:'#fff5fd',fontSize:15,lineHeight:22},title:{color:'#fff5fd',fontSize:21,fontWeight:'700',marginTop:14},small:{color:'#fff5fd',fontSize:10},input:{color:'#35174d',backgroundColor:'#fff6fc',borderRadius:12,padding:12,minHeight:48},row:{flexDirection:'row',flexWrap:'wrap',gap:6},button:{padding:12,minHeight:44,borderWidth:1,borderColor:'#fff8',borderRadius:12},selected:{borderColor:'#ffcf69',borderWidth:2},grid:{flexDirection:'row',flexWrap:'wrap'},day:{width:'14.2857%',minHeight:68,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#fff8',borderRadius:8}});

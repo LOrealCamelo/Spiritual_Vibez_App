@@ -1,3 +1,4 @@
+import {AstrocartographyReport} from './AstrocartographyReport';
 import {ContentActions,collectContentText} from './ContentActions';
 /** Daily astronomical data and city-based charts on both native platforms. */
 import React,{useEffect,useRef,useState} from 'react';
@@ -30,9 +31,11 @@ export function NativeBirthChart({tool='natal',onResult}:{tool?:string,onResult?
  const [name,setName]=useState(''),[date,setDate]=useState(''),[hour,setHour]=useState(''),[minute,setMinute]=useState('00');
  const [city,setCity]=useState(''),[country,setCountry]=useState('US'),[region,setRegion]=useState(''),[places,setPlaces]=useState<any[]>([]),[place,setPlace]=useState<any>(null);
  const [countries,setCountries]=useState<any[]>([]),[regions,setRegions]=useState<any[]>([]),[manual,setManual]=useState(false),[latitude,setLatitude]=useState(''),[longitude,setLongitude]=useState(''),[zone,setZone]=useState(''),[zones,setZones]=useState<string[]>([]);
+ const [focus,setFocus]=useState('home');
  const [zodiac,setZodiac]=useState('tropical'),[houses,setHouses]=useState('placidus'),[rulership,setRulership]=useState('modern'),[fold,setFold]=useState('');
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState<any>(null),[catalog,setCatalog]=useState<any[]>([]),[selected,setSelected]=useState([1,2,3,4]),[aspectMode,setAspectMode]=useState('major'),[asteroidQuery,setAsteroidQuery]=useState(''),[catalogTotal,setCatalogTotal]=useState(0),[catalogOffset,setCatalogOffset]=useState(0),[catalogMore,setCatalogMore]=useState(false),[asteroidRecords,setAsteroidRecords]=useState<Record<number,any>>({});
- const updateResult=(value:any)=>{setResult(value);onResult?.(value)};
+ const mounted=useRef(true);useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
+ const updateResult=(value:any)=>{if(mounted.current){setResult(value);onResult?.(value)}};
  const cityVersion=useRef(0);
  useEffect(()=>{let active=true;request('/astrology/locations/countries').then(r=>{if(active)setCountries(r.countries||[])}).catch(()=>{});return()=>{active=false}},[]);
  useEffect(()=>{let active=true;setPlace(null);setPlaces([]);updateResult(null);setFold('');
@@ -51,7 +54,7 @@ export function NativeBirthChart({tool='natal',onResult}:{tool?:string,onResult?
   if(!date||!/^(?:0[1-9]|1[0-2]) (?:AM|PM)$/.test(hour)||!/^\d{2}$/.test(minute)||Number(minute)>59){setError('Enter a birth date, choose an AM or PM birth hour, and minutes (00–59).');return}
   if(tool==='asteroids'&&!selected.length){setError('Choose at least one asteroid.');return}
   const [clockHour,period]=hour.split(' ');
-  setBusy(true);try{updateResult(await request('/astrology/'+(tool==='moon'?'moon-phase':tool==='asteroids'?'asteroids/natal-chart':'natal-chart'),{name,birth_date:date,birth_time:clockHour+':'+minute,birth_period:period,...(manual?{latitude:Number(latitude),longitude:Number(longitude),timezone:zone,city}:{place_id:place.place_id}),zodiac,house_system:houses,rulership,chart_system:'natal',time_fold:fold===''?null:Number(fold),...(tool==='asteroids'?{asteroid_ids:selected,aspect_mode:aspectMode}:{})},tool==='asteroids'?90000:20000))}catch(ex:any){setError(ex.message)}finally{setBusy(false)}
+  setBusy(true);try{updateResult(await request('/astrology/'+(tool==='moon'?'moon-phase':tool==='asteroids'?'asteroids/natal-chart':tool==='astro'?'astrocartography':'natal-chart'),{...(tool==='astro'?{focus}:{}),name,birth_date:date,birth_time:clockHour+':'+minute,birth_period:period,...(manual?{latitude:Number(latitude),longitude:Number(longitude),timezone:zone,city}:{place_id:place.place_id}),zodiac,house_system:houses,rulership,chart_system:'natal',time_fold:fold===''?null:Number(fold),...(tool==='asteroids'?{asteroid_ids:selected,aspect_mode:aspectMode}:{})},tool==='asteroids'?90000:20000))}catch(ex:any){setError(ex.message)}finally{setBusy(false)}
  };
  return <>
   <View style={s.panel}><Text style={s.title}>Your birth details</Text>
@@ -66,14 +69,15 @@ export function NativeBirthChart({tool='natal',onResult}:{tool?:string,onResult?
   {place?<Text style={s.body}>✓ {place.label} · {place.timezone}</Text>:null}
   <Button label={manual?'Use city dropdowns':'Birthplace missing? Use exact coordinates'} onPress={()=>{setManual(!manual);setFold('');updateResult(null)}}/>
   {manual?<><Text style={s.body}>Enter the exact location and historical IANA timezone. The app does not guess an unlisted birthplace.</Text><Input label="Latitude" value={latitude} onChange={setLatitude}/><Input label="Longitude" value={longitude} onChange={setLongitude}/><ClockDropdown label="Birthplace timezone" value={zone} options={zones.map(z=>[z,z])} onChange={v=>{setZone(v);setFold('')}}/></>:null}
-  <Text style={s.label}>Zodiac</Text><Choices values={[["tropical","Tropical"],["sidereal","Sidereal (Lahiri)"]]} value={zodiac} onChange={setZodiac}/>
+  {tool==='astro'?<><Text style={s.body}>Use the exact recorded birth time; even a few minutes can move your lines.</Text><Text style={s.label}>What would you like to explore?</Text><Choices values={[["home","Home & belonging"],["relationships","Relationships"],["career","Career & visibility"],["growth","Growth & exploration"],["retreat","Rest & reflection"],["reinvention","Reinvention"]]} value={focus} onChange={setFocus}/></>:null}
+  {tool!=='astro'?<><Text style={s.label}>Zodiac</Text><Choices values={[["tropical","Tropical"],["sidereal","Sidereal (Lahiri)"]]} value={zodiac} onChange={setZodiac}/>
   {tool!=='moon'?<><Text style={s.label}>House system</Text><Choices values={[["placidus","Placidus"],["whole_sign","Whole Sign"],["equal","Equal"]]} value={houses} onChange={setHouses}/><Text style={s.label}>House rulers</Text><Choices values={[["modern","Modern (10 planets)"],["traditional","Traditional (7 planets)"]]} value={rulership} onChange={setRulership}/></>:null}
   {tool==='asteroids'?<><Text style={s.title}>Select asteroids (up to 10)</Text><Text style={s.body}>Search the full NASA/JPL numbered-asteroid catalog. Ceres, Pallas, Juno and Vesta are defaults only.</Text><Input label="Find an asteroid by name or number" value={asteroidQuery} onChange={setAsteroidQuery}/><Button label="Search asteroids" onPress={()=>searchAsteroids()} disabled={busy}/><Text style={s.body}>{catalogTotal.toLocaleString()} matches · {selected.length} / 10 selected</Text><ClockDropdown label="Add an asteroid" value="" options={catalog.filter(a=>!selected.includes(a.id)).map(a=>[String(a.id),a.name+' ('+a.id+')'])} onChange={v=>{const id=Number(v);if(selected.length<10&&!selected.includes(id))setSelected([...selected,id]);else setError('Choose up to 10 asteroids.')}}/>{selected.map(id=><Button key={id} label={'Remove '+(asteroidRecords[id]?.name||String(id))} onPress={()=>setSelected(selected.filter(n=>n!==id))}/>)}{catalogOffset>0?<Button label="Previous 100 asteroids" onPress={()=>searchAsteroids(Math.max(0,catalogOffset-100))}/>:null}{catalogMore?<Button label="Next 100 asteroids" onPress={()=>searchAsteroids(catalogOffset+100)}/>:null}<Choices values={[["major","Show major aspects"],["hide","Hide aspects"]]} value={aspectMode} onChange={setAspectMode}/><Text style={s.body}>Only target IDs and your UTC birth instant are sent to NASA/JPL; your name and birthplace are not.</Text></>:null}
-  <Text style={s.body}>Birth time uses your city’s historical timezone. Sidereal uses Lahiri.</Text>
+  <Text style={s.body}>Birth time uses your city’s historical timezone. Sidereal uses Lahiri.</Text></>:null}
   {error.includes('occurred twice')?<><Text style={s.label}>This clock time occurred twice</Text><Choices values={[["0","First occurrence"],["1","Second occurrence"]]} value={fold} onChange={setFold}/></>:null}
   {error?<Text accessibilityRole="alert" style={s.error}>{error}</Text>:null}
-  <Button label={busy?'Working…':tool==='moon'?'Find my natal Moon':tool==='asteroids'?'Calculate asteroids':'Create my birth chart'} onPress={calculate} disabled={busy}/></View>
-  {result?.wheel_svg?<NativeChartReport result={result}/>:result?<View style={s.panel}><Text style={s.title}>{result.natal_moon_phase}</Text><Text style={s.body}>{result.moon_position} · {result.illumination_percentage}% illuminated</Text><Text style={s.body}>{result.description}</Text><Text style={s.body}>{result.birth_local_time} · {result.location.label}</Text><ContentActions title="Natal Moon phase" value={result} imageSvg={result.moon_image_svg} route="explore/moon"/></View>:null}
+  <Button label={busy?'Working…':tool==='moon'?'Find my natal Moon':tool==='asteroids'?'Calculate asteroids':tool==='astro'?'Create my astrocartography map':'Create my birth chart'} onPress={calculate} disabled={busy}/></View>
+  {result?.report_type==='astrocartography'?<AstrocartographyReport result={result}/>:result?.wheel_svg?<NativeChartReport result={result}/>:result?<View style={s.panel}><Text style={s.title}>{result.natal_moon_phase}</Text><Text style={s.body}>{result.moon_position} · {result.illumination_percentage}% illuminated</Text><Text style={s.body}>{result.description}</Text><Text style={s.body}>{result.birth_local_time} · {result.location.label}</Text><ContentActions title="Natal Moon phase" value={result} imageSvg={result.moon_image_svg} route="explore/moon"/></View>:null}
  </>;
 }
 

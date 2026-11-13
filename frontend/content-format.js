@@ -8,6 +8,7 @@
  function clean(value){return String(value??'').replace(/<svg[\s\S]*?<\/svg>/gi,'').replace(/<[^>]*>/g,'').replace(/[ \t]+/g,' ').trim();}
  function readable(value,depth=0){
   if(value==null||depth>15)return '';
+  if(value?.report_type==='astrocartography')return readable({title:value.title,name:value.name,birth_local_time:value.birth_local_time,birthplace:value.location?.label,focus:value.focus,planetary_themes:value.planets.map(p=>p.planet+': '+p.interpretation),angle_meanings:value.angle_meanings,places:value.places,inspected_location:value.inspected_location,proximity_note:value.proximity_note,note:value.note,method:value.method,map_credit:value.map_credit},depth+1);
   if(Array.isArray(value))return value.map(x=>readable(x,depth+1)).filter(Boolean).join('\n\n');
   if(typeof value==='object')return Object.entries(value).filter(([k,v])=>!hidden.has(k)&&!/_svg$/.test(k)&&v!=null).map(([key,v])=>{
    const body=readable(v,depth+1);if(!body)return '';

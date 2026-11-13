@@ -17,7 +17,7 @@ function currentContent(){
  const route=state.page+(state.page==='explore'&&state.tool?'/'+state.tool:'');
  const title=state.page==='explore'&&state.tool?getTool(state.tool)?.[2]:state.page==='spreads'&&state.selected?state.selected.title:state.page==='learn'&&state.cardDetail?state.cardDetail.name:{home:'Spiritual Vibz',spreads:'Tarot spreads',learn:'Learn Tarot',cosmos:'Moon cycles & daily reflection',journal:'My Journal'}[state.page];
  const result=state.page==='explore'?state.result:state.page==='learn'?state.cardDetail:null;
- return ContentFormat.snapshot({title,route,text:result?undefined:visibleContentText(document.querySelector('main.container')),value:result,imageUrl:state.page==='learn'?document.querySelector('#selected-card img')?.src:undefined,imageSvg:result?.wheel_svg||result?.moon_image_svg||(state.page==='cosmos'?state.transit?.moon?.image_svg:undefined)});
+ return ContentFormat.snapshot({title,route,text:result?undefined:visibleContentText(document.querySelector('main.container')),value:result,imageUrl:state.page==='learn'?document.querySelector('#selected-card img')?.src:undefined,imageSvg:result?.wheel_svg||result?.map_svg||result?.moon_image_svg||(state.page==='cosmos'?state.transit?.moon?.image_svg:undefined)});
 }
 function cardContent(node){
  const a=node.dataset.action,id=node.dataset.id;

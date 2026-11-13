@@ -83,12 +83,13 @@ def exercise(base_url, screenshots):
     assert 'These are general house meanings' in page.locator('main').inner_text()
     assert page.locator('[data-action="tool-run"]').count()==0
     requests.append(tool);continue
-   if tool in ['natal','moon','asteroids']:
+   if tool in ['natal','moon','asteroids','astro']:
     page.locator('#birth-name').fill('Sample Mystic');page.locator('#birth-hour').select_option('02 PM');page.locator('#birth-minute').select_option('30')
     choose_birth_city(page)
     assert page.locator('#birth-lat').count()==0 and page.locator('#birth-lon').count()==0
     if tool=='natal':
      page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(screenshots/'web/desktop/birth-time-form.png'),full_page=True)
+   if tool=='calendar':page.locator('#calendar-date').fill('2026-11-12')
    if tool=='asteroids':
     page.wait_for_function('asteroidUI.loaded&&!asteroidUI.loading')
     assert page.evaluate('asteroidUI.total')>10000
@@ -104,6 +105,42 @@ def exercise(base_url, screenshots):
     assert len(page.evaluate('state.result.asteroids'))==5
     assert 'NASA/JPL Horizons' in page.locator('.asteroid-report').inner_text()
     page.locator('.asteroid-report').screenshot(path=str(screenshots/'web/desktop/asteroid-report.png'))
+   if tool=='calendar':
+    assert page.locator('.equinox-day').count()==28
+    assert 'Month 9, Day 14' in page.locator('.equinox-calendar h2').inner_text()
+    page.locator('.equinox-months [data-month="13"]').click();page.wait_for_function('state.result?.month_number===13')
+    assert page.locator('.equinox-day').count()==28
+    assert 'Year Day' in page.locator('.equinox-calendar').inner_text()
+    page.screenshot(path=str(screenshots/'web/desktop/equinox-calendar.png'),full_page=True)
+   if tool=='astro':
+    assert page.locator('.astro-line').count()==40
+    assert page.locator('.astro-crossing').count()>100
+    assert 'three passes' in page.locator('.astro-guide h2').first.inner_text()
+    page.locator('[data-action="astro-place"][data-place-index="0"]').click()
+    assert 'Every line within 500 km' in page.locator('#astro-inspection').inner_text()
+    page.locator('#astro-city-query').fill('Paris');page.locator('[data-action="astro-search"]').click()
+    page.wait_for_selector('[data-action="astro-city"]')
+    paris=page.locator('[data-action="astro-city"]').filter(has_text='France').first
+    paris.click();assert 'France' in page.locator('#astro-inspection h3').inner_text()
+    page.locator('.astro-crossing').first.dispatch_event('click')
+    assert 'Crossing:' in page.locator('#astro-inspection h3').inner_text()
+    assert page.locator('.astro-pin').count()==1
+    assert len(page.evaluate('state.result.places'))==8
+    page.locator('[data-action="astro-layer"][data-planet="Sun"]').click()
+    page.locator('[data-action="astro-angle"][data-angle="IC"]').click()
+    assert 'Sun' in page.locator('#astro-active-line').inner_text() and 'home' in page.locator('#astro-active-line').inner_text()
+    assert page.locator('.astro-map g[data-planet="Venus"]').evaluate('(n)=>getComputedStyle(n).opacity')=='0.12'
+    page.locator('[data-action="astro-zoom"][data-step="1"]').click()
+    assert page.locator('.astro-map-canvas').evaluate('(n)=>n.style.width')=='150%'
+    page.locator('[data-action="astro-zoom"][data-step="-1"]').click()
+    page.locator('[data-action="astro-layer"][data-planet="All"]').click()
+    page.locator('[data-action="astro-angle"][data-angle="All"]').click()
+    page.locator('.astro-map').screenshot(path=str(screenshots/'web/desktop/astrocartography-map.png'))
+    for phone in [320,390,430]:
+     page.set_viewport_size({'width':phone,'height':844})
+     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),('astro map',phone)
+    page.locator('.astro-map').screenshot(path=str(screenshots/'web/phone/astrocartography-map.png'))
+    page.set_viewport_size({'width':1448,'height':1086})
    if tool in ['natal']:
     assert page.locator('.chart-wheel svg').count()==1
     assert page.evaluate('state.result.placements.length')==10 and page.evaluate('state.result.houses.length')==12

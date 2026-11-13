@@ -116,6 +116,18 @@ def content_actions_script():
 def serve_learning_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'learning.js'), media_type='text/javascript')
 
+@app.get('/equinox-calendar.js', include_in_schema=False)
+def serve_equinox_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'equinox-calendar.js'), media_type='text/javascript')
+
+@app.get('/astro-map-tools.js', include_in_schema=False)
+def serve_map_tools_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'astro-map-tools.js'), media_type='text/javascript')
+
+@app.get('/astrocartography.js', include_in_schema=False)
+def serve_astrocartography_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'astrocartography.js'), media_type='text/javascript')
+
 
 # The same 78 PNGs serve browsers and are bundled by Metro for iOS/Android.
 # Keep this specific mount before the general /assets mount.

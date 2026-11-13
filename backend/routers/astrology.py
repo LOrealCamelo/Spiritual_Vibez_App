@@ -7,13 +7,12 @@ from datetime import datetime
 import json
 from pathlib import Path
 from zoneinfo import available_timezones
-from ..models import BirthDataRequest, AsteroidBirthRequest, BaZiRequest, RelocationRequest
+from ..models import BirthDataRequest, AsteroidBirthRequest, AstrocartographyRequest, BaZiRequest, RelocationRequest
 from ..services.asteroid_charts import search_asteroids, asteroid_chart, EphemerisUnavailable
 from ..services.ephemeris_engine import (
     compute_planetary_positions,
     calculate_13_month_calendar,
     calculate_bazi_four_pillars,
-    calculate_astrocartography,
     MASTER_DATA
 )
 from ..services.birth_locations import birth_time_24h, resolve_birth, search_places, catalog, region_choices, city_choices
@@ -153,10 +152,18 @@ def calculate_asteroid_birth_chart(data: AsteroidBirthRequest):
     except EphemerisUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-@router.get("/lunar-calendar/{month_num}")
-def get_lunar_calendar(month_num: int = 13):
-    """Returns the 13-Month Natural Lunar Calendar (28-day harmonic cycle + Day Out of Time)."""
-    return calculate_13_month_calendar(month_num=month_num)
+@router.get('/calendar-13-month')
+def get_equinox_calendar(date: Optional[str] = None, timezone: str = 'UTC', year: Optional[int] = None, month: Optional[int] = None):
+    """Convert a civil date and browse thirteen 28-day months anchored to the March equinox."""
+    try:
+        return calculate_13_month_calendar(month, date, timezone, year)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+@router.get('/lunar-calendar/{month_num}', deprecated=True)
+def get_lunar_calendar(month_num: int = 13, date: Optional[str] = None, timezone: str = 'UTC', year: Optional[int] = None):
+    """Legacy URL; now returns the corrected solar/equinox calendar, without invented Moon phases."""
+    return get_equinox_calendar(date, timezone, year, month_num)
 
 @router.post("/bazi")
 @router.get("/bazi")
@@ -179,12 +186,28 @@ def get_bazi_pillars(
         )
     return calculate_bazi_four_pillars(year=birth_year, month=birth_month, day=birth_day, hour=birth_hour, polarity=polarity)
 
-@router.get("/astrocartography")
-def get_astrocartography_city(city: str = Query("Utica, NY")):
-    """Returns planetary power lines and relocated chart dynamics for a target city."""
-    return calculate_astrocartography(city=city)
+@router.post('/astrocartography')
+def calculate_astrocartography_map(data: AstrocartographyRequest):
+    from ..services.astrocartography import astrocartography_report
+    try:
+        return astrocartography_report(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-@router.post("/astrocartography/relocate")
+@router.get('/astrocartography/places')
+def search_map_places(query: str = Query(..., min_length=2, max_length=80)):
+    """Offline global city lookup for inspecting places after a personal map exists."""
+    from ..services.birth_locations import city_records, place_record, normalized
+    term=normalized(query)
+    found=[c for c in city_records().values() if normalized(c['name']).startswith(term)]
+    found.sort(key=lambda c:(normalized(c['name'])!=term,-c['population'],c['countrycode']))
+    return {'places':[place_record(c) for c in found[:20]]}
+
+@router.get('/astrocartography', deprecated=True)
+def get_astrocartography_city(city: Optional[str] = None):
+    raise HTTPException(status_code=422, detail='A destination alone cannot calculate your map. Submit your birth date, exact birth time and birthplace to this endpoint using POST.')
+
+@router.post('/astrocartography/relocate', deprecated=True)
 def post_astrocartography_relocation(req: RelocationRequest):
-    """Calculates relocated chart dynamics and planetary power lines for custom coordinates or city."""
-    return calculate_astrocartography(city=req.city, lat=req.latitude, lon=req.longitude)
+    """Legacy URL now uses real birth data; it no longer returns a preset city score."""
+    return calculate_astrocartography_map(req)

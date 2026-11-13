@@ -65,7 +65,7 @@ def main():
                         time.sleep(.5)
                 else:
                     raise RuntimeError('The extracted app did not start within five minutes.')
-                for route in ['/', '/app.js', '/cosmic.js', '/artwork.js', '/content-format.js', '/content-actions.js', '/styles.css', '/liquid-glass.css', '/assets/illustrations/cosmic.png', '/assets/tarot/00-the-fool.png', '/assets/ui_background.png',
+                for route in ['/', '/app.js', '/cosmic.js', '/equinox-calendar.js', '/astro-map-tools.js', '/astrocartography.js', '/artwork.js', '/content-format.js', '/content-actions.js', '/styles.css', '/liquid-glass.css', '/assets/illustrations/cosmic.png', '/assets/tarot/00-the-fool.png', '/assets/ui_background.png',
                               '/assets/footer.png', '/assets/cartoon_me_transparent3.png']:
                     with http.open(address + route) as response:
                         assert response.status == 200, route

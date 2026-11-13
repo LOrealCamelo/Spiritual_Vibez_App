@@ -42,8 +42,8 @@ def run_all_tests():
     bazi = astrology.get_bazi_pillars(body=BaZiRequest(birth_year=1996, polarity="Yin Feminine"))
     assert "year_pillar" in bazi["pillars"] and "day_master" in bazi["pillars"]
 
-    reloc = astrology.post_astrocartography_relocation(RelocationRequest(city="Utica, NY"))
-    assert reloc["city"] == "Utica, NY" and "Sun MC Line" in reloc["dominant_planet_line"]
+    reloc = astrology.post_astrocartography_relocation(RelocationRequest(birth_date="1996-11-05", birth_time="14:30", place_id="5142056"))
+    assert reloc["report_type"] == "astrocartography" and len(reloc["planets"]) == 10
 
     # 2. Numerology & Synastry
     lp = synastry.calculate_life_path(LifePathRequest(birth_month=11, birth_day=5, birth_year=1996))

@@ -1,7 +1,7 @@
 """
 AuraMystic Astronomical, Ephemeris, BaZi, Lunar Calendar & Astrocartography Engine
-Shared astronomy calls delegate to sky_engine. Legacy symbolic calendar, BaZi and
-astrocartography helpers remain below; their calculations are outside that validation.
+Shared astronomy calls delegate to sky_engine. The equinox calendar and birth-based
+astrocartography live in dedicated services. Symbolic BaZi helpers remain below.
 """
 import math
 import json
@@ -54,47 +54,11 @@ def calculate_multi_system_chart(birth_date, birth_time, latitude, longitude, sy
     return natal_chart(dt, latitude, longitude, chart_system=system)
 
 
-def calculate_13_month_calendar(month_num: int = 13) -> Dict[str, Any]:
-    month_num = max(1, min(13, month_num))
-    moon_names = {
-        1: ("Magnetic Bat Moon", "Purpose", "July 26 – August 22"),
-        2: ("Lunar Scorpion Moon", "Challenge", "August 23 – September 19"),
-        3: ("Electric Deer Moon", "Service", "September 20 – October 17"),
-        4: ("Self-Existing Owl Moon", "Form", "October 18 – November 14"),
-        5: ("Overtone Peacock Moon", "Radiance", "November 15 – December 12"),
-        6: ("Rhythmic Lizard Moon", "Equality", "December 13 – January 9"),
-        7: ("Resonant Monkey Moon", "Attunement", "January 10 – February 6"),
-        8: ("Galactic Hawk Moon", "Integrity", "February 7 – March 6"),
-        9: ("Solar Jaguar Moon", "Intention", "March 7 – April 3"),
-        10: ("Planetary Dog Moon", "Manifestation", "April 4 – May 1"),
-        11: ("Spectral Serpent Moon", "Liberation", "May 2 – May 29"),
-        12: ("Crystal Rabbit Moon", "Cooperation", "May 30 – June 26"),
-        13: ("Cosmic Turtle Moon", "Endurance & Presence", "June 27 – July 24")
-    }
-    name, totem_power, date_span = moon_names[month_num]
-    days = []
-    for d in range(1, 29):
-        phase = "Full Moon Peak 🌕" if d == 14 else ("New Moon Seed 🌑" if d in (1, 28) else ("First Quarter 🌓" if d == 7 else ("Last Quarter 🌗" if d == 21 else "Harmonic Flow •")))
-        days.append({
-            "day": d,
-            "week": (d - 1) // 7 + 1,
-            "phase_marker": phase,
-            "is_portal_day": d in (1, 7, 14, 21, 28)
-        })
-    return {
-        "month_number": month_num,
-        "moon_name": name,
-        "totem_keyword": totem_power,
-        "solar_date_range": date_span,
-        "days_in_cycle": 28,
-        "total_cycles": 13,
-        "day_out_of_time": {
-            "date": "July 25",
-            "title": "Day Out of Time (Galactic Freedom Day)",
-            "description": "Universal celebration day of artistic freedom, peace, forgiveness, and spiritual rebirth preceding the galactic new year on July 26."
-        },
-        "days": days
-    }
+def calculate_13_month_calendar(month_num=None, date_str=None, timezone_name='UTC', calendar_year=None):
+    """Compatibility wrapper for the corrected equinox-based 13-month calendar."""
+    from .equinox_calendar import equinox_calendar
+    return equinox_calendar(date_str, timezone_name, calendar_year, month_num)
+
 
 def calculate_bazi_four_pillars(year: int = 1996, month: int = 11, day: int = 5, hour: int = 14, polarity: str = "Yin Feminine") -> Dict[str, Any]:
     stems = [
@@ -159,32 +123,6 @@ def calculate_bazi_four_pillars(year: int = 1996, month: int = 11, day: int = 5,
         )
     }
 
-def calculate_astrocartography(city: str = "Utica, NY", lat: Optional[float] = None, lon: Optional[float] = None) -> Dict[str, Any]:
-    cities = MASTER_DATA.get("cityData", {})
-    city_coords = {
-        "Utica, NY": (43.1009, -75.2327, "9.4 / 10 Excellent", ["Sun Line (Leadership)", "Venus Line (Harmony & Love)", "Jupiter Line (Wealth & Expansion)"], "Sun Midheaven & Jupiter Trine Active"),
-        "New York City": (40.7128, -74.0060, "9.1 / 10 High Acceleration", ["Mercury MC Line (Commerce)", "Sun Ascendant (Visibility)", "Mars Trine (Drive)"], "Mercury Midheaven & Venus Sextile Active"),
-        "Sedona, AZ": (34.8697, -111.7610, "9.7 / 10 Psychic Vortex", ["Neptune IC Line (Mysticism)", "Pluto Trine (Alchemy)", "Moon Node (Destiny)"], "Neptune IC & Pluto Trine Active"),
-        "Los Angeles, CA": (34.0522, -118.2437, "9.2 / 10 Creative Glamour", ["Venus Ascendant (Magnetism)", "Sun Trine (Cinema & Media)", "Jupiter Sextile"], "Venus Ascendant & Sun Trine Active"),
-        "London, UK": (51.5074, -0.1278, "8.9 / 10 Global Expansion", ["Jupiter Descendant (Alliances)", "Saturn MC (Prestige)", "Mercury Sextile"], "Jupiter Descendant & Saturn MC Active"),
-        "Tokyo, Japan": (35.6762, 139.6503, "9.0 / 10 Tech & Innovation", ["Mars Midheaven (Execution)", "Uranus Ascendant (Future AI)", "Mercury Trine"], "Mars Midheaven & Uranus Trine Active"),
-        "Bali, Indonesia": (-8.4095, 115.1889, "9.6 / 10 Somatic Sanctuary", ["Moon IC Line (Rebirth)", "Venus Trine (Sacred Healing)", "Neptune Sextile"], "Moon IC & Venus Trine Active")
-    }
-    base = cities.get(city, cities.get("Utica, NY"))
-    coords = city_coords.get(city, city_coords["Utica, NY"])
-    use_lat = lat if lat is not None else coords[0]
-    use_lon = lon if lon is not None else coords[1]
-
-    return {
-        "city": city,
-        "latitude": use_lat,
-        "longitude": use_lon,
-        "coordinates_formatted": f"LAT {abs(use_lat):.4f}° {'N' if use_lat >= 0 else 'S'} • LONG {abs(use_lon):.4f}° {'E' if use_lon >= 0 else 'W'}",
-        "relocated_ascendant": base["asc"],
-        "dominant_planet_line": base["line"],
-        "active_aspects": coords[4],
-        "planetary_lines": coords[3],
-        "spiritual_affinity_score": coords[2],
-        "description": base["desc"],
-        "available_cities": list(cities.keys())
-    }
+def calculate_astrocartography(data):
+    from .astrocartography import astrocartography_report
+    return astrocartography_report(data)

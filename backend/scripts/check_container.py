@@ -29,7 +29,7 @@ def main():
                     if response.status==200:break
             except OSError:time.sleep(1)
         else:raise RuntimeError('Container did not become healthy on its Render PORT.')
-        paths=['/','/app.js','/liquid-glass.css','/artwork.js','/assets/cosmos-night-sky.png','/assets/illustrations/cosmic.png','/assets/tarot/00-the-fool.png','/assets/tarot/77-king-of-pentacles.png']
+        paths=['/','/app.js','/equinox-calendar.js','/astro-map-tools.js','/astrocartography.js','/liquid-glass.css','/artwork.js','/assets/cosmos-night-sky.png','/assets/illustrations/cosmic.png','/assets/tarot/00-the-fool.png','/assets/tarot/77-king-of-pentacles.png']
         for path in paths:
             with http.open(address+path,timeout=10) as response:
                 content=response.read()

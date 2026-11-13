@@ -20,3 +20,10 @@ test('image summaries stay bounded while accompanying text preserves the full re
 test('the browser and native app use exactly the same result formatter',()=>{
  assert.deepEqual(fs.readFileSync(path.join(__dirname,'../content-format.js')),fs.readFileSync(path.join(__dirname,'../../mobile/src/content/content-format.js')));
 });
+test('astrocartography shares readable places and themes without dumping map coordinates',()=>{
+ const report=require('../../mobile/__tests__/fixtures/astrocartography.json');
+ const text=Format.message(Format.snapshot({title:report.title,value:report,route:'explore/astro',imageSvg:report.map_svg}));
+ assert.ok(text.includes('Venus')&&text.includes(report.places[0].city)&&text.includes('Get your own here:'));
+ assert.doesNotMatch(text,/right_ascension_hours|mc_longitude|<svg|\[\[/);
+ assert.ok(text.length<15000);
+});

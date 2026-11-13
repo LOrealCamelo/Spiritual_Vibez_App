@@ -8,6 +8,8 @@ import App,{HomeScreen,SpreadsScreen,LearnScreen,JournalScreen,ExploreScreen,Cos
 import {IllustratedCard,IllustratedToolCard,PanelIllustration,SpreadIllustration,UI_PANELS} from '../src/components/IllustratedCard';
 import {LearningCard} from '../src/components/LearningCard';
 import {NativeChartReport,NativeMoonCalendar} from '../src/components/CosmicTools';
+import {EquinoxCalendar} from '../src/components/EquinoxCalendar';
+import {AstrocartographyReport} from '../src/components/AstrocartographyReport';
 import {matchesVibe} from '../src/api/spreads';
 import {SvgXml} from 'react-native-svg';
 
@@ -160,7 +162,7 @@ test('connected spread artwork uses canonical API IDs and the full backend layou
 test.each([
   ['bazi','/astrology/bazi','POST'],
 
-  ['astro','/astrology/astrocartography','GET'],['calendar','/astrology/lunar-calendar/1','GET'],
+
   ['life','/synastry/life-path','POST'],['numbers','/synastry/life-path','POST'],
   ['love','/synastry/compatibility','POST'],['sound','/rituals/frequencies','GET'],
   ['rituals','/rituals/search','GET'],['shadow','/wellness/shadow-prompts','GET'],
@@ -337,4 +339,74 @@ test('desktop Home retains its existing composition and scroll spacing',async()=
  expect(tree.root.findAllByType(IllustratedCard)).toHaveLength(0);
  const scroll=tree.root.findAllByType(ScrollView).find(n=>n.props.contentContainerStyle)!;expect(StyleSheet.flatten(scroll.props.contentContainerStyle).paddingBottom).toBe(110);
  expect(tree.root.findByType(ReferenceHome).findAllByType(TouchableOpacity)).toHaveLength(6);
+});
+
+test('13-month calendar converts a chosen date, browses Month 13 and exposes Year Day',async()=>{
+ const normal=require('./fixtures/equinoxCalendar.json'),last=require('./fixtures/equinoxMonth13.json'),extra=require('./fixtures/equinoxYearDay.json');
+ const onResult=jest.fn();
+ globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('2027-03-19')?extra:url.includes('month=13')?last:normal}));
+ await render(<EquinoxCalendar onResult={onResult}/>);
+ const input=()=>tree.root.findAllByType(TextInput).find(n=>n.props.accessibilityLabel==='Calendar Gregorian date')!;
+ await act(async()=>input().props.onChangeText('2026-11-12'));await press('Show calendar');
+ expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)[0])).toContain('/calendar-13-month?date=2026-11-12');
+ expect(text()).toContain('Month 9, Day 14');
+ expect(tree.root.findAllByType(TouchableOpacity).filter(n=>/^Month 9, Day /.test(n.props.accessibilityLabel))).toHaveLength(28);
+ await press('Month 13');expect(onResult.mock.calls.at(-1)[0].month_number).toBe(13);
+ await press('Year Day · 2027-03-19');expect(text()).toContain('Year Day · Equinox year 2026');
+ expect(input().props.value).toBe('2027-03-19');
+});
+
+test('calendar shows backend validation errors instead of a fabricated conversion',async()=>{
+ globalThis.fetch=jest.fn().mockResolvedValue({ok:false,json:async()=>({detail:'Enter a valid Gregorian date (YYYY-MM-DD).'})});
+ await render(<EquinoxCalendar onResult={jest.fn()}/>);await press('Show calendar');
+ expect(text()).toContain('Enter a valid Gregorian date');
+ expect(tree.root.findAllByType(TouchableOpacity).filter(n=>/^Month \d+, Day /.test(n.props.accessibilityLabel))).toHaveLength(0);
+});
+
+test('native astrocartography collects exact birth details and requests a personal map',async()=>{
+ const result=require('./fixtures/astrocartography.json');const place={place_id:'5142056',label:'Utica, New York, United States',timezone:'America/New_York'};
+ globalThis.fetch=jest.fn().mockImplementation(async(url:string)=>({ok:true,json:async()=>url.includes('/locations/countries')?{countries:[{code:'US',name:'United States'}]}:url.includes('/locations/regions')?{regions:[{code:'NY',name:'New York'}]}:url.includes('/locations/cities')?{places:[place]}:result}));
+ await render(<ExploreScreen route={{params:{tool:'astro'}}} navigation={{goBack:jest.fn()}}/>);
+ expect(text()).not.toContain('Destination city');
+ const fill=async(label:string,value:string)=>act(async()=>tree.root.findAllByType(TextInput).find(n=>n.props.accessibilityLabel===label)!.props.onChangeText(value));
+ await fill('Birth date YYYY-MM-DD','1996-11-05');await press('Hour (AM/PM)');await press('Select 2 PM');await press('Minutes');await press('Select 30');await press('City of birth');await press('Select '+place.label);await press('Career & visibility');await press('Create my astrocartography map');
+ const [url,options]=(globalThis.fetch as jest.Mock).mock.calls.at(-1)!;
+ expect(url).toContain('/astrology/astrocartography');expect(options.method).toBe('POST');
+ expect(JSON.parse(options.body)).toMatchObject({birth_date:'1996-11-05',birth_time:'02:30',birth_period:'PM',place_id:'5142056',focus:'career'});
+ expect(tree.root.findAllByType(SvgXml).some(n=>n.props.xml.includes('astro-line'))).toBe(true);
+ expect(text()).toContain('Places to explore for');
+});
+
+test('native world map planet and angle layers respond to selection and zoom',async()=>{
+ await render(<AstrocartographyReport result={require('./fixtures/astrocartography.json')}/>);
+ const map=()=>tree.root.findAllByType(SvgXml).find(n=>n.props.xml.includes('astro-line'))!;
+ const width=map().props.width;await press('Sun');await press('IC');
+ expect(map().props.xml).toContain('<g data-planet="Venus" opacity=".12"');
+ expect(map().props.xml).toContain('opacity=".08"');
+ expect(text()).toContain('Lower culmination: home');
+ await press('Zoom in');expect(map().props.width).toBeGreaterThan(width);
+});
+
+test('native map tap reads a real crossing and includes the three-pass guide',async()=>{
+ const result=require('./fixtures/astrocartography.json');
+ await render(<AstrocartographyReport result={result}/>);
+ const point=result.crossings.find((p:any)=>p.planet_a==='Sun'&&p.planet_b==='Jupiter');
+ const map=tree.root.findAllByType(SvgXml).find(n=>n.props.xml.includes('astro-line'))!;
+ const target=tree.root.findAllByType(TouchableOpacity).find(n=>n.props.accessibilityLabel==='Inspect map location')!;
+ await act(async()=>target.props.onPress({nativeEvent:{locationX:(point.longitude+180)*map.props.width/360,locationY:(90-point.latitude)*map.props.height/180}}));
+ expect(text()).toContain('Crossing: Sun');expect(text()).toContain('Every line within 500 km');
+ expect(text()).toContain('How to read your astrocartography map: three passes');
+ expect(text()).toContain('Relocation chart');expect(text()).toContain('Astronomy Engine');
+ expect(tree.root.findAllByType(SvgXml).some(n=>n.props.xml.includes('r="8"'))).toBe(true);
+});
+
+test('native map city lookup inspects the chosen country and its full nearby-line list',async()=>{
+ const place={place_id:'2988507',label:'Paris, Île-de-France, France',latitude:48.85341,longitude:2.3488};
+ globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({places:[place]})});
+ await render(<AstrocartographyReport result={require('./fixtures/astrocartography.json')}/>);
+ const input=tree.root.findAllByType(TextInput).find(n=>n.props.accessibilityLabel==='Map city search')!;
+ await act(async()=>input.props.onChangeText('Paris'));await press('Find places');await press(place.label);
+ expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)[0])).toContain('/astrocartography/places?query=Paris');
+ expect(text()).toContain('Every line within 500 km');
+ expect(text()).toContain('48.853');
 });
