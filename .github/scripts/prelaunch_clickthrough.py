@@ -85,6 +85,115 @@ def manifest_check(page):
     assert "json" in (response.get("type") or ""),response
     return "HTTP 200, manifest JSON available"
 
+
+def fill_birthplace(page):
+    page.locator("#birth-name").fill("Sample Mystic")
+    page.locator("#birth-date").fill("1996-11-05")
+    page.locator("#birth-hour").select_option("02 PM")
+    page.locator("#birth-minute").select_option("30")
+    page.wait_for_selector('#birth-country option[value="US"]',timeout=25000)
+    page.locator("#birth-country").select_option("US")
+    page.wait_for_selector('#birth-region option[value="NY"]',timeout=25000)
+    page.locator("#birth-region").select_option("NY")
+    page.wait_for_function('birthLocations.key.includes("US|NY|")&&!birthLocations.loading',timeout=25000)
+    page.locator("#birth-city").fill("Utica")
+    page.locator('[data-action="birth-search"]').click()
+    page.wait_for_selector('#birth-city-select option[value="5142056"]',timeout=25000)
+    page.locator("#birth-city-select").select_option("5142056")
+    assert "America/New_York" in page.locator("#birth-place-results").inner_text()
+
+def run_birth(page,tool,timeout=90000):
+    visit_tool(page,tool)
+    fill_birthplace(page)
+    page.locator('[data-action="tool-run"]').click()
+    page.wait_for_function('state.result!==null||state.error!==""',timeout=timeout)
+    err=page.evaluate("state.error")
+    assert not err,"Birth calculation error: "+str(err)
+    assert page.evaluate("state.result!==null")
+    return page.evaluate("state.result")
+
+def test_deep_calculations(page):
+    page.set_viewport_size({"width":1448,"height":900})
+    def natal():
+        result=run_birth(page,"natal")
+        assert len(result["placements"])==10,"Expected 10 planets"
+        assert len(result["houses"])==12,"Expected 12 houses"
+        assert result["birth_utc"]=="1996-11-05T19:30:00+00:00",result["birth_utc"]
+        assert page.locator(".chart-wheel svg").count()==1
+        assert len(result["angles"])==4
+        return "10 planets, 12 houses, 4 angles, correct NY timezone, chart wheel"
+    test("advanced astrology","complete natal chart",natal)
+    def change_time():
+        result=run_birth(page,"natal")
+        pm=result["ascendant"]
+        page.locator("#birth-hour").select_option("02 AM")
+        page.locator('[data-action="tool-run"]').click()
+        page.wait_for_function('state.result?.birth_utc==="1996-11-05T07:30:00+00:00"',timeout=90000)
+        am=page.evaluate("state.result")
+        assert pm!=am["ascendant"],"Ascendant must differ between 2 AM and 2 PM"
+        return f"2 PM ascendant {pm}, 2 AM ascendant {am['ascendant']}"
+    test("advanced astrology","birth-time sensitivity",change_time)
+    def sidereal():
+        result=run_birth(page,"natal")
+        original=result["placements"][0]["longitude"]
+        page.locator("#report-zodiac").select_option("sidereal")
+        page.wait_for_function('state.result?.zodiac==="sidereal"',timeout=90000)
+        change=page.evaluate("state.result")
+        assert abs(original-change["placements"][0]["longitude"])>1,"Zodiac did not shift"
+        return "Switch to sidereal changes chart placements"
+    test("advanced astrology","tropical and sidereal",sidereal)
+    def natal_moon():
+        result=run_birth(page,"moon")
+        assert result.get("natal_moon_phase"),list(result)
+        return "Natal moon phase "+str(result.get("natal_moon_phase"))
+    test("advanced astrology","natal moon phase",natal_moon)
+    def asteroids():
+        visit_tool(page,"asteroids")
+        fill_birthplace(page)
+        page.wait_for_function('asteroidUI.loaded&&!asteroidUI.loading',timeout=55000)
+        total=page.evaluate("asteroidUI.total")
+        assert total>10000,total
+        page.locator("#asteroid-query").fill("1008")
+        page.locator('[data-action="asteroid-search"]').click()
+        page.wait_for_selector('#asteroid-add option[value="1008"]',timeout=35000)
+        page.locator("#asteroid-add").select_option("1008")
+        page.locator('[data-action="tool-run"]').click()
+        page.wait_for_function('state.result!==null||state.error!==""',timeout=90000)
+        err=page.evaluate("state.error")
+        assert not err,err
+        count=len(page.evaluate("state.result.asteroids"))
+        assert count==5,f"Expected 5 selected asteroids, got {count}"
+        assert "NASA/JPL Horizons" in page.locator(".asteroid-report").inner_text()
+        return f"Loaded {total} catalog records, computed {count} asteroid positions"
+    test("advanced astrology","asteroid catalog and positions",asteroids)
+    def astrocarto():
+        result=run_birth(page,"astro",timeout=110000)
+        lines=page.locator(".astro-line").count()
+        crossing=page.locator(".astro-crossing").count()
+        assert lines==40,lines
+        assert crossing>100,crossing
+        assert len(result["places"])==8
+        page.locator('[data-action="astro-layer"][data-planet="Sun"]').click()
+        page.locator('[data-action="astro-angle"][data-angle="IC"]').click()
+        assert "Sun" in page.locator("#astro-active-line").inner_text()
+        page.locator('[data-action="astro-angle"][data-angle="All"]').click()
+        page.locator('[data-action="astro-layer"][data-planet="All"]').click()
+        return f"{lines} planetary lines, {crossing} crossings, 8 places, working filters"
+    test("advanced astrology","astrocartography map",astrocarto)
+    def moon_calendar():
+        navigate(page,"cosmos")
+        page.wait_for_function('state.transit!==null&&!skyUI.loading',timeout=90000)
+        page.wait_for_function('moonUI.data!==null&&!moonUI.loading',timeout=90000)
+        page.locator("#moon-month").fill("2026-11")
+        page.locator("#moon-month").dispatch_event("change")
+        page.wait_for_function("moonUI.data?.year===2026&&moonUI.data?.month===11&&!moonUI.loading",timeout=90000)
+        days=page.locator(".moon-calendar-grid [data-action='moon-day']").count()
+        assert days==30,days
+        planets=page.evaluate("state.transit.planets.length")
+        assert planets==10,planets
+        return f"Moon calendar for November 2026 displays 30 days and {planets} planetary transits"
+    test("advanced astrology","moon calendar and daily transits",moon_calendar)
+
 def clicks(page,origin):
     page.on("pageerror",lambda exc: JS_ERRORS.append(str(exc)[:450]))
     page.on("response",lambda r: HTTP_ERRORS.append((r.status,r.url)) if r.status>=400 and "/api/" in r.url else None)
@@ -179,6 +288,7 @@ def clicks(page,origin):
         page.screenshot(path=str(ROOT/"mobile-journal.png"),full_page=True,animations="disabled")
         return "all 6 mobile tabs open, no horizontal overflow"
     test("mobile","390px mobile navigation and overflow",mobile)
+    test_deep_calculations(page)
     save("browser","JavaScript page errors",not JS_ERRORS,json.dumps(JS_ERRORS[:10]))
     save("browser","HTTP API responses without errors",not HTTP_ERRORS,json.dumps(HTTP_ERRORS[:10]))
 
