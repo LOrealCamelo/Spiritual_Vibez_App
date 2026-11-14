@@ -197,7 +197,7 @@ const CARD_PANELS={
 // custom domain still passes through Cloudflare, so it keeps original assets
 // until its DNS/hosting is verified and transferred intentionally.
 function optimizedAsset(path,width){
- if(!location.hostname.endsWith('.netlify.app'))return path;
+ if(typeof location==='undefined'||!String(location.hostname||'').endsWith('.netlify.app'))return path;
  const localPath=path.startsWith('/')?path.slice(1):path;
  if(!localPath.startsWith('assets/')||!localPath.split('/').every(part=>/^[a-zA-Z0-9_.-]+$/.test(part)))return path;
  return '/.netlify/images?url='+encodeURIComponent('/'+localPath)+'&w='+Math.max(64,Math.round(width))+'&q=75';
