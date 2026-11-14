@@ -1,7 +1,7 @@
 /* Shared readable exports. Never publish a person's chart data in an invite URL. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ContentFormat=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const APP_URL='https://spiritual-vibez-app.onrender.com/';
+ const APP_URL='https://app.neurospicymystic.com/';
  const hidden=new Set(['id','session_id','user_id','brand','wheel_svg','image_svg','moon_image_svg','moon_image_url','image_url','raw','raw_response']);
  const labels={bazi:'BaZi',birth_year:'Birth year',animal_sign:'Zodiac animal',stem_branch_title:'Year sign',year_pillar:'Year pillar',month_pillar:'Month pillar',day_master:'Day master',hour_pillar:'Hour pillar',domain:'Represents',natal_moon_phase:'Natal Moon phase',description_upright:'Upright meaning',description_reversed:'Reversed meaning',birth_utc:'Birth time (UTC)',birth_local_time:'Local birth time'};
  function label(key){return labels[key]||String(key).replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
