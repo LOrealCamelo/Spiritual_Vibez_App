@@ -11,6 +11,7 @@ HOSTS = {
     "Render": "https://spiritual-vibez-app.onrender.com",
     "Worker.dev": "https://spiritual-vibez-app.workwithloreal.workers.dev",
     "Cloudflare": "https://app.neurospicymystic.com",
+    "Netlify": "https://spiritualvibz.netlify.app",
 }
 ROUTES = {
     "/api/health": "health",
