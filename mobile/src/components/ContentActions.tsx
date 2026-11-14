@@ -53,7 +53,7 @@ export function ContentActions(props:ContentProps){
     <Text style={styles.exportBody}>{preview.imageSources?.length?preview.text:Format.summary(preview)}</Text><View style={styles.rule}/><Text style={styles.cta}>Get your own here</Text><Text style={styles.url}>{preview.url}</Text>
    </View>
   </ScrollView>
-  <Text style={styles.note}>One share includes all cards or chart artwork, the complete reading text, and the app link.</Text><View style={styles.row}>
+  <Text style={styles.note}>One share includes all card or chart artwork and the complete text. Review birth details and personal reflections before sending.</Text><View style={styles.row}>
    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share full reading" disabled={busy||!ready} onPress={send} style={styles.previewAction}>{busy?<ActivityIndicator color="#35174d"/>:<Text style={styles.lightInk}>Share full reading</Text>}</TouchableOpacity>
    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close share preview" disabled={busy} onPress={()=>setPreview(null)} style={styles.previewAction}><Text style={styles.lightInk}>Close</Text></TouchableOpacity>
   </View>
