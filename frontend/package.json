@@ -1,0 +1,11 @@
+{
+  "name": "spiritual-vibez-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test ./tests/cloudflare-api.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.162.0"
+  }
+}

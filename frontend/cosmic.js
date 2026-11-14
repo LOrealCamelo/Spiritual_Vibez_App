@@ -59,7 +59,7 @@ async function calculateBirth(){const requestedTool=state.tool,b=birthFormState;
  ...(state.tool==='astro'?{focus:b.astroFocus}:{}),name:b.name,birth_date:b.date,birth_time:hour+':'+b.minute,birth_period:period,...(b.manual?{latitude:Number(b.latitude),longitude:Number(b.longitude),timezone:b.timezone,city:b.manualCity}:{place_id:b.place.place_id}),
  ...(state.tool==='asteroids'?{asteroid_ids:b.asteroids,aspect_mode:b.aspectMode}:{}),
  zodiac:b.zodiac,house_system:b.houses,rulership:b.rulership,chart_system:'natal',time_fold:b.fold===''?null:Number(b.fold)
- },state.tool==='asteroids'?90000:15000);if(state.tool===requestedTool)state.result=result;}catch(ex){if(state.tool===requestedTool)state.error=ex.message}b.busy=false;if(state.tool===requestedTool){render();document.querySelector('.birth-report')?.scrollIntoView({behavior:'smooth',block:'start'});}}
+ },state.tool==='asteroids'?90000:60000);if(state.tool===requestedTool)state.result=result;}catch(ex){if(state.tool===requestedTool)state.error=ex.message}b.busy=false;if(state.tool===requestedTool){render();document.querySelector('.birth-report')?.scrollIntoView({behavior:'smooth',block:'start'});}}
 function birthLocalLabel(o){try{return new Date(o.birth_local_time).toLocaleString(undefined,{timeZone:o.location.timezone,year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZoneName:'short'})}catch{return o.birth_local_time}}
 function aspectLine(a){return e(a.planet_a)+' '+e(a.aspect)+' '+e(a.planet_b)+' · '+e(a.orb_formatted||a.orb.toFixed(2)+'°')+(a.motion?' · '+e(a.motion):'')}
 function symbolicPosition(p){return e(p.display_sign_glyph||p.sign_glyph||'')+' '+e(p.degree_formatted||p.formatted)+' <small>'+e(p.display_sign||p.sign)+'</small>'}

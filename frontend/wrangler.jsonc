@@ -1,0 +1,10 @@
+{
+  "name": "spiritual-vibez-app",
+  "main": "./cloudflare-api.js",
+  "compatibility_date": "2026-11-14",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/assets/tarot/*"]
+  }
+}

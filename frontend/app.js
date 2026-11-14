@@ -40,8 +40,8 @@ const selector=(label,id,values,selected,labels={})=>'<label class="field">'+e(l
 const chip=(text,action,active=false,attrs='')=>'<button class="chip '+(active?'active':'')+'" data-action="'+action+'" '+attrs+'>'+e(text)+'</button>';
 const notice=(text,kind='')=>'<div class="note '+kind+'">'+e(text)+'</div>';
 const heading=(h,desc)=>'<header class="page-head"><div class="kicker">SPIRITUAL VIBZ · ZODIAC, TAROT & MORE ✦</div><h1 class="page-title">'+h+'</h1><p class="page-desc">'+desc+'</p></header>';
-async function api(path,options){const {timeoutMs=10000,...requestOptions}=options||{};const r=await fetch(API+path,{...requestOptions,signal:AbortSignal.timeout(timeoutMs)});if(!r.ok){let data;try{data=await r.json()}catch{}throw Error(typeof data?.detail==='string'?data.detail:'API '+r.status)}return r.json()}
-const post=(path,data,timeoutMs=10000)=>api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),timeoutMs});
+async function api(path,options){const {timeoutMs=60000,...requestOptions}=options||{};const r=await fetch(API+path,{...requestOptions,signal:AbortSignal.timeout(timeoutMs)});if(!r.ok){let data;try{data=await r.json()}catch{}throw Error(typeof data?.detail==='string'?data.detail:'API '+r.status)}return r.json()}
+const post=(path,data,timeoutMs=60000)=>api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),timeoutMs});
 function transition(page,sub=null){state.page=page;state.tool=page==='explore'&&allTools.some(t=>t[0]===sub)?sub:null;state.error='';state.result=null;window.location.hash=page+(sub?'/'+sub:'');render();if(page==='cosmos')fetchDailySky();window.scrollTo({top:0,behavior:'instant'});}
 const artButton=(file,label,action,attrs='',extra='')=>'<button class="art-button '+panelClasses(file)+'" data-panel="'+file+'" data-action="'+action+'" aria-label="'+e(label)+'" '+attrs+'>'+panelContents(file,extra)+'</button>';
 const artHeader=(file,label)=>'<section class="art-header '+panelClasses(file)+'" data-panel="'+file+'" aria-label="'+e(label)+'">'+panelContents(file)+'</section>';

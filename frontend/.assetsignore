@@ -1,0 +1,9 @@
+node_modules/
+.wrangler/
+scripts/
+tests/
+cloudflare-api.js
+wrangler.jsonc
+package.json
+package-lock.json
+.assetsignore
