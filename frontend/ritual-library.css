@@ -1,0 +1,78 @@
+/* SpiritualVibz · illustrated ritual library. Scoped to this page only. */
+.sv-ritual-library{color:#fff8f1;max-width:1260px;margin:8px auto 42px;padding:clamp(14px,2.4vw,30px);border-radius:26px;border:1px solid #a87b96;background:linear-gradient(145deg,#311e3d 0%,#4e2d50 55%,#36243f 100%);box-shadow:0 22px 58px #170a2c75;isolation:isolate}
+.sv-ritual-library *{box-sizing:border-box}
+.sv-ritual-library h1,.sv-ritual-library h2,.sv-ritual-library h3,.sv-ritual-library h4{color:inherit;line-height:1.22}
+.sv-ritual-library p{line-height:1.63}
+.sv-ritual-eyebrow{display:inline-block;font-size:.77rem;color:#ffdaaf;font-weight:750;text-transform:uppercase;letter-spacing:.13em}
+.sv-ritual-hero{min-height:clamp(350px,34vw,440px);border:1px solid #f3caaf99;border-radius:24px;display:flex;justify-content:center;align-items:center;text-align:center;padding:25px;background-image:linear-gradient(90deg,#1e102948 0%,#25112e15 45%,#32103448 100%),url('assets/ritual-garden-circle.webp');background-size:cover;background-position:center 46%;box-shadow:inset 0 0 60px #1a102340,0 12px 27px #170b2c70;overflow:hidden}
+.sv-ritual-hero-shade{width:min(100%,750px);padding:24px clamp(16px,3vw,42px);border-radius:24px;border:1px solid #ffe6df96;background:linear-gradient(125deg,#2b1632d9,#452348c7);backdrop-filter:blur(7px);box-shadow:0 10px 35px #190b286e}
+.sv-ritual-hero h1{font-size:clamp(2rem,4vw,3.6rem);font-family:Georgia,'Times New Roman',serif;margin:12px 0 14px;color:#fff4ef}
+.sv-ritual-hero p{font-size:clamp(.96rem,1.3vw,1.12rem);color:#faeaf1;margin:0 0 16px}
+.sv-ritual-hero-prompt{font-size:.88rem;font-weight:750;color:#ffe8b8}
+.sv-ritual-featured,.sv-ritual-bookshelf,.sv-ritual-world{padding-top:25px}
+.sv-ritual-section-heading{display:flex;justify-content:space-between;gap:18px;align-items:end;margin:10px 0 18px}
+.sv-ritual-section-heading h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.5rem,2.6vw,2.2rem);margin:6px 0;color:#fff1e9}
+.sv-ritual-section-heading p{font-size:.9rem;max-width:410px;color:#ead9e5;margin:0}
+.sv-ritual-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.sv-ritual-card{min-width:0;overflow:hidden;border-radius:21px;border:1px solid #cfa9a7;background:#2f2039;box-shadow:0 10px 22px #170c2a80;transition:transform .2s,border-color .2s}
+.sv-ritual-card:hover{transform:translateY(-3px);border-color:#ffe0b5}
+.sv-ritual-card[open]{border-color:#f3cb9a;box-shadow:0 10px 27px #13092185}
+.sv-ritual-card summary{cursor:pointer;list-style:none;display:block;position:relative;color:#fff6f0}
+.sv-ritual-card summary::-webkit-details-marker{display:none}
+.sv-ritual-card summary:focus-visible{outline:3px solid #ffda9e;outline-offset:-4px}
+.sv-ritual-card-art{display:block;width:100%;aspect-ratio:5/4;background-image:url('assets/ritual-featured-six.webp');background-repeat:no-repeat;background-size:300% 200%;background-position:var(--sv-art-x) var(--sv-art-y);transition:filter .25s;filter:saturate(1.06)}
+.sv-ritual-card:hover .sv-ritual-card-art{filter:saturate(1.2) brightness(1.04)}
+.sv-ritual-card-label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;background:linear-gradient(120deg,#503251,#704761)}
+.sv-ritual-card-label strong{font-size:1.17rem;color:#fff6e9;display:block}
+.sv-ritual-card-label small{display:block;color:#f1d7e8;line-height:1.4;margin-top:4px;font-size:.84rem}
+.sv-ritual-card-action{white-space:nowrap;color:#ffe0b5;font-size:.84rem;font-weight:800}
+.sv-ritual-card[open] .sv-ritual-card-action{font-size:0}
+.sv-ritual-card[open] .sv-ritual-card-action::after{content:'Close −';font-size:.84rem}
+.sv-ritual-card-inside{padding:20px;background:#fff4eb;color:#3f2d44}
+.sv-ritual-card-inside h4{color:#523456;margin:6px 0 10px;font-size:1.24rem}
+.sv-ritual-card-inside p{color:#544055;margin:0 0 11px}
+.sv-ritual-card-inside ul{margin:5px 0 12px;padding-left:23px;color:#604260;line-height:1.65}
+.sv-ritual-label{font-weight:800;font-size:.75rem;color:#8b5788;text-transform:uppercase;letter-spacing:.08em}
+.sv-ritual-context{font-size:.83rem;border-top:1px solid #e6c9d2;padding-top:10px}
+.sv-ritual-text-button{padding:0;border:0;text-decoration:underline;cursor:pointer;font:inherit;font-weight:800;background:none;color:#784878}
+.sv-ritual-bookshelf{margin-top:17px}
+.sv-ritual-bookshelf-stage{display:grid;grid-template-columns:minmax(0,1.14fr) minmax(0,1fr);gap:18px}
+.sv-ritual-bookshelf-art{position:relative;min-height:420px;max-height:700px;overflow:hidden;border-radius:21px;border:1px solid #e4ba9c;box-shadow:0 10px 24px #120a2485}
+.sv-ritual-bookshelf-art img{width:100%;height:100%;object-fit:cover;object-position:center 44%;display:block;position:absolute;inset:0}
+.sv-ritual-bookshelf-art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 58%,#1d1027bd)}
+.sv-ritual-bookshelf-art>span{position:absolute;z-index:1;bottom:20px;left:20px;right:20px;color:#fff1d9;font-family:Georgia,serif;font-size:1.7rem;text-shadow:0 2px 6px #241229}
+.sv-ritual-book-list{display:grid;grid-template-columns:1fr;gap:11px}
+.sv-ritual-book-option{display:flex;align-items:flex-start;gap:13px;padding:16px 18px;border-radius:17px;border:1px solid #dcc2c5;background:linear-gradient(115deg,#fff4e8,#f5e7ee);color:#483047}
+.sv-ritual-book-option h3{font-size:1.1rem;color:#53304e;margin:5px 0 5px}
+.sv-ritual-book-option p{font-size:.84rem;color:#67506a;margin:0}
+.sv-ritual-book-option.is-readable{border-color:#e0b379;background:linear-gradient(115deg,#fff2d9,#f9e2e8)}
+.sv-ritual-book-icon{font-size:2.1rem;flex:none}
+.sv-ritual-book-open{margin-top:9px;padding:9px 14px;border:1px solid #74476c;border-radius:22px;color:#fff7f4;background:#74476c;font-weight:800;cursor:pointer}
+.sv-ritual-book-open:focus-visible,.sv-ritual-reader-controls button:focus-visible,.sv-ritual-letter:focus-visible{outline:3px solid #f8c07f;outline-offset:3px}
+.sv-ritual-reader{border-radius:19px;border:1px solid #e7d0bc;background:#f8eee4;color:#46314c;box-shadow:0 8px 19px #130e255e;padding:clamp(17px,3vw,27px);margin-top:21px}
+.sv-ritual-reader-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.83rem;color:#865b7e;font-weight:800;letter-spacing:.02em}
+.sv-ritual-progress{height:6px;background:#e7d2e0;border-radius:99px;overflow:hidden;margin:12px 0 20px}
+.sv-ritual-progress span{height:100%;background:linear-gradient(90deg,#ac7299,#d9a96d);display:block;border-radius:inherit}
+.sv-ritual-reader-paper{max-width:780px;margin:auto;padding:12px 15px 17px;text-align:left;border-left:3px solid #cfb090}
+.sv-ritual-reader-paper h3{font:700 clamp(1.4rem,2.6vw,2rem)/1.3 Georgia,serif;color:#482e4b;margin:11px 0}
+.sv-ritual-reader-paper p{color:#56445b;font-size:1.02rem;line-height:1.8}
+.sv-ritual-reader-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:21px}
+.sv-ritual-reader-controls button{padding:10px 15px;border-radius:19px;border:1px solid #71436b;background:#654060;color:#fff6f1;min-height:42px;font-size:.83rem;font-weight:750;cursor:pointer}
+.sv-ritual-reader-controls button[disabled]{opacity:.43;cursor:not-allowed}
+.sv-ritual-reader-controls button[aria-pressed=true]{background:#a96b84;color:#fff}
+.sv-ritual-reader-note{font-size:.8rem;color:#766077;text-align:center;margin:15px 0 0}
+.sv-ritual-world{margin-top:24px}
+.sv-ritual-letters{display:flex;flex-wrap:wrap;gap:7px;margin:20px 0}
+.sv-ritual-letter{border:1px solid #e0b8cd;background:#f7eaf3;color:#543657;min-width:34px;height:38px;border-radius:11px;cursor:pointer;font-weight:800}
+.sv-ritual-letter.is-current{background:#e4adcd;border-color:#ffe6bc;color:#3f254b;box-shadow:0 0 0 2px #fae1c0}
+.sv-ritual-letter[disabled]{opacity:.32;cursor:not-allowed}
+.sv-ritual-world h3{color:#fff2e3;font-size:1.28rem;margin:18px 0 10px}
+.sv-ritual-countries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;list-style:none;padding:0;margin:0}
+.sv-ritual-country{display:flex;flex-direction:column;gap:3px;background:#fff2eb;border:1px solid #d5b6c3;color:#4d3654;border-radius:12px;padding:12px 14px}
+.sv-ritual-country span{font-size:.94rem;font-weight:750}
+.sv-ritual-country small{font-size:.72rem;color:#856d7d}
+.sv-ritual-world-note,.sv-ritual-footer-note{font-size:.83rem;color:#e8d5e2;margin:16px 0 0}
+.sv-ritual-footer-note{border-top:1px solid #b38d9f;padding-top:17px;margin-top:30px}
+@media(max-width:920px){.sv-ritual-bookshelf-stage{grid-template-columns:1fr}.sv-ritual-bookshelf-art{min-height:400px;max-height:500px}.sv-ritual-country{min-width:0}.sv-ritual-countries{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.sv-ritual-library{margin:6px auto 25px;padding:12px;border-radius:16px}.sv-ritual-hero{min-height:340px;padding:14px;border-radius:14px;background-position:center}.sv-ritual-hero-shade{padding:20px 14px}.sv-ritual-hero h1{font-size:2.1rem}.sv-ritual-section-heading{display:block}.sv-ritual-section-heading p{margin-top:7px}.sv-ritual-card-grid{grid-template-columns:1fr;gap:16px}.sv-ritual-card-label{padding:13px 15px}.sv-ritual-card-art{aspect-ratio:5/4}.sv-ritual-bookshelf-art{min-height:370px}.sv-ritual-countries{grid-template-columns:1fr}.sv-ritual-reader-paper{padding:5px 9px}.sv-ritual-reader-controls button{flex:1 1 calc(50% - 8px)}}
+@media(prefers-reduced-motion:reduce){.sv-ritual-card,.sv-ritual-card-art{transition:none}}
