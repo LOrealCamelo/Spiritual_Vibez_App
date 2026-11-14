@@ -95,7 +95,7 @@ function wrapExportText(ctx,text,width){
 async function makeContentImage(item){
  const canvas=document.createElement('canvas');canvas.width=1080;const ctx=canvas.getContext('2d');
  const fullGallery=Array.isArray(item.images)&&item.images.length>0;
- const exportText=fullGallery?item.text:ContentFormat.summary(item,2100);
+ const exportText=(fullGallery||item.route==='explore/runes')?item.text:ContentFormat.summary(item,2100);
  ctx.font='600 42px Arial';const titleLines=wrapExportText(ctx,item.title,936);
  ctx.font='28px Arial';const lines=wrapExportText(ctx,exportText,936);
  let picture=null,svgUrl=null;const gallery=[];
