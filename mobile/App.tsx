@@ -195,13 +195,13 @@ function ShadowWorkJourney(){
    </TouchableOpacity>)}
    {theme?<View style={{backgroundColor:'#FFF3EC',borderRadius:17,padding:16,marginTop:12}}>
     <Text style={{color:'#794C70',fontSize:12,fontWeight:'800'}}>QUESTION {step+1} OF {theme.prompts.length} · {theme.title.toUpperCase()}</Text>
-    <View style={{height:7,borderRadius:5,backgroundColor:'#E3CCD9',overflow:'hidden',marginVertical:12}}><View style={{width:((step+1)/3*100)+'%',height:7,backgroundColor:'#AA6697'}}/></View>
+    <View style={{height:7,borderRadius:5,backgroundColor:'#E3CCD9',overflow:'hidden',marginVertical:12}}><View style={{width:`${Math.round((step+1)/3*100)}%` as const,height:7,backgroundColor:'#AA6697'}}/></View>
     <Text style={{fontSize:20,fontWeight:'800',color:'#482D47',lineHeight:28,marginBottom:14}}>{theme.prompts[step]}</Text>
     <TextInput multiline maxLength={4000} accessibilityLabel="Your private reflection" value={response} onChangeText={change} placeholder="Write only what feels helpful, or skip." placeholderTextColor="#877481" textAlignVertical="top" style={{borderRadius:12,borderWidth:1,borderColor:'#AD8FA9',minHeight:130,padding:13,backgroundColor:'#FFFEFC',fontSize:15,color:'#352338',lineHeight:22}}/>
     <Text style={{color:'#685265',fontSize:12,lineHeight:18,marginTop:10}}>Nothing is saved until you choose Save to Journal.</Text>
     <View style={{flexDirection:'row',flexWrap:'wrap',gap:9,marginTop:14}}>
-     <TouchableOpacity accessibilityRole="button" disabled={step===0} onPress={()=>{setStep(p=>Math.max(0,p-1));setMessage('')}} style={{backgroundColor:'#573851',padding:12,borderRadius:20,opacity:step===0?.45:1}}><Text style={{color:'#FFF7F0',fontWeight:'800'}}>← Previous</Text></TouchableOpacity>
-     <TouchableOpacity accessibilityRole="button" disabled={step===2} onPress={()=>{setStep(p=>Math.min(2,p+1));setMessage('')}} style={{backgroundColor:'#573851',padding:12,borderRadius:20,opacity:step===2?.45:1}}><Text style={{color:'#FFF7F0',fontWeight:'800'}}>Next / Skip →</Text></TouchableOpacity>
+     <TouchableOpacity accessibilityRole="button" disabled={step===0} onPress={()=>{setStep(p=>Math.max(0,p-1));setMessage('')}} style={{backgroundColor:'#573851',padding:12,borderRadius:20,opacity:step===0?0.45:1}}><Text style={{color:'#FFF7F0',fontWeight:'800'}}>← Previous</Text></TouchableOpacity>
+     <TouchableOpacity accessibilityRole="button" disabled={step===2} onPress={()=>{setStep(p=>Math.min(2,p+1));setMessage('')}} style={{backgroundColor:'#573851',padding:12,borderRadius:20,opacity:step===2?0.45:1}}><Text style={{color:'#FFF7F0',fontWeight:'800'}}>Next / Skip →</Text></TouchableOpacity>
     </View>
     <Action text="💗 Save to Journal" onPress={save}/>
     <Action text="Clear my answers" onPress={clear}/>
