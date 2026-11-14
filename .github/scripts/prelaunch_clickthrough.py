@@ -159,11 +159,15 @@ def main():
     with sync_playwright() as playwright:
         browser=playwright.chromium.launch(headless=True,executable_path=executable if executable else None,args=["--no-sandbox"])
         page=browser.new_page(viewport={"width":1448,"height":900})
-        candidates=[("Netlify",NETLIFY),("Render",RENDER)]
+        candidates=[("custom domain",CUSTOM),("Render",RENDER),("Netlify",NETLIFY)]
         origin=None
         for name,url in candidates:
             try:
                 response=page.goto(url,wait_until="domcontentloaded",timeout=50000)
+                print("BROWSER ORIGIN",name,"HTTP",response.status if response else None,
+                      "URL",page.url,"TITLE",page.title(),"#app",page.locator("#app").count(),
+                      "BODY",page.locator("body").inner_text()[:180],flush=True)
+                page.screenshot(path=str(ROOT/("origin-"+name.replace(" ","-")+".png")),full_page=False)
                 if response and response.status==200 and page.locator("#app").count()==1:
                     page.wait_for_function("typeof state!=='undefined'&&state.page==='home'",timeout=40000)
                     origin=(name,url)
