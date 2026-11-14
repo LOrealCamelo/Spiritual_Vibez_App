@@ -56,6 +56,7 @@ function wholeReadingSnapshot(){
  }
  if(state.page==='explore'){
   if(!state.tool)return null;
+  if(state.tool==='runes')return RuneCasting.snapshot();
   // Private Shadow Work writing is only shared deliberately from the Journal.
   if(state.tool==='shadow')return null;
   if(state.result)return currentContent();
@@ -71,6 +72,7 @@ function wholeReadingSnapshot(){
 function installContentActions(){
  if(!document.body)return;
  contentItems.clear();
+ document.querySelectorAll('main .complete-reading-share').forEach(n=>n.remove());
  const item=wholeReadingSnapshot();
  if(!item)return;
  const main=document.querySelector('main.container');if(!main)return;
