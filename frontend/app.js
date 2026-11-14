@@ -75,7 +75,7 @@ function spreadsPage(){
   out+='<div class="list" style="margin-bottom:15px">'+qs.map(q=>'<div class="glass"><b>'+q.slot+'. '+e(q.title)+'</b><p>'+e(q.q)+'</p>'+(state.drawn[q.slot]?'<p><b>'+e(state.drawn[q.slot].card.name)+' ('+e(state.drawn[q.slot].card.orientation)+')</b><br>'+e(state.drawn[q.slot].card.meaning)+'</p>':'')+'</div>').join('')+'</div>';
   out+=notice('Readings are for self-reflection, not certain predictions.');
   out+=btn('✨ Interpret all my cards','interpret','',Object.keys(state.drawn).length===qs.length?'':'disabled')+' '+btn('🔀 Start again','reset-spread','cream');
-  if(state.reading)out+='<div class="glass"><h3>💗 Your combined reading</h3><p>'+e(state.reading)+'</p>'+'<div class="content-actions" data-content-actions>'+btn('Share','share-reading')+' '+btn('Add to journal','save-reading','cream')+'</div></div>';
+  if(state.reading)out+='<div class="glass"><h3>💗 Your combined reading</h3><p>'+e(state.reading)+'</p>'+'</div>';
   return out;
  }
  out+=artButton('spreads_randomize','Randomize a Spread','random-spread');
@@ -303,8 +303,7 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
  if(a==='draw'){return draw(Number(b.dataset.slot))}
  if(a==='interpret'){return interpret()}
  if(a==='reset-spread'){state.drawn={};state.reading='';return render()}
- if(a==='share-reading')return previewContentShare(ContentFormat.snapshot({title:state.selected.title,text:state.reading,route:'spreads'}));
- if(a==='save-reading'){save(state.selected.title,state.reading);return alert('Saved to the Journal on this device.');}
+
  if(a==='learn-filter'){state.filter=b.dataset.filter;return render()}
  if(a==='card'){state.cardDetail=state.cards.find(x=>String(x.id)===b.dataset.card);if(!state.studied.includes(state.cardDetail.id))state.studied.push(state.cardDetail.id);render();document.querySelector('#selected-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
  if(a==='close-card'){state.cardDetail=null;return render()}
