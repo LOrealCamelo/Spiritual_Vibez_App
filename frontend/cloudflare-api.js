@@ -11,8 +11,12 @@ const json = (data, status) => new Response(JSON.stringify(data), {
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
-    if (!(incoming.pathname === '/api' || incoming.pathname.startsWith('/api/'))) {
-      return env.ASSETS.fetch(request);
+    const api = incoming.pathname === '/api' || incoming.pathname.startsWith('/api/');
+    const tarotAsset = incoming.pathname.startsWith('/assets/tarot/');
+    if (!api && !tarotAsset) return env.ASSETS.fetch(request);
+    // The 78 tarot PNGs are mounted by FastAPI, not stored in frontend/assets.
+    if (tarotAsset && !['GET', 'HEAD'].includes(request.method)) {
+      return json({detail: 'Method not allowed'}, 405);
     }
 
     // Only trusted deployment configuration can choose the upstream host.
@@ -31,7 +35,7 @@ export default {
       // API calls to the Render domain, since they are same-origin for the app.
       const upstream = await fetch(new Request(target.toString(), request), {redirect: 'manual'});
       const headers = new Headers(upstream.headers);
-      headers.set('Cache-Control', 'no-store');
+      if (api) headers.set('Cache-Control', 'no-store');
       return new Response(upstream.body, {
         status: upstream.status,
         statusText: upstream.statusText,

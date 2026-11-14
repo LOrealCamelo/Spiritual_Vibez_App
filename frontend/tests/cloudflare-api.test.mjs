@@ -95,3 +95,28 @@ test('invalid upstream configuration is rejected', async () => {
     assert.equal((await response.json()).code, 'API_ORIGIN_INVALID');
   });
 });
+
+test('tarot card PNGs are served from Render without treating them as private API data', async () => {
+  await withUpstream(async (request) => {
+    assert.equal(request.url, render + '/assets/tarot/00-the-fool.png');
+    assert.equal(request.method, 'GET');
+    return new Response(new Uint8Array([137, 80, 78, 71]), {
+      headers: {'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600'}
+    });
+  }, async () => {
+    const response = await worker.fetch(new Request(host + '/assets/tarot/00-the-fool.png'), env);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'image/png');
+    assert.equal(response.headers.get('cache-control'), 'public, max-age=3600');
+    assert.deepEqual([...new Uint8Array(await response.arrayBuffer())], [137, 80, 78, 71]);
+  });
+});
+
+test('tarot assets reject write methods', async () => {
+  await withUpstream(() => { throw Error('Unexpected request to Render'); }, async () => {
+    const response = await worker.fetch(new Request(host + '/assets/tarot/00-the-fool.png', {
+      method: 'POST', body: 'invalid'
+    }), env);
+    assert.equal(response.status, 405);
+  });
+});
