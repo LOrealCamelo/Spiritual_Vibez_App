@@ -198,8 +198,9 @@ const CARD_PANELS={
 // until its DNS/hosting is verified and transferred intentionally.
 function optimizedAsset(path,width){
  if(!location.hostname.endsWith('.netlify.app'))return path;
- if(!/^(?:\\/)?assets\\/[a-zA-Z0-9_.\\/-]+$/.test(path))return path;
- return '/.netlify/images?url='+encodeURIComponent('/'+path.replace(/^\\//,''))+'&w='+Math.round(width)+'&q=75';
+ const localPath=path.startsWith('/')?path.slice(1):path;
+ if(!localPath.startsWith('assets/')||!localPath.split('/').every(part=>/^[a-zA-Z0-9_.-]+$/.test(part)))return path;
+ return '/.netlify/images?url='+encodeURIComponent('/'+localPath)+'&w='+Math.max(64,Math.round(width))+'&q=75';
 }
 function panelIllustration(pack,cell){return '<span class="panel-illustration" aria-hidden="true"><img src="'+optimizedAsset('assets/illustrations/'+pack+'.png',1200)+'" alt="" style="--cell-x:'+(cell%2)+';--cell-y:'+Math.floor(cell/2)+'"></span>'}
 function panelContents(key,extra=''){

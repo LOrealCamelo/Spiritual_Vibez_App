@@ -9,17 +9,17 @@ on:
       - 'frontend/liquid-glass.css'
       - 'frontend/robots.txt'
       - 'frontend/sitemap.xml'
-      - 'frontend/artwork.js'
-      - 'frontend/index.html'
-      - 'frontend/liquid-glass.css'
-      - 'frontend/robots.txt'
-      - 'frontend/sitemap.xml'
       - 'frontend/scripts/build-netlify.mjs'
       - '.github/workflows/netlify-frontend-check.yml'
   push:
     paths:
       - 'netlify.toml'
       - 'frontend/app.js'
+      - 'frontend/artwork.js'
+      - 'frontend/index.html'
+      - 'frontend/liquid-glass.css'
+      - 'frontend/robots.txt'
+      - 'frontend/sitemap.xml'
       - 'frontend/scripts/build-netlify.mjs'
       - '.github/workflows/netlify-frontend-check.yml'
   workflow_dispatch:
