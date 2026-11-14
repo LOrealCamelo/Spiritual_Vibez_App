@@ -1,0 +1,27 @@
+name: Prelaunch no-deploy browser clickthrough
+on:
+  push:
+    branches: [prelaunch-clickthrough-audit-2026-11-14]
+    paths:
+      - '.github/workflows/prelaunch-clickthrough.yml'
+      - '.github/scripts/prelaunch_clickthrough.py'
+  workflow_dispatch:
+jobs:
+  read-only-browser-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install browser driver
+        run: pip install -r frontend/tests/requirements.txt
+      - name: Check navigation and calculations on public app
+        run: python .github/scripts/prelaunch_clickthrough.py
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: prelaunch-no-deploy-browser-results
+          path: prelaunch-audit
+          if-no-files-found: warn
