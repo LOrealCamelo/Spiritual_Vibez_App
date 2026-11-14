@@ -93,6 +93,21 @@ def serve_guide_illustration():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
 
 
+@app.get("/ritual-world-data.js", include_in_schema=False)
+def serve_ritual_world_data():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "ritual-world-data.js"), media_type="text/javascript")
+
+
+@app.get("/ritual-library.js", include_in_schema=False)
+def serve_ritual_library_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "ritual-library.js"), media_type="text/javascript")
+
+
+@app.get("/ritual-library.css", include_in_schema=False)
+def serve_ritual_library_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "ritual-library.css"), media_type="text/css")
+
+
 @app.get("/rune-library.js", include_in_schema=False)
 def serve_rune_library():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "rune-library.js"), media_type="text/javascript")
