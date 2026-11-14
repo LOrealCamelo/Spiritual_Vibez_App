@@ -15,7 +15,7 @@ await mkdir(output, {recursive:true});
 let pages = 0;
 for (const entry of await readdir(frontend, {withFileTypes:true})) {
   if (!entry.isFile() || entry.name === 'cloudflare-api.js' ||
-      !/\.(html|js|css|svg)$/i.test(entry.name)) continue;
+      !(entry.name === 'robots.txt' || entry.name === 'sitemap.xml' || /\.(html|js|css|svg)$/i.test(entry.name))) continue;
   await copyFile(path.join(frontend,entry.name),path.join(output,entry.name));
   pages++;
 }

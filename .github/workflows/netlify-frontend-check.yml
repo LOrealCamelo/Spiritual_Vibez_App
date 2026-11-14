@@ -4,12 +4,22 @@ on:
     paths:
       - 'netlify.toml'
       - 'frontend/app.js'
+      - 'frontend/artwork.js'
+      - 'frontend/index.html'
+      - 'frontend/liquid-glass.css'
+      - 'frontend/robots.txt'
+      - 'frontend/sitemap.xml'
       - 'frontend/scripts/build-netlify.mjs'
       - '.github/workflows/netlify-frontend-check.yml'
   push:
     paths:
       - 'netlify.toml'
       - 'frontend/app.js'
+      - 'frontend/artwork.js'
+      - 'frontend/index.html'
+      - 'frontend/liquid-glass.css'
+      - 'frontend/robots.txt'
+      - 'frontend/sitemap.xml'
       - 'frontend/scripts/build-netlify.mjs'
       - '.github/workflows/netlify-frontend-check.yml'
   workflow_dispatch:
@@ -26,9 +36,12 @@ jobs:
       - name: Verify files are published and Cloudflare worker code is excluded
         shell: bash
         run: |
+          test -f dist/netlify/robots.txt
+          test -f dist/netlify/sitemap.xml
           test -f dist/netlify/index.html
           test -f dist/netlify/app.js
           test -f dist/netlify/assets/tarot/00-the-fool.png
           test "$(find dist/netlify/assets/tarot -type f -name '*.png' | wc -l)" -eq 78
           test ! -e dist/netlify/cloudflare-api.js
           grep -q 'spiritual-vibez-app.onrender.com/api' dist/netlify/app.js
+

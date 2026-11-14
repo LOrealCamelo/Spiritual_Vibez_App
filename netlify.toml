@@ -12,3 +12,13 @@
   to = "https://spiritual-vibez-app.onrender.com/api/:splat"
   status = 200
   force = true
+
+# These safe, low-risk response headers apply to static frontend pages.
+# Netlify already manages HTTPS/HSTS and CDN compression.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
