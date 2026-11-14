@@ -133,7 +133,7 @@ function spatial(){
 function finish(gen){
  if(gen!==generation)return;root.cancelAnimationFrame(frame);
  const cloth=document.getElementById('rune-cloth');if(cloth)cloth.classList.remove('casting');
- spatial();result={layout,intention,cast:pieces.map(p=>({rune:p.rune,faceUp:p.faceUp,zone:p.zone,neighbors:p.neighbors||[]}))};
+ spatial();result={layout,intention,canvasWidth:cloth?.clientWidth||0,canvasHeight:cloth?.clientHeight||0,cast:pieces.map(p=>({rune:p.rune,faceUp:p.faceUp,zone:p.zone,neighbors:p.neighbors||[]}))};
  setStatus('The bones have settled. Tap any face-up rune to explore its meaning.');
  renderResult();
 }
@@ -223,7 +223,23 @@ function sync(){
  document.getElementById('rune-stones')?.addEventListener('click',e=>{
   const t=e.target.closest?.('[data-rune-index]');if(t)showRune(Number(t.dataset.runeIndex));
  });
- if(result)renderResult();
+ if(result&&pieces.length){
+  const wrap=document.getElementById('rune-stones');
+  if(wrap&&!wrap.children.length){
+   const w=cloth.clientWidth,h=cloth.clientHeight,baseW=result.canvasWidth||w,baseH=result.canvasHeight||h;
+   pieces.forEach((p,i)=>{
+    p.x*=w/baseW;p.y*=h/baseH;
+    const el=document.createElement('button');el.type='button';
+    el.className='rune-bone '+(p.faceUp?'face-up':'face-down')+(p.rune.orientation==='reversed'?' reversed':'');
+    el.setAttribute('aria-label',p.faceUp?'Explore '+p.rune.name:'A face-down rune, not read');
+    el.setAttribute('data-rune-index',String(i));
+    el.innerHTML='<span class="rune-bone-glyph" aria-hidden="true">'+(p.faceUp?escape(p.rune.symbol):'✦')+'</span>';
+    p.el=el;wrap.append(el);place(p);
+   });
+   result.canvasWidth=w;result.canvasHeight=h;
+  }
+  renderResult();
+ }
 }
 root.RuneCasting={markup,action,sync,snapshot,summaryLines,getState:()=>({layout,reversals,sound,motion,intention,result,deckCount:DATA.RUNES.length})};
 })(window);
