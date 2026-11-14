@@ -7,7 +7,7 @@ const reading={birth_year:1977,polarity:'Yin Feminine',animal_sign:'Fire Snake ð
 test('BaZi results share human-readable complete text with a clean app invitation',()=>{
  const item=Format.snapshot({title:'Chinese Zodiac & BaZi',value:reading,route:'explore/bazi'});
  const message=Format.message(item);
- for(const text of ['Birth year: 1977','Zodiac animal: Fire Snake','Year pillar','Day master','Core Soul Identity','Get your own here: https://spiritual-vibez-app.onrender.com/#explore/bazi'])assert.ok(message.includes(text),text);
+ for(const text of ['Birth year: 1977','Zodiac animal: Fire Snake','Year pillar','Day master','Core Soul Identity','Get your own here: https://app.neurospicymystic.com/#explore/bazi'])assert.ok(message.includes(text),text);
  assert.doesNotMatch(message,/[{}]|birth_year|year_pillar|PRIVATE XML|private-token/);
  assert.equal(new URL(item.url).search,'');assert.ok(!item.url.includes('1977'));
 });
