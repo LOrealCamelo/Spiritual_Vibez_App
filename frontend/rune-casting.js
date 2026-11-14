@@ -80,10 +80,10 @@ function spawn(){
  const width=rootEl.clientWidth,height=rootEl.clientHeight;
  const cx=width/2,cy=height/2;wrap.textContent='';
  pieces.forEach((piece,i)=>{
-  const el=document.createElement('button');el.type='button';el.className='rune-bone '+(piece.faceUp?'face-up':'face-down');
+  const el=document.createElement('button');el.type='button';el.className='rune-bone '+(piece.faceUp?'face-up':'face-down')+(piece.rune.orientation==='reversed'?' reversed':'');
   el.setAttribute('aria-label',piece.faceUp?'Explore '+piece.rune.name:'A face-down rune, not read');el.setAttribute('data-rune-index',String(i));
   el.innerHTML='<span class="rune-bone-glyph" aria-hidden="true">'+(piece.faceUp?escape(piece.rune.symbol):'✦')+'</span>';
-  piece.el=el;piece.x=cx+(Math.random()-.5)*36;piece.y=height+25+(Math.random()-.5)*12;
+  piece.el=el;piece.x=cx+(Math.random()-.5)*36;piece.y=height-78+(Math.random()-.5)*12;
   const angle=(Math.random()-.5)*.8,speed=.8+Math.random()*.45;
   piece.vx=(Math.random()-.5)*11*speed+Math.sin(angle)*6;
   piece.vy=(-10.8-Math.random()*4.0)*speed;piece.a=Math.random()*Math.PI*2;piece.va=(Math.random()-.5)*.35;
@@ -103,6 +103,10 @@ function applyPhysics(gen,start){
   p.x+=p.vx;p.y+=p.vy;p.a+=p.va;
   if(p.x<margin||p.x>w-margin){p.x=Math.max(margin,Math.min(w-margin,p.x));p.vx*=-.27;clack(Math.abs(p.vx)/7)}
   if(p.y<margin||p.y>h-margin){p.y=Math.max(margin,Math.min(h-margin,p.y));p.vy*=-.26;clack(Math.abs(p.vy)/7)}
+  // Keep cast pieces inside the elliptical cloth rather than invisible clipped corners.
+  const cx=w/2,cy=h/2,rx=Math.max(10,w*.44-margin/2),ry=Math.max(10,h*.43-margin/2);
+  const norm=Math.hypot((p.x-cx)/rx,(p.y-cy)/ry);
+  if(norm>1){p.x=cx+(p.x-cx)/norm*.985;p.y=cy+(p.y-cy)/norm*.985;p.vx*=-.22;p.vy*=-.22;clack(Math.hypot(p.vx,p.vy)/9)}
   p.vx*=.958;p.vy*=.958;p.va*=.939;
  }
  for(let i=0;i<pieces.length;i++)for(let j=i+1;j<pieces.length;j++){
