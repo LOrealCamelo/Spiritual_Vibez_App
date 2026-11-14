@@ -1,24 +1,41 @@
-# Cloudflare backend migration — phase 1
+# Cloudflare frontend + Render Python backend
 
-This branch adds a Cloudflare Worker for the birth country, state/province, city and IANA timezone selectors. It keeps the currently working static HTML/CSS/JS frontend. The Python calculation backend is **not** yet migrated.
+Cloudflare Workers serves the static Spiritual Vibz frontend and forwards every /api/* request to the existing FastAPI service on Render. No Python calculation has been rewritten or replaced with a stub. This includes astrology, synastry, tarot, rituals, wellness, divination, oracle, and store routers, with their existing methods, payloads, status codes, and responses.
 
-## Cloudflare Workers Builds settings after merging
+## Production origin
 
-- Production branch: `main`
-- Root directory: `frontend`
-- Build command: `npm install --no-audit --no-fund && npm run build:geo`
-- Deploy command: `npx wrangler deploy`
+- Cloudflare frontend: https://app.neurospicymystic.com
+- Python FastAPI origin: https://spiritual-vibez-app.onrender.com
+- The Cloudflare Worker is defined by frontend/cloudflare-api.js, with frontend/wrangler.jsonc and run_worker_first for /api/*.
+- All location dropdowns use the original Python GeoNames dataset. Do not use the earlier separate offline CSC directory: its place_id values cannot be resolved by Python birth-chart services.
+- The Worker sends no-store response headers for API calls, including user-entered birth data.
 
-The pinned Wrangler config (`wrangler.jsonc`) defines `spiritual-vibez-app` and compatibility date `2026-11-14`. The build creates static `geo/` assets by country using MIT-licensed countries-states-cities-service and CC0 tz-lookup. No runtime location API key is required and no birth data is sent to third-party geocoding services. Timezone lookups are approximate near geographic borders.
+## Cloudflare Workers Builds
 
-After deploying, test:
-- `/api/health`
-- `/api/astrology/locations/countries`
-- `/api/astrology/locations/regions?country=US`
-- `/api/astrology/locations/cities?country=US&state=NY&query=Utica`
+Use the existing Workers project associated with app.neurospicymystic.com, linked to this GitHub repository:
 
-The frontend's existing `/api/astrology/natal-chart`, other ephemeris, journals, and tarot routes still require a Cloudflare-native implementation and respond with HTTP 501. Do not retire Render until migration and persistence are completed.
+- Production branch: main
+- Root directory: frontend
+- Build command: npm install --no-audit --no-fund
+- Deploy command: npx wrangler deploy
+- Wrangler config: frontend/wrangler.jsonc, with main ./cloudflare-api.js and assets.directory .
+- If Cloudflare has an explicit Workers custom domain/route configuration, keep app.neurospicymystic.com on this Worker so /api/* is handled by the same origin as the frontend.
+
+The Render address is already the default in cloudflare-api.js. An optional trusted Worker environment variable PYTHON_API_ORIGIN can replace it if the service hostname changes. Do not put an API origin in user-controlled query parameters.
+
+## Health and full backend verification (after deploying)
+
+1. Open https://spiritual-vibez-app.onrender.com/api/health directly. Expect the JSON status online, not a Render 404/502.
+2. Open https://app.neurospicymystic.com/api/health. Expect the same Python FastAPI health response, not the previous partial/501 Cloudflare stub.
+3. Check https://app.neurospicymystic.com/api/astrology/locations/countries, regions?country=US, and cities?country=US&state=NY&query=Utica.
+4. Check https://app.neurospicymystic.com/api/tarot/cards and /api/tarot/spreads. These must come from Python, not preview-only samples.
+5. In the app, check the actual workflows for natal charts, Moon phase, calendars, numerology, tarot cards/spreads, rituals, wellness, rune casts, pendulum, oracle, and store; GET-only checks are not enough for POST APIs.
+6. Inspect browser Network responses for /api/*. Status 502 means the upstream is unreachable; 422 means Python received and rejected the submitted fields; 200 is transport success but the UI still needs an end-to-end check.
+
+## Render
+
+Retain the existing Python Web Service and its data files, Python requirements and configured start command. Do not shut Render down. Its free-tier cold starts may take longer than a static Cloudflare response; the frontend API request timeout is increased accordingly.
 
 ## Local tests
 
-Run `npm install`, `npm run build:geo` and `npm test` from `frontend`.
+From frontend run npm test, or without installing dependencies run node --test tests/cloudflare-api.test.mjs. GitHub Actions runs these mocked proxy tests. Mock success does not verify live network reachability: confirm the URLs above after deployment.

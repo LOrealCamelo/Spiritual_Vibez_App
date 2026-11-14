@@ -1,0 +1,25 @@
+name: Cloudflare API proxy tests
+on:
+  push:
+    paths:
+      - 'frontend/cloudflare-api.js'
+      - 'frontend/tests/cloudflare-api.test.mjs'
+      - '.github/workflows/cloudflare-proxy-check.yml'
+  pull_request:
+    paths:
+      - 'frontend/cloudflare-api.js'
+      - 'frontend/tests/cloudflare-api.test.mjs'
+      - '.github/workflows/cloudflare-proxy-check.yml'
+  workflow_dispatch:
+jobs:
+  cloudflare-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Worker syntax
+        run: node --check frontend/cloudflare-api.js
+      - name: Test route forwarding
+        run: node --test frontend/tests/cloudflare-api.test.mjs
