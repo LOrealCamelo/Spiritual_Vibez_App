@@ -60,6 +60,10 @@ def visit_tool(page,tool):
 
 def calculate(page,tool,fields,timeout=45000):
     visit_tool(page,tool)
+    if tool == "rituals":
+        # The Ritual Finder form is intentionally collapsed beneath its library;
+        # expand the native details element before exercising the search.
+        page.locator(".ritual-search-original summary").click()
     for selector,value in fields:
         if selector.startswith("select:"):
             page.locator(selector[7:]).select_option(value)
@@ -137,6 +141,30 @@ def clicks(page,origin):
         page.wait_for_selector(".rune-result-head",timeout=20000)
         return "Rune cast showed result"
     test("interaction","rune casting",runes)
+
+    def quiz():
+        navigate(page,"learn")
+        page.locator('[data-action="quiz"]').first.click()
+        page.wait_for_selector('[data-action="quiz-answer"]',timeout=25000)
+        page.locator('[data-action="quiz-answer"]').first.click()
+        assert page.evaluate('Boolean(state.answer)')
+        return "Tarot quiz question and answer evaluated"
+    test("interaction","tarot knowledge quiz",quiz)
+
+    def shadow():
+        visit_tool(page,"shadow")
+        page.locator('[data-action="shadow-theme"]').first.click()
+        assert page.locator("#shadow-guide").count()>=1
+        page.locator('[data-action="shadow-next"]').first.click()
+        return "Opened guided shadow-work exercise and advanced a step"
+    test("interaction","shadow work journey",shadow)
+
+    def store():
+        visit_tool(page,"store")
+        href=page.get_by_role("link",name="Visit my store ↗").get_attribute("href")
+        assert href=="https://neurospicymystic.com/",href
+        return "External store link points to existing storefront"
+    test("interaction","store link",store)
 
     def mobile():
         page.set_viewport_size({"width":390,"height":844})
