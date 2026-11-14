@@ -366,3 +366,30 @@ body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1
 .astro-places{padding-left:24px}.astro-places li{padding:12px 0;border-bottom:1px solid #ffffff44}
 .astro-crossing{cursor:pointer}.astro-crossing:focus{r:6;opacity:1}.astro-pin{pointer-events:none}
 .astro-guide{margin-top:32px}.astro-guide li{margin:12px 0}.astro-guide table{width:100%;border-collapse:collapse;table-layout:fixed}.astro-guide th,.astro-guide td{padding:10px 6px;text-align:left;border-bottom:1px solid #fff6;vertical-align:top;overflow-wrap:anywhere}
+
+
+/* One intentional export for a completed reading; never wrap individual cards. */
+.complete-reading-share{
+  max-width:100%;margin:24px 0 32px;padding:20px clamp(16px,3vw,28px);
+  border:1px solid #efd0db;border-radius:22px;
+  background:linear-gradient(125deg,#43304deb,#6d4568f0);
+  box-shadow:0 10px 26px #1b0c2c52;color:#fff5f8;
+}
+.complete-reading-share .complete-reading-label{
+  font-size:1.18rem;font-weight:800;letter-spacing:.02em;color:#fff2de;
+}
+.complete-reading-share p{margin:8px 0 12px;color:#f6e1ec;line-height:1.5}
+.complete-reading-share .content-actions{margin:0}
+.complete-reading-share .content-actions button{
+  flex:1 1 200px;font-size:.98rem;min-height:48px;padding:12px;
+  border:1px solid #f2d7e8;background:#fff6f2;color:#4c2b55;
+}
+.complete-reading-share .content-actions button:first-child{
+  background:linear-gradient(125deg,#ffd2eb,#eac3ff);
+}
+.complete-reading-share .content-actions button:focus-visible,
+.share-preview-actions summary:focus-visible{outline:3px solid #ffebaf;outline-offset:3px}
+.share-preview-actions details{grid-column:1/-1;border:1px solid #ac8cac;border-radius:11px;padding:10px 12px}
+.share-preview-actions details summary{cursor:pointer;font-weight:700;color:#543657}
+.share-preview-actions details .btn{display:inline-flex;margin:8px 8px 2px 0;min-width:180px}
+@media(max-width:550px){.complete-reading-share{padding:16px}.complete-reading-share .content-actions{flex-direction:column}.complete-reading-share .content-actions button{flex-basis:auto;width:100%}.share-preview-actions details .btn{width:100%;margin:8px 0 0}}
