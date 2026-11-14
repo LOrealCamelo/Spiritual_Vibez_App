@@ -1,0 +1,26 @@
+name: Live Cloudflare and Render smoke check
+
+on:
+  push:
+    paths:
+      - '.github/workflows/live-hosting-smoke.yml'
+      - '.github/scripts/live-hosting-smoke.py'
+  workflow_dispatch:
+
+jobs:
+  hosting-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe real FastAPI endpoints from outside Render and Cloudflare
+        run: python .github/scripts/live-hosting-smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-hosting-smoke-report
+          path: hosting-smoke-report.json
+          if-no-files-found: warn
