@@ -144,6 +144,10 @@ def clicks(page,origin):
 
     def quiz():
         navigate(page,"learn")
+        # The previous Learn Tarot test left a card detail open. Return to the
+        # module overview before selecting the quiz.
+        if page.locator('[data-action="learn-back"]').count():
+            page.locator('[data-action="learn-back"]').first.click()
         page.locator('[data-action="quiz"]').first.click()
         page.wait_for_selector('[data-action="quiz-answer"]',timeout=25000)
         page.locator('[data-action="quiz-answer"]').first.click()
