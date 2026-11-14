@@ -1,0 +1,14 @@
+# Separate Spiritual Vibez frontend site. Does not deploy or overwrite the
+# existing Netlify site for neurospicymystic.com.
+[build]
+  command = "node frontend/scripts/build-netlify.mjs"
+  publish = "dist/netlify"
+
+# Compatibility route for callers that use relative /api/ URLs.
+# The app's JavaScript intentionally calls Render directly for long-running
+# astrology calculations because Netlify's external proxy has a timeout.
+[[redirects]]
+  from = "/api/*"
+  to = "https://spiritual-vibez-app.onrender.com/api/:splat"
+  status = 200
+  force = true
