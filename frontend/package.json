@@ -1,0 +1,16 @@
+{
+  "name": "spiritual-vibez-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:geo": "node ./scripts/build-locations.mjs",
+    "test": "node --test ./tests/cloudflare-api.test.mjs"
+  },
+  "dependencies": {
+    "countries-states-cities-service": "1.5.1",
+    "tz-lookup": "6.1.25"
+  },
+  "devDependencies": {
+    "wrangler": "4.162.0"
+  }
+}
