@@ -1,7 +1,6 @@
 /** Original art, live labels and scalable decoration shared by all 24 panels. */
 import React,{useContext} from 'react';
 import {Image,View,Text,TouchableOpacity,useWindowDimensions,StyleSheet,StyleProp,ViewStyle} from 'react-native';
-import {ContentActions} from './ContentActions';
 import {HomePaletteContext} from './HomePalette';
 export {HomePaletteContext} from './HomePalette';
 import {ClearGlassSurface} from './ClearGlassSurface';
@@ -26,7 +25,7 @@ export function SpreadIllustration({category,size=68}:{category:string,size?:num
 export function IllustratedToolCard({tool,title,width,onPress}:{tool:string,title:string,width:number,onPress:()=>void}){
  const art=illustrationBindings.tools[tool as keyof typeof illustrationBindings.tools];
  if(!art)throw Error('Missing tool illustration: '+tool);
- return <View style={{width,marginBottom:16}}><TouchableOpacity accessibilityRole="button" accessibilityLabel={title} onPress={onPress}><ClearGlassSurface radius={25} style={{minHeight:260,padding:14,paddingBottom:42,gap:14,alignItems:'center'}}><PanelIllustration pack={art.pack as keyof typeof ILLUSTRATION_PACKS} cell={art.cell} size={104}/><Text style={{alignSelf:'stretch',color:'#fff9fe',fontSize:tool==='natal'?24:23,lineHeight:28,fontWeight:'800'}}>{title}</Text><View accessible={false} style={[st.arrow,{position:'absolute',right:12,bottom:12}]}><Text style={{color:'#fff9fe',fontSize:28,lineHeight:29}}>›</Text></View></ClearGlassSurface></TouchableOpacity><ContentActions title={title} text={title} route={'explore/'+tool}/></View>;
+ return <View style={{width,marginBottom:16}}><TouchableOpacity accessibilityRole="button" accessibilityLabel={title} onPress={onPress}><ClearGlassSurface radius={25} style={{minHeight:260,padding:14,paddingBottom:42,gap:14,alignItems:'center'}}><PanelIllustration pack={art.pack as keyof typeof ILLUSTRATION_PACKS} cell={art.cell} size={104}/><Text style={{alignSelf:'stretch',color:'#fff9fe',fontSize:tool==='natal'?24:23,lineHeight:28,fontWeight:'800'}}>{title}</Text><View accessible={false} style={[st.arrow,{position:'absolute',right:12,bottom:12}]}><Text style={{color:'#fff9fe',fontSize:28,lineHeight:29}}>›</Text></View></ClearGlassSurface></TouchableOpacity></View>;
 }
 type Props={asset:CardArtName;width?:number;label?:string;onPress?:()=>void;style?:StyleProp<ViewStyle>;children?:React.ReactNode;progress?:{completed:number,total:number};meta?:string};
 export function IllustratedCard({asset,width,label,onPress,style,children,progress,meta}:Props){
@@ -48,6 +47,6 @@ export function IllustratedCard({asset,width,label,onPress,style,children,progre
   {onPress&&!header?<View accessible={false} style={[st.arrow,compact?{position:'absolute',right:12,bottom:12}:null]}><Text style={{fontSize:32,color:theme.accent,fontWeight:'800',lineHeight:30}}>›</Text></View>:null}
  </ClearGlassSurface>;
  const outer=[st.outer,{width:w},style];
- return <View style={outer}>{onPress?<TouchableOpacity accessibilityRole="button" accessibilityLabel={label||p.title} onPress={onPress}>{content}</TouchableOpacity>:<View accessibilityLabel={label||p.title}>{content}</View>}{!header?<ContentActions title={p.title} text={p.description} route={panelRoutes[asset]||(asset.startsWith('learn_')?'learn':asset.startsWith('spreads_')?'spreads':undefined)}/>:null}</View>;
+ return <View style={outer}>{onPress?<TouchableOpacity accessibilityRole="button" accessibilityLabel={label||p.title} onPress={onPress}>{content}</TouchableOpacity>:<View accessibilityLabel={label||p.title}>{content}</View>}</View>;
 }
 const st=StyleSheet.create({outer:{marginBottom:16,borderRadius:27,borderWidth:0,borderColor:'transparent',shadowColor:'#32104b',shadowOffset:{width:0,height:6},shadowOpacity:.25,shadowRadius:8,elevation:5},surface:{alignItems:'center',borderRadius:25,borderWidth:1,borderColor:'#ffffff80',overflow:'hidden'},sparkle:{position:'absolute',top:7,right:'12%',color:'#ffe67c',fontSize:23,opacity:.8},arrow:{width:30,height:30,borderRadius:16,borderWidth:2,borderColor:'#fff',backgroundColor:'rgba(255,255,255,.05)',alignItems:'center',justifyContent:'center',flexShrink:0},track:{height:13,borderRadius:12,borderWidth:2,borderColor:'#fff9',backgroundColor:'#c19eb74a',overflow:'hidden'},fill:{height:'100%',backgroundColor:'#ec138c',borderRadius:10}});
