@@ -455,3 +455,15 @@ body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1
 @media(max-width:710px){.rune-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.rune-cloth{height:450px;border-width:8px}.rune-sanctuary{padding:17px}.rune-interpretation{padding:14px}.rune-bone{width:49px;height:69px;font-size:33px}}
 @media(max-width:425px){.rune-cloth{height:405px}.rune-hand{min-width:156px;min-height:71px}.rune-interpretation-glyph{font-size:37px;min-width:45px}.rune-cast-controls button{width:100%}}
 @media(prefers-reduced-motion:reduce){.rune-cloth.rattling .rune-hand{animation:none}.rune-bone{transition:none}}
+
+
+/* Netlify-only image transforms. Preserve original CSS images on Cloudflare
+   and Render; these routes do not host /.netlify/images. */
+html.netlify-images .home-room-scene,
+html.netlify-images body[data-page="home"] .mystic-room-continuation{
+ background-image:url('/.netlify/images?url=/assets/home-mystic-room-arabic.png&w=1400&q=75');
+}
+html.netlify-images body[data-page="home"] .container:before,
+html.netlify-images .home-light-portal:before{
+ background-image:url('/.netlify/images?url=/assets/home-light-portal.png&w=1200&q=75');
+}

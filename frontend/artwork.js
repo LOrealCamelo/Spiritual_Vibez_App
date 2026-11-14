@@ -193,7 +193,15 @@ const CARD_PANELS={
     "kind": "card"
   }
 };
-function panelIllustration(pack,cell){return '<span class="panel-illustration" aria-hidden="true"><img src="assets/illustrations/'+pack+'.png" alt="" style="--cell-x:'+(cell%2)+';--cell-y:'+Math.floor(cell/2)+'"></span>'}
+// Netlify Image CDN is only available when Netlify is the actual host. Our
+// custom domain still passes through Cloudflare, so it keeps original assets
+// until its DNS/hosting is verified and transferred intentionally.
+function optimizedAsset(path,width){
+ if(!location.hostname.endsWith('.netlify.app'))return path;
+ if(!/^(?:\\/)?assets\\/[a-zA-Z0-9_.\\/-]+$/.test(path))return path;
+ return '/.netlify/images?url='+encodeURIComponent('/'+path.replace(/^\\//,''))+'&w='+Math.round(width)+'&q=75';
+}
+function panelIllustration(pack,cell){return '<span class="panel-illustration" aria-hidden="true"><img src="'+optimizedAsset('assets/illustrations/'+pack+'.png',1200)+'" alt="" style="--cell-x:'+(cell%2)+';--cell-y:'+Math.floor(cell/2)+'"></span>'}
 function panelContents(key,extra=''){
  const p=CARD_PANELS[key];if(!p)throw Error('Unknown panel '+key);
  return panelIllustration(p.pack,p.cell)+'<span class="panel-copy"><span class="panel-title"'+(p.kind==='header'?' role="heading" aria-level="2"':'')+'>'+e(p.title)+'</span><span class="panel-description">'+e(p.description)+'</span>'+extra+'</span>'+(p.kind==='header'?'':'<span class="panel-arrow" aria-hidden="true">›</span>');
