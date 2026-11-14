@@ -46,7 +46,7 @@ const extendedCards=tarotCards;
 const exploreGroups=[
  {title:'Astrology & Charts',items:[['moon','🌒','Natal Moon Phase'],['natal','🪐','Natal Birth Chart'],['bazi','🐲','Chinese Zodiac & BaZi'],['houses','🏡','Astrology Houses'],['asteroids','☄️','Asteroids'],['astro','🌍','Astrocartography'],['calendar','🗓️','13-Month Calendar']]},
  {title:'Numbers & Love',items:[['life','🔢','Life Path'],['numbers','✨','Numerology Academy'],['love','💖','Love Match']]},
- {title:'Wellness & Rituals',items:[['sound','🎵','Sound Frequencies'],['rituals','🕯️','Ritual Finder'],['cycle','🌸','Moon & Period Tracker'],['shadow','📓','Shadow Work']]},
+ {title:'Wellness & Rituals',items:[['sound','🎵','Sound Frequencies'],['rituals','🕯️','Ritual Finder'],['cycle','🌸','Moon & Period Tracker'],['shadow','🌗','Shadow Work Journey']]},
  {title:'Divination & More',items:[['runes','ᚠ','Rune Casting'],['pendulum','🔮','Pendulum'],['oracle','💬','Mystic Companion'],['store','🛍️','Creator Store']]}
 ];
 
@@ -150,17 +150,83 @@ export function LearnScreen({route}:any){const [all,setAll]=useState<any[]>(exte
 }
 export function CosmosScreen({navigation}:any){const [data,setData]=useState<any>(null);return <Screen route="cosmos" title="Moon cycles & daily reflection" value={data}><TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to previous screen" onPress={()=>navigation.goBack()}><Text style={st.back}>← Back</Text></TouchableOpacity><Header label="Cosmos" subtitle="YOUR DAILY COSMIC CHECK-IN"/><NativeDailySky onResult={setData}/></Screen>}
 const toolMap=Object.fromEntries(exploreGroups.flatMap(g=>g.items.map((item:any)=>[item[0],item])));
+
+const SHADOW_PATHS=[
+ {id:'patterns',icon:'🔍',title:'Understand a Pattern',subtitle:'Notice recurring reactions without judgment.',prompts:['What situation or reaction have I noticed more than once?','What feeling or need might be underneath it?','What small response could I try next time?']},
+ {id:'kindness',icon:'💗',title:'Practice Self-Compassion',subtitle:'Treat yourself with more kindness.',prompts:['What part of myself have I been judging lately?','If a friend felt this way, what would I say to them?','What is one kind thing I can offer myself today?']},
+ {id:'boundaries',icon:'🗝️',title:'Find My Boundaries',subtitle:'Listen to discomfort and your needs.',prompts:['When did I feel uncomfortable or stretched too thin?','What need or value might that feeling be pointing to?','What respectful boundary could I communicate?']},
+ {id:'release',icon:'🍂',title:'Release What I Can',subtitle:'Focus on what is within your control.',prompts:['What feels heavy on my mind right now?','Which part of this situation is within my control?','What is one manageable next step or thing I can set down?']}
+];
+function ShadowWorkJourney(){
+ const [themeId,setThemeId]=useState<string|null>(null);
+ const [step,setStep]=useState(0);
+ const [answers,setAnswers]=useState<Record<string,string[]>>({});
+ const [message,setMessage]=useState('');
+ const [grounding,setGrounding]=useState(false);
+ const theme=SHADOW_PATHS.find(t=>t.id===themeId);
+ const response=theme?(answers[theme.id]||[])[step]||'':'';
+ const change=(value:string)=>{if(!theme)return;setAnswers(current=>{const next=(current[theme.id]||[]).slice();next[step]=value;return {...current,[theme.id]:next}});setMessage('')};
+ const save=async()=>{
+  if(!theme)return;
+  const reflections=theme.prompts.map((question,i)=>({question,answer:((answers[theme.id]||[])[i]||'').trim()})).filter(x=>x.answer);
+  if(!reflections.length){setMessage('Write at least one reflection before saving. It is always okay to skip.');return}
+  const text='Shadow Work · '+theme.title+'\n\n'+reflections.map(x=>x.question+'\n'+x.answer).join('\n\n');
+  try{
+   const raw=await AsyncStorage.getItem('sv_journal');let current:any[]=[];
+   try{const parsed=JSON.parse(raw||'[]');if(Array.isArray(parsed))current=parsed}catch{}
+   const next=[{date:new Date().toLocaleDateString(),text},...current].slice(0,100);
+   await AsyncStorage.setItem('sv_journal',JSON.stringify(next));
+   setMessage('Saved privately to your Journal on this device.');
+  }catch{setMessage('Unable to save on this device. Please check your storage.')}
+ };
+ const clear=()=>Alert.alert('Clear this reflection?','This clears the current answers. Entries already saved in your Journal are unaffected.',[
+  {text:'Cancel',style:'cancel'},
+  {text:'Clear answers',style:'destructive',onPress:()=>{if(theme)setAnswers(old=>({...old,[theme.id]:[]}));setStep(0);setMessage('')}}
+ ]);
+ return <View style={{marginBottom:24}}>
+  <LinearGradient colors={['#281D3B','#47304D','#74495E']} start={{x:0,y:0}} end={{x:1,y:1}} style={{padding:18,borderRadius:22,borderWidth:1,borderColor:'#D6AC9F',marginBottom:14}}>
+   <Text style={{color:'#EDCBA9',fontSize:12,fontWeight:'800',letterSpacing:2,textAlign:'center'}}>🌗 A QUIET MOMENT FOR YOURSELF</Text>
+   <Text style={{color:'#FFF5EE',fontSize:27,fontWeight:'800',textAlign:'center',marginTop:12,marginBottom:12}}>Meet Yourself With Curiosity</Text>
+   <Text style={{color:'#F3DFE9',fontSize:15,lineHeight:23,textAlign:'center',marginBottom:18}}>Notice feelings and patterns at your own pace. You never have to revisit a painful memory, and you can skip or stop whenever you want.</Text>
+   <Text style={{color:'#FFEDDB',fontSize:19,fontWeight:'800',marginBottom:11}}>Choose a path to explore</Text>
+   {SHADOW_PATHS.map(path=><TouchableOpacity key={path.id} accessibilityRole="button" accessibilityLabel={path.title} accessibilityState={{selected:themeId===path.id}} onPress={()=>{setThemeId(path.id);setStep(0);setMessage('')}} style={{borderRadius:16,borderWidth:themeId===path.id?2:1,borderColor:themeId===path.id?'#FFE2A6':'#B993B4',backgroundColor:themeId===path.id?'#76516E':'#49334F',padding:15,marginBottom:10,flexDirection:'row',alignItems:'center',gap:12}}>
+    <Text style={{fontSize:27}}>{path.icon}</Text>
+    <View style={{flex:1}}><Text style={{color:'#FFF8F3',fontSize:17,fontWeight:'800'}}>{path.title}</Text><Text style={{color:'#F2DCE8',fontSize:13,lineHeight:19,marginTop:4}}>{path.subtitle}</Text></View>
+   </TouchableOpacity>)}
+   {theme?<View style={{backgroundColor:'#FFF3EC',borderRadius:17,padding:16,marginTop:12}}>
+    <Text style={{color:'#794C70',fontSize:12,fontWeight:'800'}}>QUESTION {step+1} OF {theme.prompts.length} · {theme.title.toUpperCase()}</Text>
+    <View style={{height:7,borderRadius:5,backgroundColor:'#E3CCD9',overflow:'hidden',marginVertical:12}}><View style={{width:((step+1)/3*100)+'%',height:7,backgroundColor:'#AA6697'}}/></View>
+    <Text style={{fontSize:20,fontWeight:'800',color:'#482D47',lineHeight:28,marginBottom:14}}>{theme.prompts[step]}</Text>
+    <TextInput multiline maxLength={4000} accessibilityLabel="Your private reflection" value={response} onChangeText={change} placeholder="Write only what feels helpful, or skip." placeholderTextColor="#877481" textAlignVertical="top" style={{borderRadius:12,borderWidth:1,borderColor:'#AD8FA9',minHeight:130,padding:13,backgroundColor:'#FFFEFC',fontSize:15,color:'#352338',lineHeight:22}}/>
+    <Text style={{color:'#685265',fontSize:12,lineHeight:18,marginTop:10}}>Nothing is saved until you choose Save to Journal.</Text>
+    <View style={{flexDirection:'row',flexWrap:'wrap',gap:9,marginTop:14}}>
+     <TouchableOpacity accessibilityRole="button" disabled={step===0} onPress={()=>{setStep(p=>Math.max(0,p-1));setMessage('')}} style={{backgroundColor:'#573851',padding:12,borderRadius:20,opacity:step===0?.45:1}}><Text style={{color:'#FFF7F0',fontWeight:'800'}}>← Previous</Text></TouchableOpacity>
+     <TouchableOpacity accessibilityRole="button" disabled={step===2} onPress={()=>{setStep(p=>Math.min(2,p+1));setMessage('')}} style={{backgroundColor:'#573851',padding:12,borderRadius:20,opacity:step===2?.45:1}}><Text style={{color:'#FFF7F0',fontWeight:'800'}}>Next / Skip →</Text></TouchableOpacity>
+    </View>
+    <Action text="💗 Save to Journal" onPress={save}/>
+    <Action text="Clear my answers" onPress={clear}/>
+    {message?<Text accessibilityRole="text" style={{color:'#55304E',fontSize:14,fontWeight:'800',marginTop:12}}>{message}</Text>:null}
+   </View>:null}
+   <Text style={{color:'#F5E0E8',fontSize:13,lineHeight:19,marginTop:16}}>✦ This is an optional journaling exercise—not therapy, a diagnosis or a test. If it feels overwhelming, pause and reach out to someone you trust.</Text>
+   <Action text={grounding?'Hide grounding pause':'🌿 Take a grounding pause'} onPress={()=>setGrounding(g=>!g)}/>
+   {grounding?<View style={{padding:14,borderRadius:14,backgroundColor:'#634861',marginTop:8}}><Text style={{color:'#FFF1E7',fontWeight:'800',fontSize:16}}>Come back to the present</Text><Text style={{color:'#F9E9F2',fontSize:14,lineHeight:21,marginTop:8}}>Feel your feet on the ground. Look around and name three things you can see. Take a comfortable breath, then choose whether to continue or finish.</Text></View>:null}
+  </LinearGradient>
+  <Info warning>Reflections are private and stored on this device only when you tap Save to Journal. Nothing is posted publicly and entries do not sync automatically.</Info>
+ </View>;
+}
+
 export function ExploreScreen({route,navigation}:any){const {width}=useWindowDimensions();const toolWidth=(Math.min(width-24,576)-12)/2;const [tool,setTool]=useState<string|null>(null);const [date,setDate]=useState('');const [time,setTime]=useState('12:00');const [city,setCity]=useState('Utica, NY');const [query,setQuery]=useState('');const [signA,setSignA]=useState('Scorpio');const [signB,setSignB]=useState('Taurus');const [period,setPeriod]=useState('');const [cycleLength,setCycleLength]=useState('28');const [result,setResult]=useState<any>(null);const [error,setError]=useState('');const [busy,setBusy]=useState(false);
  useEffect(()=>{if(route.params?.tool)setTool(toolMap[route.params.tool]?route.params.tool:null)},[route.params]);
  const go=(id:string)=>{setTool(id);setError('');setResult(null)};
  const run=async()=>{if(tool==='store'){await Linking.openURL(STORE_URL).catch(()=>Alert.alert('Unable to open store','Please visit neurospicymystic.com in your browser.'));return}if(!tool)return;setBusy(true);setError('');setResult(null);const [yy,mm,dd]=date.split('-').map(Number);
   if(tool==='cycle'){if(!period){setError('Enter the start of your last period.');setBusy(false);return}const days=Math.floor((Date.now()-new Date(period+'T12:00:00').getTime())/86400000),length=Number(cycleLength),n=new Date(period+'T12:00:00');n.setDate(n.getDate()+(Math.floor(Math.max(0,days)/length)+1)*length);setResult({Estimated_cycle_day:Math.max(0,days)%length+1,Estimated_next_period:n.toDateString(),Note:'Not fertility or contraceptive advice.'});setBusy(false);return}
   if(['moon','natal','bazi','life','numbers'].includes(tool)){const valid=/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&new Date(date+'T12:00:00Z').toISOString().slice(0,10)===date&&yy>=1900&&yy<=2100;if(!valid){setError('Enter a valid birth date from 1900 to 2100 (YYYY-MM-DD).');setBusy(false);return}if(!['life','numbers'].includes(tool)&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){setError('Enter a birth time in HH:MM format.');setBusy(false);return}}
-  const routes:Record<string,()=>Promise<any>>={bazi:()=>post('/astrology/bazi',{birth_year:yy,birth_month:mm,birth_day:dd,birth_hour:Number(time.slice(0,2))}),houses:()=>get('/astrology/houses'),asteroids:()=>get('/astrology/asteroids'),life:()=>post('/synastry/life-path',{birth_year:yy,birth_month:mm,birth_day:dd}),numbers:()=>post('/synastry/life-path',{birth_year:yy,birth_month:mm,birth_day:dd}),love:()=>post('/synastry/compatibility',{partner_a_sign:signA,partner_b_sign:signB}),sound:()=>get('/rituals/frequencies'),rituals:()=>get('/rituals/search?query='+encodeURIComponent(query)),shadow:()=>get('/wellness/shadow-prompts'),runes:()=>post('/divination/runes/cast',{rune_count:3}),pendulum:()=>post('/divination/pendulum',{question:query||'What matters most today?'}),oracle:()=>post('/oracle/chat',{message:query||'What should I reflect on?'})};
+  const routes:Record<string,()=>Promise<any>>={bazi:()=>post('/astrology/bazi',{birth_year:yy,birth_month:mm,birth_day:dd,birth_hour:Number(time.slice(0,2))}),houses:()=>get('/astrology/houses'),asteroids:()=>get('/astrology/asteroids'),life:()=>post('/synastry/life-path',{birth_year:yy,birth_month:mm,birth_day:dd}),numbers:()=>post('/synastry/life-path',{birth_year:yy,birth_month:mm,birth_day:dd}),love:()=>post('/synastry/compatibility',{partner_a_sign:signA,partner_b_sign:signB}),sound:()=>get('/rituals/frequencies'),rituals:()=>get('/rituals/search?query='+encodeURIComponent(query)),runes:()=>post('/divination/runes/cast',{rune_count:3}),pendulum:()=>post('/divination/pendulum',{question:query||'What matters most today?'}),oracle:()=>post('/oracle/chat',{message:query||'What should I reflect on?'})};
   try{setResult(await routes[tool]())}catch{setError('This tool needs the connected backend. Your local app interface is ready, but no fabricated result will be shown.')}finally{setBusy(false)}
  };
  return <Screen route={tool?'explore/'+tool:'explore'} title={toolMap[tool||'']?.[2]||'Explore More'} value={result}><TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to previous screen" onPress={()=>navigation.goBack()}><Text style={st.back}>← Back</Text></TouchableOpacity><Header label="Explore" subtitle="YOUR COSMIC PLAYGROUND"/>{!tool?<><Title eyebrow="All your features" title="Explore More ✨" sub="Tap a feature to open its own screen."/>{exploreGroups.map(g=><View key={g.title}><Text style={st.section}>{g.title}</Text><View style={st.twoCols}>{g.items.map(([id,ico,title])=><IllustratedToolCard key={id} tool={id} title={title} width={toolWidth} onPress={()=>go(id)}/>)}</View></View>)}</>:<>
- <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to all features" onPress={()=>go('')}><Text style={st.back}>← All features</Text></TouchableOpacity><Title large={tool==='natal'} eyebrow="Your personal tools" title={(toolMap[tool]?.[1]||'✨')+' '+(toolMap[tool]?.[2]||tool)} sub="Powered by Spiritual Vibz."/>
+ <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to all features" onPress={()=>go('')}><Text style={st.back}>← All features</Text></TouchableOpacity><Title large={tool==='natal'} eyebrow="Your personal tools" title={(toolMap[tool]?.[1]||'✨')+' '+(toolMap[tool]?.[2]||tool)} sub={tool==='shadow'?'Choose a theme and take one gentle step at a time.':'Powered by Spiritual Vibz.'}/>
+ {tool==='shadow'?<ShadowWorkJourney/>:null}
  {tool==='calendar'?<EquinoxCalendar onResult={setResult}/>:null}
  {tool==='moon'?<Action text="Current Moon & monthly calendar" onPress={()=>navigation.navigate('Cosmos')}/>:null}
  {['natal','moon','asteroids','astro'].includes(tool)?<NativeBirthChart key={tool} tool={tool} onResult={setResult}/>:null}
@@ -171,7 +237,7 @@ export function ExploreScreen({route,navigation}:any){const {width}=useWindowDim
  {['rituals','pendulum','oracle'].includes(tool)?<Input title="Your intention or question" value={query} onChange={setQuery} placeholder="Type your question..."/>:null}
  {tool==='cycle'?<><Input title="Last period start YYYY-MM-DD" value={period} onChange={setPeriod}/><Input title="Average cycle length" value={cycleLength} onChange={setCycleLength} keyboardType="numeric"/><Info warning>Period estimates stay in this app session. Do not use this tracker to predict fertile days, and do not rely on it for contraception.</Info></>:null}
  {tool==='sound'?<Info>Frequency education is connected to your existing API. Audio playback will be available when licensed or original tracks are added.</Info>:null}
- {tool==='houses'?<HouseLessons/>:null}{['life','numbers'].includes(tool)?<NumerologyLessons/>:null}{['natal','moon','asteroids','astro','houses','calendar'].includes(tool)?null:tool==='store'?<Panel><Text style={st.body}>All products and checkout are on the NeuroSpicy Mystic website.</Text><Action text="Visit my store ↗" onPress={run}/></Panel>:<Action text={busy?'Working…':'✨ Explore this feature'} onPress={run} disabled={busy}/>}{error?<Info warning>{error}</Info>:null}
+ {tool==='houses'?<HouseLessons/>:null}{['life','numbers'].includes(tool)?<NumerologyLessons/>:null}{['natal','moon','asteroids','astro','houses','calendar','shadow'].includes(tool)?null:tool==='store'?<Panel><Text style={st.body}>All products and checkout are on the NeuroSpicy Mystic website.</Text><Action text="Visit my store ↗" onPress={run}/></Panel>:<Action text={busy?'Working…':'✨ Explore this feature'} onPress={run} disabled={busy}/>}{error?<Info warning>{error}</Info>:null}
  {result&&!['natal','moon','asteroids','astro','calendar'].includes(tool)?<Panel exportTitle={toolMap[tool]?.[2]} exportValue={result}><Text style={st.panelTitle}>Your {toolMap[tool]?.[2]} result</Text><ResultDetails value={result}/></Panel>:null}
  </>}</Screen>
 }
