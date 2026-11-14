@@ -78,6 +78,19 @@ def exercise(base_url, screenshots):
   for tool in ['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
+   if tool=='rituals':
+    assert page.locator('.sv-ritual-card').count()==6
+    assert page.locator('.sv-ritual-bookshelf-art img').count()==1
+    assert page.locator('.sv-ritual-country').count()>0
+    page.locator('.sv-ritual-card summary').first.click()
+    assert page.locator('.sv-ritual-card').first.get_attribute('open') is not None
+    page.locator('[data-action="ritual-book-next"]').click()
+    assert 'Page 2 of 3' in page.locator('#ritual-reader').inner_text()
+    page.locator('[data-action="ritual-letter"][data-letter="Z"]').click()
+    assert 'Zimbabwe' in page.locator('#sv-ritual-world').inner_text()
+    assert page.locator('.ritual-search-original').count()==1
+    page.screenshot(path=str(screenshots/'web/desktop/ritual-library-illustrated.png'),full_page=True)
+    requests.append(tool);continue
    if tool=='shadow':
     assert page.locator('.shadow-journey').count()==1
     assert 'What is shadow work?' in page.locator('main').inner_text()
