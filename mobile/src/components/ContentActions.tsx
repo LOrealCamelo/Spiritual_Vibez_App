@@ -7,7 +7,7 @@ import {HomePaletteContext} from './HomePalette';
 import {addJournalContent} from '../content/journal';
 const Format=require('../content/content-format');
 export const ContentLocationContext=createContext('home');
-export type ContentProps={title:string;text?:string;value?:any;route?:string;imageSvg?:string;imageSource?:ImageSourcePropType};
+export type ContentProps={title:string;text?:string;value?:any;route?:string;imageSvg?:string;imageSource?:ImageSourcePropType;imageSources?:ImageSourcePropType[]};
 export function collectContentText(children:React.ReactNode):string{
  const parts:string[]=[];
  function visit(node:any){
@@ -25,11 +25,11 @@ export function ContentActions(props:ContentProps){
  const location=useContext(ContentLocationContext),light=useContext(HomePaletteContext),{width,height}=useWindowDimensions();
  const [preview,setPreview]=useState<any>(null),[busy,setBusy]=useState(false),[saved,setSaved]=useState(false),[ready,setReady]=useState(false);
  const exportSize=useRef({width:1,height:1});
- const assetsReady=useRef({layout:false,logo:false,art:false});
+ const assetsReady=useRef({layout:false,logo:false,art:false});const galleryLoaded=useRef(0);
  const markReady=(part: "layout"|"logo"|"art")=>{assetsReady.current[part]=true;setReady(Object.values(assetsReady.current).every(Boolean))};
- const openPreview=()=>{const item=snapshot();assetsReady.current={layout:false,logo:false,art:!item.imageSvg&&!item.imageSource};setReady(false);setPreview(item)};
+ const openPreview=()=>{const item=snapshot();galleryLoaded.current=0;assetsReady.current={layout:false,logo:false,art:!item.imageSvg&&!item.imageSource&&!item.imageSources?.length};setReady(false);setPreview(item)};
  const capture=useRef<ScrollView>(null);const cardWidth=Math.min(width-80,440);
- const snapshot=()=>Format.snapshot({...props,route:props.route||location});
+ const snapshot=()=>({...Format.snapshot({...props,route:props.route||location}),imageSources:props.imageSources});
  const add=async()=>{try{const item=snapshot();await addJournalContent(item.title,item.text);setSaved(true)}catch{Alert.alert('Could not add to journal','Please try again after checking the available storage on this device.')}};
  const send=async()=>{
   if(!preview||!ready)return;setBusy(true);
@@ -38,8 +38,8 @@ export function ContentActions(props:ContentProps){
   }catch{Alert.alert('Sharing did not finish','Your reading is still available. Please try sharing again.')}finally{setBusy(false)}
  };
  return <><View style={styles.row}>
-  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Share '+props.title} onPress={openPreview} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]}>Share</Text></TouchableOpacity>
-  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Add '+props.title+' to journal'} onPress={add} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]}>Add to journal</Text></TouchableOpacity>
+  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Share complete '+props.title} onPress={openPreview} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]>Share full reading</Text></TouchableOpacity>
+  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Save complete '+props.title+' to journal'} onPress={add} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]>Save full reading to Journal</Text></TouchableOpacity>
  </View>{saved?<Text accessibilityRole="alert" style={[styles.confirmation,light?styles.lightInk:null]}>Added to your journal.</Text>:null}
  {preview?<Modal transparent animationType="slide" onRequestClose={()=>setPreview(null)}><View style={styles.overlay}><View accessibilityViewIsModal style={[styles.sheet,{maxHeight:height*.9}]}>
   <Text accessibilityRole="header" style={styles.heading}>Share {preview.title}</Text>
@@ -47,12 +47,14 @@ export function ContentActions(props:ContentProps){
    <View collapsable={false} style={[styles.exportCard,{width:cardWidth}]} onLayout={()=>markReady("layout")}>
     <Image source={require('../../assets/spiritual-vibz-logo-compact.png')} resizeMode="contain" onLoadEnd={()=>markReady('logo')} style={{width:200,height:80,marginBottom:20}}/>
     <Text style={styles.heading}>{preview.title}</Text>
-    {preview.imageSvg?<SvgXml xml={preview.imageSvg} width={cardWidth-40} height={cardWidth-40} onLayout={()=>markReady("art")}/>:preview.imageSource?<Image source={preview.imageSource} resizeMode="contain" onLoadEnd={()=>markReady("art")} style={{width:cardWidth-40,height:280}}/>:null}
-    <Text style={styles.exportBody}>{Format.summary(preview)}</Text><View style={styles.rule}/><Text style={styles.cta}>Get your own here</Text><Text style={styles.url}>{preview.url}</Text>
+    {preview.imageSvg?<SvgXml xml={preview.imageSvg} width={cardWidth-40} height={cardWidth-40} onLayout={()=>markReady("art")}/>:preview.imageSources?.length?<View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:8}}>
+     {preview.imageSources.map((source:ImageSourcePropType,i:number)=><Image key={i} source={source} resizeMode="contain" onLoadEnd={()=>{galleryLoaded.current++;if(galleryLoaded.current>=preview.imageSources.length)markReady('art')}} style={{width:Math.min(130,(cardWidth-64)/3),height:210}}/>)}
+    </View>:preview.imageSource?<Image source={preview.imageSource} resizeMode="contain" onLoadEnd={()=>markReady("art")} style={{width:cardWidth-40,height:280}}/>:null}
+    <Text style={styles.exportBody}>{preview.imageSources?.length?preview.text:Format.summary(preview)}</Text><View style={styles.rule}/><Text style={styles.cta}>Get your own here</Text><Text style={styles.url}>{preview.url}</Text>
    </View>
   </ScrollView>
-  <Text style={styles.note}>Shares the image, full reading text and app link.</Text><View style={styles.row}>
-   <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share image and text" disabled={busy||!ready} onPress={send} style={styles.previewAction}>{busy?<ActivityIndicator color="#35174d"/>:<Text style={styles.lightInk}>Share image &amp; text</Text>}</TouchableOpacity>
+  <Text style={styles.note}>One share includes all cards or chart artwork, the complete reading text, and the app link.</Text><View style={styles.row}>
+   <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share full reading" disabled={busy||!ready} onPress={send} style={styles.previewAction}>{busy?<ActivityIndicator color="#35174d"/>:<Text style={styles.lightInk}>Share full reading</Text>}</TouchableOpacity>
    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close share preview" disabled={busy} onPress={()=>setPreview(null)} style={styles.previewAction}><Text style={styles.lightInk}>Close</Text></TouchableOpacity>
   </View>
  </View></View></Modal>:null}</>;
