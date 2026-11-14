@@ -5,7 +5,8 @@ const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 // Netlify calls the Render API directly, so long-running chart calculations
 // are not constrained by Netlify's reverse-proxy timeout.
 // Existing local and Render-hosted copies continue to use same-origin /api.
-const API=(location.hostname.endsWith('.netlify.app')||location.hostname==='app.neurospicymystic.com')
+const HOSTNAME=String(location.hostname||'');
+const API=(HOSTNAME.endsWith('.netlify.app')||HOSTNAME==='app.neurospicymystic.com')
   ? 'https://spiritual-vibez-app.onrender.com/api' : '/api';
 const STORE_URL='https://neurospicymystic.com/';
 const signs=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
