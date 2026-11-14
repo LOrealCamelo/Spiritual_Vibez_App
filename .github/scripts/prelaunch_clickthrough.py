@@ -292,6 +292,46 @@ def clicks(page,origin):
     save("browser","JavaScript page errors",not JS_ERRORS,json.dumps(JS_ERRORS[:10]))
     save("browser","HTTP API responses without errors",not HTTP_ERRORS,json.dumps(HTTP_ERRORS[:10]))
 
+
+def check_http_security_seo():
+    """Non-invasive live HTML/header and indexability checks; informational only."""
+    targets=[("custom",CUSTOM),("temporary Netlify",NETLIFY),("Render",RENDER)]
+    for name,base in targets:
+        for path in ["/","/robots.txt","/sitemap.xml","/assets/icons/spiritual-vibz.webmanifest"]:
+            url=base+path
+            try:
+                with urlopen(Request(url,headers={"User-Agent":"SpiritualVibezPrelaunchAudit/1.0"}),timeout=40) as response:
+                    status=response.status
+                    data=response.read(120000).decode("utf-8",errors="replace")
+                    headers=response.headers
+            except HTTPError as exc:
+                status=exc.code
+                data=exc.read(1000).decode("utf-8",errors="replace")
+                headers=exc.headers
+            except Exception as exc:
+                print("AUDIT ERROR",name,path,str(exc)[:160],flush=True)
+                continue
+            if path=="/":
+                values={key:headers.get(key) for key in ["Server","Content-Type","Content-Security-Policy","Strict-Transport-Security","X-Content-Type-Options","X-Frame-Options","Referrer-Policy","Permissions-Policy","X-Robots-Tag","CF-Ray","X-Nf-Request-Id"] if headers.get(key) is not None}
+                info={"http":status,"headers":values,"title":("<title" in data.lower()),"description":('name="description"' in data.lower()),"canonical":('rel="canonical"' in data.lower()),"og":('property="og:' in data.lower()),"html_app_empty":('<div id="app"></div>' in data)}
+            elif path=="/robots.txt":
+                info={"http":status,"content_type":headers.get("Content-Type"),"robots_format":("User-agent:" in data or "user-agent:" in data),"body_start":data[:90]}
+            elif path=="/sitemap.xml":
+                info={"http":status,"content_type":headers.get("Content-Type"),"sitemap_format":("<urlset" in data or "<sitemapindex" in data),"body_start":data[:90]}
+            else:
+                info={"http":status,"content_type":headers.get("Content-Type"),"valid_manifest":data.strip().startswith("{")}
+            print("AUDIT "+json.dumps({"site":name,"path":path,**info}),flush=True)
+    try:
+        request=Request(RENDER+"/api/health",method="OPTIONS",headers={
+            "Origin":"https://example-unrelated-site.invalid",
+            "Access-Control-Request-Method":"GET"})
+        with urlopen(request,timeout=30) as response:
+            print("AUDIT CORS "+json.dumps({"http":response.status,
+                "allow_origin":response.headers.get("Access-Control-Allow-Origin"),
+                "allow_credentials":response.headers.get("Access-Control-Allow-Credentials")}),flush=True)
+    except Exception as exc:
+        print("AUDIT CORS ERROR "+str(exc)[:200],flush=True)
+
 def main():
     for name,origin in [("Netlify",NETLIFY),("custom",CUSTOM),("Render",RENDER)]:
         for suffix in ["/","/assets/icons/spiritual-vibz.webmanifest","/assets/tarot/00-the-fool.png"]:
@@ -327,6 +367,7 @@ def main():
                  "state.online="+str(page.evaluate("state.online")))
             clicks(page,origin[0])
         browser.close()
+    check_http_security_seo()
     (ROOT/"results.json").write_text(json.dumps({"results":RESULTS,"jsErrors":JS_ERRORS,"httpErrors":HTTP_ERRORS},indent=2))
     print("SUMMARY "+json.dumps({"passed":sum(r["passed"] for r in RESULTS),
       "failed":sum(not r["passed"] for r in RESULTS),
