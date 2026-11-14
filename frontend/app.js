@@ -2,7 +2,11 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const API='/api';
+// Netlify calls the Render API directly, so long-running chart calculations
+// are not constrained by Netlify's reverse-proxy timeout.
+// Existing local and Render-hosted copies continue to use same-origin /api.
+const API=(location.hostname.endsWith('.netlify.app')||location.hostname==='app.neurospicymystic.com')
+  ? 'https://spiritual-vibez-app.onrender.com/api' : '/api';
 const STORE_URL='https://neurospicymystic.com/';
 const signs=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const major=['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
