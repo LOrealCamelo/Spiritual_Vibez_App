@@ -393,3 +393,65 @@ body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1
 .share-preview-actions details summary{cursor:pointer;font-weight:700;color:#543657}
 .share-preview-actions details .btn{display:inline-flex;margin:8px 8px 2px 0;min-width:180px}
 @media(max-width:550px){.complete-reading-share{padding:16px}.complete-reading-share .content-actions{flex-direction:column}.complete-reading-share .content-actions button{flex-basis:auto;width:100%}.share-preview-actions details .btn{width:100%;margin:8px 0 0}}
+
+
+/* Rune Casting Sanctuary — contemporary cast on carved-bone cloth. */
+.rune-sanctuary{max-width:1080px;margin:18px auto 34px;padding:clamp(16px,3.2vw,38px);border-radius:26px;background:radial-gradient(ellipse at 55% -25%,#92708099,transparent 55%),linear-gradient(145deg,#251c34,#4b3148 65%,#2b2739);border:1px solid #cfac8a;color:#fffcf4;box-shadow:0 18px 55px #1d0a2755;isolation:isolate}
+.rune-sanctuary *{box-sizing:border-box}
+.rune-sanctuary h2,.rune-sanctuary h3,.rune-sanctuary h4{color:#fff3da}
+.rune-heading{text-align:center;max-width:740px;margin:0 auto 24px}
+.rune-kicker{font-size:.78rem;text-transform:uppercase;letter-spacing:.13em;color:#f3c7aa;font-weight:800}
+.rune-heading h2{font:700 clamp(2.1rem,5vw,3.35rem)/1.15 Georgia,serif;margin:13px 0}
+.rune-heading p,.rune-sanctuary p{line-height:1.65}
+.rune-heading p{color:#f9e3e9}
+.rune-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:13px 0 24px}
+.rune-mode{cursor:pointer;border:1px solid #b89390;border-radius:15px;padding:14px 10px;background:#76536a65;color:#fff3e8;font-weight:800;min-height:72px}
+.rune-mode small{display:block;font-size:.76rem;font-weight:500;color:#f4d6e3;margin-top:7px}
+.rune-mode.selected{border-color:#ffe0a0;outline:2px solid #e5b782;background:#805a75}
+.rune-question{display:block;margin:17px 0;color:#fff5e7;font-weight:750}
+.rune-question span{font-weight:400;font-size:.82rem;color:#f0dce6}
+.rune-question input{display:block;margin-top:8px;width:100%;background:#fffaf5;color:#32273e;border:1px solid #e8d3db;border-radius:14px;font:inherit;padding:13px 15px;min-height:48px}
+.rune-settings{display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:13px}
+.rune-settings label{display:flex;align-items:center;gap:10px;font-size:.9rem;color:#fff0e8}
+.rune-settings input{width:18px;height:18px;accent-color:#ad70a4}
+.rune-help,.rune-minor{font-size:.87rem;color:#f1dbe4;line-height:1.55}
+.rune-cloth{height:clamp(390px,51vw,580px);width:100%;position:relative;overflow:hidden;border-radius:46% 46% 43% 43% / 41% 43% 46% 47%;border:12px solid #a98479;background:radial-gradient(ellipse at center,#907a9c 0%,#695579 42%,#44334f 72%,#2d263b 100%);box-shadow:inset 0 0 0 2px #f1d3a99c,inset 0 0 48px #140e2270,0 15px 30px #1f12284f;touch-action:none;user-select:none;margin:12px auto}
+.rune-cloth::before{content:"";position:absolute;inset:8%;border:2px dashed #e9c68e75;border-radius:50%;pointer-events:none}
+.rune-cloth::after{content:"✶ ✦ ✶";position:absolute;top:7%;width:100%;text-align:center;font-family:serif;font-size:22px;letter-spacing:12px;color:#dbc1a26b;pointer-events:none}
+.rune-cloth-ring{position:absolute;inset:23%;border:1px solid #f7d8ab55;border-radius:50%;pointer-events:none}
+.rune-cloth-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font:78px Georgia,serif;color:#efc89a35;pointer-events:none}
+.rune-stones{position:absolute;inset:0}
+.rune-bone{position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;width:56px;height:78px;z-index:2;border-radius:41% 52% 46% 51% / 34% 39% 42% 38%;border:2px solid #ad906f;background:radial-gradient(ellipse at 25% 18%,#fff4d7,#ecd6af 48%,#bea17d 92%);box-shadow:4px 8px 12px #160d2580,inset -3px -4px 8px #b39a7475;color:#4e3642;font-size:38px;font-family:"Noto Sans Runic","Segoe UI Symbol","DejaVu Sans",serif;cursor:pointer;will-change:transform;transition:box-shadow .15s}
+.rune-bone:hover,.rune-bone:focus-visible{box-shadow:4px 8px 10px #160d2580,0 0 0 3px #ffddaa;z-index:4}
+.rune-bone.face-down{background:radial-gradient(ellipse at 35% 24%,#eedcc4,#b49b8c);color:#cdbba6}
+.rune-bone.reversed .rune-bone-glyph{transform:rotate(180deg)}
+.rune-bone-glyph{display:block;text-shadow:0 1px 0 #fffaea}
+.rune-hand{position:absolute;z-index:3;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:175px;min-height:84px;padding:12px;border:1px solid #f2d5a6;outline-offset:3px;border-radius:60% 60% 38% 38%;background:linear-gradient(140deg,#53354ae0,#2e243be8);color:#ffe9d0;text-align:center;cursor:grab;box-shadow:0 7px 15px #1d0f22a3}
+.rune-hand-mark{font:22px Georgia,serif;letter-spacing:.11em}.rune-hand-label{font-size:.74rem;font-weight:800}
+.rune-cloth.rattling .rune-hand{animation:runeRattle .12s linear infinite alternate;cursor:grabbing}
+.rune-cloth.casting .rune-hand{opacity:.13;pointer-events:none}
+@keyframes runeRattle{from{transform:translateX(calc(-50% - 3px)) rotate(-4deg)}to{transform:translateX(calc(-50% + 3px)) rotate(4deg)}}
+.rune-status{min-height:28px;text-align:center;color:#f6ddbd;font-size:.94rem;margin:10px 0}
+.rune-cast-controls{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.rune-cast-controls button{border-radius:22px;padding:12px 20px;min-height:49px;cursor:pointer;font-size:1rem;font-weight:800}
+.rune-cast-button{border:1px solid #ffe2ac;background:linear-gradient(145deg,#f1bce1,#e8c3a6);color:#3c2a3f}
+.rune-secondary{background:#4c3455;color:#fff1ec;border:1px solid #c1a1ba}
+.rune-sanctuary button:focus-visible,.rune-sanctuary input:focus-visible,.rune-sanctuary a:focus-visible,.rune-hand:focus-visible{outline:3px solid #ffe69e;outline-offset:3px}
+.rune-result-head{text-align:center;padding:10px 0 12px}
+.rune-result-head h3{font-size:1.6rem;margin-bottom:5px}
+.rune-result-head p{color:#f4dce4}
+.rune-interpretation{display:flex;gap:16px;align-items:flex-start;border:1px solid #edd2bb;border-radius:16px;background:#fff6eb;color:#3f2d44;padding:19px;margin:12px 0}
+.rune-interpretation h4{font-size:1.15rem;margin:2px 0 8px;color:#533457}
+.rune-interpretation p{font-size:.94rem;color:#493649;margin:5px 0}
+.rune-interpretation p strong{color:#613b58}
+.rune-interpretation-glyph{min-width:58px;font-size:45px;font-family:"Noto Sans Runic","Segoe UI Symbol",serif;color:#663f59;text-align:center}
+.rune-interpretation p.rune-meta{font-size:.8rem;color:#775c77}
+.rune-conclusion{padding:19px 21px;border-radius:15px;border:1px solid #dcbda3;background:#76556c;color:#fff4e9;margin-top:16px}
+.rune-conclusion p{color:#fff1e8;margin:6px 0}
+.rune-history{margin-top:23px;background:#e4d1e4f5;color:#402c46;border-radius:17px;border:1px solid #e8cfb1;padding:14px 19px}
+.rune-history summary{cursor:pointer;font-weight:800;color:#503150}
+.rune-history p{color:#4b344c;font-size:.91rem}
+.rune-history a{color:#673973;text-decoration:underline}
+@media(max-width:710px){.rune-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.rune-cloth{height:450px;border-width:8px}.rune-sanctuary{padding:17px}.rune-interpretation{padding:14px}.rune-bone{width:49px;height:69px;font-size:33px}}
+@media(max-width:425px){.rune-cloth{height:405px}.rune-hand{min-width:156px;min-height:71px}.rune-interpretation-glyph{font-size:37px;min-width:45px}.rune-cast-controls button{width:100%}}
+@media(prefers-reduced-motion:reduce){.rune-cloth.rattling .rune-hand{animation:none}.rune-bone{transition:none}}
