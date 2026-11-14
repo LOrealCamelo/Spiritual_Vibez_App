@@ -38,8 +38,8 @@ export function ContentActions(props:ContentProps){
   }catch{Alert.alert('Sharing did not finish','Your reading is still available. Please try sharing again.')}finally{setBusy(false)}
  };
  return <><View style={styles.row}>
-  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Share complete '+props.title} onPress={openPreview} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]>Share full reading</Text></TouchableOpacity>
-  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Save complete '+props.title+' to journal'} onPress={add} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]>Save full reading to Journal</Text></TouchableOpacity>
+  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Share complete '+props.title} onPress={openPreview} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]}>Share full reading</Text></TouchableOpacity>
+  <TouchableOpacity accessibilityRole="button" accessibilityLabel={'Save complete '+props.title+' to journal'} onPress={add} style={[styles.action,light?styles.lightBorder:null]}><Text style={[styles.actionText,light?styles.lightInk:null]}>Save full reading to Journal</Text></TouchableOpacity>
  </View>{saved?<Text accessibilityRole="alert" style={[styles.confirmation,light?styles.lightInk:null]}>Added to your journal.</Text>:null}
  {preview?<Modal transparent animationType="slide" onRequestClose={()=>setPreview(null)}><View style={styles.overlay}><View accessibilityViewIsModal style={[styles.sheet,{maxHeight:height*.9}]}>
   <Text accessibilityRole="header" style={styles.heading}>Share {preview.title}</Text>
