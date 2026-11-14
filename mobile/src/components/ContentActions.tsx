@@ -50,7 +50,7 @@ export function ContentActions(props:ContentProps){
     {preview.imageSvg?<SvgXml xml={preview.imageSvg} width={cardWidth-40} height={cardWidth-40} onLayout={()=>markReady("art")}/>:preview.imageSources?.length?<View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:8}}>
      {preview.imageSources.map((source:ImageSourcePropType,i:number)=><Image key={i} source={source} resizeMode="contain" onLoadEnd={()=>{galleryLoaded.current++;if(galleryLoaded.current>=preview.imageSources.length)markReady('art')}} style={{width:Math.min(130,(cardWidth-64)/3),height:210}}/>)}
     </View>:preview.imageSource?<Image source={preview.imageSource} resizeMode="contain" onLoadEnd={()=>markReady("art")} style={{width:cardWidth-40,height:280}}/>:null}
-    <Text style={styles.exportBody}>{preview.imageSources?.length?preview.text:Format.summary(preview)}</Text><View style={styles.rule}/><Text style={styles.cta}>Get your own here</Text><Text style={styles.url}>{preview.url}</Text>
+    <Text style={styles.exportBody}>{preview.imageSources?.length||preview.route==='explore/runes'?preview.text:Format.summary(preview)}</Text><View style={styles.rule}/><Text style={styles.cta}>Get your own here</Text><Text style={styles.url}>{preview.url}</Text>
    </View>
   </ScrollView>
   <Text style={styles.note}>One share includes all card or chart artwork and the complete text. Review birth details and personal reflections before sending.</Text><View style={styles.row}>
