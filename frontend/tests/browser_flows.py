@@ -78,6 +78,22 @@ def exercise(base_url, screenshots):
   for tool in ['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','rituals','shadow','runes','pendulum','oracle']:
    page.evaluate('(tool)=>transition("explore",tool)',tool)
    if page.locator('#birth-date').count():page.locator('#birth-date').fill('1996-11-05')
+   if tool=='shadow':
+    assert page.locator('.shadow-journey').count()==1
+    assert 'What is shadow work?' in page.locator('main').inner_text()
+    requests.append(tool);continue
+   if tool=='runes':
+    assert page.locator('.rune-sanctuary').count()==1
+    assert '24 Elder Futhark' in page.locator('main').inner_text()
+    page.locator('[data-action="rune-layout"][data-layout="cross"]').click()
+    page.locator('[data-action="rune-cast"]').click()
+    page.wait_for_selector('.rune-result-head',timeout=10000)
+    assert page.locator('.rune-bone').count()==5
+    reading=page.evaluate('RuneCasting.getState().result')
+    assert reading is not None and len(reading['cast'])==5
+    assert len(set(x['rune']['name'] for x in reading['cast']))==5
+    assert page.locator('.complete-reading-share [data-action="content-share"]').count()==1
+    requests.append(tool);continue
    if tool=='houses':
     assert page.locator('.learning-reference .reference-grid').count()>0
     assert 'These are general house meanings' in page.locator('main').inner_text()
