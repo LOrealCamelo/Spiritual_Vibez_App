@@ -93,6 +93,15 @@ def serve_guide_illustration():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "guide.svg"), media_type="image/svg+xml")
 
 
+@app.get("/rune-library.js", include_in_schema=False)
+def serve_rune_library():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "rune-library.js"), media_type="text/javascript")
+
+@app.get("/rune-casting.js", include_in_schema=False)
+def serve_rune_casting():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "rune-casting.js"), media_type="text/javascript")
+
+
 @app.get('/artwork.js', include_in_schema=False)
 def serve_artwork_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'artwork.js'), media_type='text/javascript')
