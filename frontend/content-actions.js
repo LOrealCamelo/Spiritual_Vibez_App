@@ -134,7 +134,7 @@ async function makeContentImage(item){
 function closeContentPreview(){if(!sharePreview)return;sharePreview.dialog.close?.();sharePreview.dialog.remove();if(sharePreview.url)URL.revokeObjectURL(sharePreview.url);sharePreview=null;}
 async function previewContentShare(item){
  closeContentPreview();const snapshot=resolveContent(item),dialog=document.createElement('dialog');dialog.className='share-preview';dialog.setAttribute('aria-label','Share '+snapshot.title);
- dialog.innerHTML='<h2 tabindex="-1" autofocus>'+e(snapshot.title)+'</h2><p role="status">Preparing your result image…</p><div class="share-preview-art"></div><label>Reading text and link<textarea readonly rows="3">'+e(ContentFormat.message(snapshot))+'</textarea></label><div class="share-preview-actions"><button class="btn" data-action="content-send" disabled>Share full reading</button><details><summary>More sharing options</summary><a class="btn" data-export-download download>Download full image</a><button class="btn" data-action="content-copy">Copy full reading and link</button></details><button class="btn" data-action="content-close">Close</button></div>';
+ dialog.innerHTML='<h2 tabindex="-1" autofocus>'+e(snapshot.title)+'</h2><p class="share-privacy-note">This shares the complete result, including any birth details or personal reflections it contains. Please review before sending.</p><p role="status">Preparing your result image…</p><div class="share-preview-art"></div><label>Reading text and link<textarea readonly rows="3">'+e(ContentFormat.message(snapshot))+'</textarea></label><div class="share-preview-actions"><button class="btn" data-action="content-send" disabled>Share full reading</button><details><summary>More sharing options</summary><a class="btn" data-export-download download>Download full image</a><button class="btn" data-action="content-copy">Copy full reading and link</button></details><button class="btn" data-action="content-close">Close</button></div>';
  document.body.append(dialog);sharePreview={dialog,item:snapshot,file:null,url:null};dialog.showModal?dialog.showModal():dialog.setAttribute('open','');
  dialog.addEventListener('close',()=>{if(sharePreview?.dialog===dialog)closeContentPreview();});
  try{const blob=await makeContentImage(snapshot);if(sharePreview?.dialog!==dialog)return;
@@ -143,7 +143,7 @@ async function previewContentShare(item){
   const files=!!navigator.canShare?.({files:[file]});const send=dialog.querySelector('[data-action="content-send"]');send.disabled=!navigator.share;send.textContent='Share full reading';
   dialog.querySelector('h2').focus({preventScroll:true});dialog.scrollTop=0;
   dialog.querySelector('[role="status"]').textContent=files?'Share the result image, reading text and app link.':'Download the image, then share or copy the reading text and app link below.';
- }catch{dialog.querySelector('[role="status"]').textContent='The image could not be prepared. You can still copy the complete reading and link.';}
+ }catch{const send=dialog.querySelector('[data-action="content-send"]');send.disabled=!navigator.share;send.textContent='Share full reading';dialog.querySelector('[role="status"]').textContent='The image could not be prepared. You can still share or copy the complete reading and link.';}
 }
 async function sendContentPreview(){
  const p=sharePreview;if(!p)return;const data={title:p.item.title,text:ContentFormat.message(p.item)};if(p.file&&navigator.canShare?.({files:[p.file]}))data.files=[p.file];
