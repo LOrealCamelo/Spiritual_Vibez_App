@@ -70,7 +70,8 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
 - Native: 43 UI tests, TypeScript, PNG validator/regressions and native-host audit
   pass. Android/iOS Metro JavaScript production bundles pass locally. The full
   APK/iOS simulator builds and asset-copy bundles run in GitHub Actions.
-- Chromium browser evidence covers the six main tabs, all existing Explore tools,
+- Chromium browser evidence covers the six main tabs, all 18 existing Explore tools
+  plus Metadata,
   complete readings, chart forms, calendars, tarot, quizzes, ritual library,
   shadow work, rune casting, Journal persistence and PNG sharing.
 - Homepage layout checks include 320, 375, 390, 412, 430, 768, 959, 960, 1024,
@@ -78,7 +79,9 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
 - All 186 protected original PNG asset hashes match the previous approved set.
   Original fonts, native icons, homepage geometry, colors and navigation remain.
 - Standalone Netlify static build passes locally; all 78 original tarot PNGs are
-  copied. This is a local build, not a Netlify deployment or preview build.
+  copied. The complete source ZIP also starts successfully after extraction in a
+  separate directory. These are local tests, not a Netlify/Render deployment or
+  preview build.
 
 ## Hosting/security findings and manual checks
 
@@ -109,7 +112,8 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
 - The full browser suite runs in Chromium locally. Local Firefox launch is
   blocked by this container's read-only namespace/framebuffer restrictions;
   WebKit needs unavailable system libraries. Real Firefox/WebKit tests are
-  included in GitHub Actions with their supported system dependencies.
+  included in GitHub Actions with their supported system dependencies and a
+  virtual PulseAudio output, so audio assertions exercise real browser engines.
 - Physical iPhone/iPad/Android Home Screen installation, OS share-sheet delivery
   and audible speaker/headphone output still require devices. Browser tests
   verify manifest/icon retrieval, real Web Audio context behavior and share-file

@@ -13,6 +13,7 @@ def exercise(base, screenshots):
    browser = getattr(playwright, engine).launch(headless=True, timeout=60000)
    page = browser.new_page()
    errors = []
+   page.on('console', lambda message: print(engine+' console: '+message.text) if message.type in ['error','warning'] else None)
    page.on('pageerror', lambda error: errors.append(str(error)))
    page.goto(base, wait_until='networkidle')
    page.wait_for_function('state.online')

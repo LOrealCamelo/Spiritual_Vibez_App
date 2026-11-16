@@ -20,6 +20,13 @@ jobs:
             frontend/tests/requirements.txt
       - run: pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
       - run: python -m playwright install --with-deps firefox webkit
+      - name: Provide virtual audio output for real browser playback
+        run: |
+          sudo apt-get install --yes --no-install-recommends pulseaudio libasound2-plugins
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=spiritual_vibz_test
+          pactl set-default-sink spiritual_vibz_test
+          pactl info
       - name: Test real browser engines against an isolated local backend
         run: python frontend/tests/browser_compat.py --screenshots "$RUNNER_TEMP/browser-compat"
       - uses: actions/upload-artifact@v7

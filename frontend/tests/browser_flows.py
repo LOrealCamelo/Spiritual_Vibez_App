@@ -286,6 +286,10 @@ def exercise(base_url, screenshots):
      assert page.locator('.listbutton .glyph').count()==0
      assert page.locator('.listbutton .panel-illustration').count()==page.locator('.listbutton').count()
     assert page.locator('.fresh-panel,.glass,.listbutton,.bottomdock').evaluate_all('(nodes)=>nodes.every(n=>!getComputedStyle(n).backdropFilter.includes("blur"))'),(label,name,'frosted glass')
+    # Returning from a tool renders new lazy images. Load that current DOM before
+    # measuring source density, rather than inspecting pending image requests.
+    page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")')
+    page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)')
     assert page.locator('.panel-illustration img').evaluate_all('(imgs)=>imgs.every(i=>i.naturalWidth>=1200&&i.naturalWidth>=6*i.parentElement.clientWidth)'),(label,name,'illustration density')
     assert page.locator('.panel-copy').evaluate_all('(nodes)=>nodes.every(n=>n.getBoundingClientRect().right<=n.closest(".fresh-panel").getBoundingClientRect().right+1)'),(label,name,'clipped copy')
     page.screenshot(path=str(screenshots/'web'/('phone' if label=='mobile' else 'desktop')/f'{name}.png'),full_page=True)
@@ -307,6 +311,8 @@ def exercise(base_url, screenshots):
   page.locator('.chart-wheel').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web/phone/birth-chart.png'))
   exercise_sharing(page,screenshots)
   exercise_audit(page,base_url)
+  requests += ['store','cycle','sound','metadata']
+  assert set(requests)==set(page.evaluate('allTools.map(t=>t[0])'))
   assert not failures,failures
   assert not errors,errors
   print(json.dumps({'passedTools':requests,'extraFlows':['cycle','learn module','quiz','complete spread','synthesis','save reading','journal note','mood','transits'],'apiErrors':failures,'jsErrors':errors}))
