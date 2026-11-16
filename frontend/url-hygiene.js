@@ -15,7 +15,7 @@
   const at=url.hash.indexOf('?');
   if(at>=0 && /^#(?:home|spreads|learn|cosmos|explore|journal)(?:\/[^?]*)?$/.test(url.hash.slice(0,at))){
    const params=new URLSearchParams(url.hash.slice(at+1));
-   if(removeTags(params)){url.hash=url.hash.slice(0,at)+(params.size?'?'+params:'');changed=true;}
+   if(removeTags(params)){const query=params.toString();url.hash=url.hash.slice(0,at)+(query?'?'+query:'');changed=true;}
   }
   if(changed)history.replaceState(history.state,'',url.pathname+url.search+url.hash);
   return changed;

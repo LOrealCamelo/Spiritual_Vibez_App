@@ -28,6 +28,12 @@ test('tracking appended after an application hash does not swallow the tool rout
  assert.equal(calls[0][2],'/#explore/natal?section=houses');
  assert.equal(run('https://example.com/#explore/natal?utm_source=chatgpt.com').calls[0][2],'/#explore/natal');
  assert.equal(run('https://example.com/#article?utm_source=untouched').calls.length,0);
+ const legacyCalls=[];
+ class LegacyParams extends URLSearchParams{get size(){return undefined;}}
+ vm.runInNewContext(source,{URL,URLSearchParams:LegacyParams,
+  location:{href:'https://example.com/#explore/natal?utm_source=chat&section=houses'},
+  history:{replaceState:(...args)=>legacyCalls.push(args)}});
+ assert.equal(legacyCalls[0][2],'/#explore/natal?section=houses');
 });
 test('history failures do not prevent app startup',()=>{
  assert.doesNotThrow(()=>vm.runInNewContext(source,{URL,location:{href:'https://example.com/?utm_source=tag'},history:{replaceState(){throw Error('restricted');}}}));
