@@ -26,7 +26,8 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
    high fetch priority once eligible for loading, without loading its hidden
    desktop copy eagerly. Changed CSS/JS references have new cache versions.
 4. Hash navigation compares normalized tool state, avoiding duplicate renders
-   of the same route and handling malformed encoded hashes safely. API request
+   of the same route and handling malformed encoded hashes safely. Early focus/visibility
+   events also wait until application state exists before refreshing the sky. API request
    timeouts use AbortController rather than the newer AbortSignal.timeout API.
 5. Web Audio resumes suspended contexts for Safari, honors a volume of zero,
    closes contexts and oscillators on Stop/navigation/page exit, and prevents a
@@ -64,7 +65,7 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
 - Backend: 168 pytest cases and 28 legacy endpoint checks pass, including birth
   time/DST, natal positions, Moon calculations, asteroid reports, equinox dates,
   astrocartography geometry and new Metadata arithmetic/input validation.
-- Browser libraries: 50 Node tests pass, including public asset/font references,
+- Browser libraries: 52 Node tests pass, including public asset/font references,
   original artwork parity, map math, readable complete sharing, rune casting,
   URL cleanup, Safari audio fallback and review deploy guard.
 - Native: 43 UI tests, TypeScript, PNG validator/regressions and native-host audit
