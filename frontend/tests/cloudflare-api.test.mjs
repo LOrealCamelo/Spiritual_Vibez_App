@@ -120,3 +120,16 @@ test('tarot assets reject write methods', async () => {
     assert.equal(response.status, 405);
   });
 });
+
+
+test('static pages and chart responses have consistent security headers',async()=>{
+ await withUpstream(async()=>Response.json({private:'reading'}),async()=>{
+  for(const path of ['/', '/api/astrology/natal-chart']){
+   const response=await worker.fetch(new Request(host+path),env);
+   assert.equal(response.headers.get('x-content-type-options'),'nosniff');
+   assert.equal(response.headers.get('x-frame-options'),'DENY');
+   assert.equal(response.headers.get('referrer-policy'),'strict-origin-when-cross-origin');
+   if(path.startsWith('/api/'))assert.equal(response.headers.get('cache-control'),'no-store');
+  }
+ });
+});

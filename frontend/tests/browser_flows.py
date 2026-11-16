@@ -19,6 +19,7 @@ from share_flows import exercise_sharing
 from homepage_flows import exercise_homepage
 from icon_flows import exercise_icons
 from portal_flows import exercise_portal
+from audit_flows import exercise_audit
 
 
 def assert_clear_surfaces(page):
@@ -97,7 +98,9 @@ def exercise(base_url, screenshots):
     requests.append(tool);continue
    if tool=='runes':
     assert page.locator('.rune-sanctuary').count()==1
-    assert '24 Elder Futhark' in page.locator('main').inner_text()
+    page.locator('.rune-history summary').click()
+    assert '24 Elder Futhark' in page.locator('.rune-history').inner_text()
+    page.locator('.rune-history summary').click()
     page.locator('[data-action="rune-layout"][data-layout="cross"]').click()
     page.locator('[data-action="rune-cast"]').click()
     page.wait_for_selector('.rune-result-head',timeout=10000)
@@ -219,7 +222,7 @@ def exercise(base_url, screenshots):
   assert page.locator('.slot.opened img.tarot-image').count()==page.locator('.slot').count()
   page.locator('img.tarot-image').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.querySelectorAll(".slot img")).every(i=>i.complete&&i.naturalWidth>0)')
   page.screenshot(path=str(screenshots/'web/desktop/tarot-reading.png'))
-  page.locator('[data-action="interpret"]').click();page.wait_for_function('Boolean(state.reading)');page.locator('[data-action="save-reading"]').click()
+  page.locator('[data-action="interpret"]').click();page.wait_for_function('Boolean(state.reading)');page.locator('.complete-reading-share [data-action="content-journal"]').click();assert page.evaluate('JSON.parse(localStorage.getItem("sv_private_journal")).at(-1).text.includes(state.reading)')
   page.evaluate('transition("journal")');page.get_by_role('button',name="Today's Journal",exact=True).click();page.locator('#journal-text').fill('Connected flow verification');page.locator('[data-action="save-note"]').click();assert 'Connected flow verification' in page.locator('main').inner_text()
   page.reload(wait_until='networkidle');page.wait_for_function('state.online===true')
   assert 'Connected flow verification' in page.locator('main').inner_text()
@@ -258,7 +261,7 @@ def exercise(base_url, screenshots):
     page.locator('img').evaluate_all('(imgs)=>imgs.forEach(i=>i.loading="eager")');page.wait_for_function('Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0)');page.evaluate('document.fonts.ready')
     assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),(label,name)
     if name=='home':
-     assert page.locator('.home-room-scene').evaluate('(n)=>getComputedStyle(n).backgroundImage.includes("home-mystic-room-arabic.png")'),(label,name,'room backdrop')
+     assert page.locator('.home-room-scene').evaluate('(n)=>getComputedStyle(n).backgroundImage.includes("optimized/home-mystic-room-arabic.webp")'),(label,name,'room backdrop')
      assert page.locator('.mystic-tarot-art').count()==1,(label,name,'new tarot artwork')
     else:
      assert page.evaluate('getComputedStyle(document.body,"::before").backgroundImage.includes("cosmos-night-sky.png")'),(label,name,'scenic backdrop')
@@ -273,8 +276,8 @@ def exercise(base_url, screenshots):
      assert 'Daily spiritual tools' in page.locator('.mystic-copy').inner_text()
      assert page.locator('.home-feature').count()==6
     if name=='explore':
-     assert page.locator('.explore-card').count()==18
-     assert page.locator('.explore-card .panel-illustration img').count()==18
+     assert page.locator('.explore-card').count()==19
+     assert page.locator('.explore-card .panel-illustration img').count()==19
      assert page.locator('.tooltile .emoji,.explore-card .emoji').count()==0
      for tool in ['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','sound','rituals','cycle','shadow','runes','pendulum','oracle','store']:
       page.locator('[data-action="tool:'+tool+'"]').click();assert page.evaluate('state.tool')==tool
@@ -303,6 +306,7 @@ def exercise(base_url, screenshots):
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
   page.locator('.chart-wheel').scroll_into_view_if_needed();page.screenshot(path=str(screenshots/'web/phone/birth-chart.png'))
   exercise_sharing(page,screenshots)
+  exercise_audit(page,base_url)
   assert not failures,failures
   assert not errors,errors
   print(json.dumps({'passedTools':requests,'extraFlows':['cycle','learn module','quiz','complete spread','synthesis','save reading','journal note','mood','transits'],'apiErrors':failures,'jsErrors':errors}))

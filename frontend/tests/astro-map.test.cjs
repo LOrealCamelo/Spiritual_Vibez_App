@@ -2,13 +2,13 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const Tools=require('../astro-map-tools');
+const Tools=require('./load-browser.cjs')('../astro-map-tools.js','AstroMapTools');
 const report=require('../../mobile/__tests__/fixtures/astrocartography.json');
 
 test('map location inspector finds every nearby line and matches backend city distances',()=>{
  for(const city of report.places){
   const actual=Tools.inspect(report,city.latitude,city.longitude).nearby_lines;
-  assert.deepEqual(actual.map(p=>[p.planet,p.angle,p.distance_km]),city.nearby_lines.map(p=>[p.planet,p.angle,p.distance_km]));
+  assert.deepEqual(Array.from(actual,p=>[p.planet,p.angle,p.distance_km]),city.nearby_lines.map(p=>[p.planet,p.angle,p.distance_km]));
  }
 });
 test('every crossing inspection combines both actual line geometries',()=>{

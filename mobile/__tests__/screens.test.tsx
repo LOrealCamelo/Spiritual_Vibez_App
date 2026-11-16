@@ -55,16 +55,16 @@ test('all 24 panels use fresh illustration sources and readable live labels',asy
   expect(onPress).toHaveBeenCalledTimes(1);
 });
 
-test('all 18 Explore features use clear illustrated cards and open their own tools',async()=>{
+test('all 19 Explore features use clear illustrated cards and open their own tools',async()=>{
  await render(<ExploreScreen route={{params:{}}} navigation={{goBack:jest.fn()}}/>);
  const cards=tree.root.findAllByType(IllustratedToolCard);
- expect(cards).toHaveLength(18);expect(tree.root.findAllByType(PanelIllustration)).toHaveLength(18);
+ expect(cards).toHaveLength(19);expect(tree.root.findAllByType(PanelIllustration)).toHaveLength(19);
  const labels=cards.map(c=>c.props.title);
  for(const label of labels){
   await press(label);
   expect(text()).toContain(label);
   await press('Back to all features');
-  expect(tree.root.findAllByType(IllustratedToolCard)).toHaveLength(18);
+  expect(tree.root.findAllByType(IllustratedToolCard)).toHaveLength(19);
  }
 });
 
@@ -267,7 +267,7 @@ test('monthly Moon calendar stays in the Moon section and supports day and month
 test('navigation cards stay uncluttered and rune casting shares the complete result only',async()=>{
  const {ContentActions}=require('../src/components/ContentActions');
  await render(<ExploreScreen route={{params:{}}} navigation={{goBack:jest.fn()}}/>);
- expect(tree.root.findAllByType(IllustratedToolCard)).toHaveLength(18);
+ expect(tree.root.findAllByType(IllustratedToolCard)).toHaveLength(19);
  for(const card of tree.root.findAllByType(IllustratedToolCard)){
   expect(card.findAllByType(ContentActions)).toHaveLength(0);
  }
@@ -417,4 +417,23 @@ test('native map city lookup inspects the chosen country and its full nearby-lin
  expect(String((globalThis.fetch as jest.Mock).mock.calls.at(-1)[0])).toContain('/astrocartography/places?query=Paris');
  expect(text()).toContain('Every line within 500 km');
  expect(text()).toContain('48.853');
+});
+
+
+test('Your Metadata submits the selected vowel Y and renders the full shareable chart',async()=>{
+ const fixture=require('./fixtures/metadata.json');
+ globalThis.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>fixture});
+ await render(<ExploreScreen route={{params:{tool:'metadata'}}} navigation={{goBack:jest.fn()}}/>);
+ const fields=tree.root.findAllByType(TextInput);
+ await act(async()=>{
+  fields.find(f=>f.props.accessibilityLabel==='Metadata full name')!.props.onChangeText('Lynn');
+  fields.find(f=>f.props.accessibilityLabel==='Metadata birth date')!.props.onChangeText('1990-07-15');
+ });
+ await press('Letter 2: Y acts as a vowel');
+ await press('Calculate Your Metadata');
+ const call=(globalThis.fetch as jest.Mock).mock.calls.find(([url])=>url.endsWith('/synastry/metadata'));
+ expect(JSON.parse(call[1].body)).toMatchObject({full_name:'Lynn',birth_date:'1990-07-15',y_vowel_positions:[2]});
+ expect(text()).toContain(fixture.sections.at(-1).paragraphs.at(-1));
+ expect(tree.root.findAllByType(SvgXml).some(n=>n.props.xml===fixture.report_svg)).toBe(true);
+ expect(tree.root.findAllByType(TouchableOpacity).some(n=>n.props.accessibilityLabel==='Share complete Your Metadata')).toBe(true);
 });

@@ -32,6 +32,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def public_response_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.get('/url-hygiene.js', include_in_schema=False)
+def serve_url_hygiene():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'url-hygiene.js'), media_type='text/javascript')
+
+
+@app.get('/robots.txt', include_in_schema=False)
+def serve_robots():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'robots.txt'), media_type='text/plain')
+
+
+@app.get('/sitemap.xml', include_in_schema=False)
+def serve_sitemap():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'sitemap.xml'), media_type='application/xml')
+
+
 @app.on_event("startup")
 def on_startup():
     init_db()
@@ -151,6 +178,10 @@ def serve_map_tools_script():
 @app.get('/astrocartography.js', include_in_schema=False)
 def serve_astrocartography_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'astrocartography.js'), media_type='text/javascript')
+
+@app.get('/metadata.js', include_in_schema=False)
+def serve_metadata_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'metadata.js'), media_type='text/javascript')
 
 
 # The same 78 PNGs serve browsers and are bundled by Metro for iOS/Android.
