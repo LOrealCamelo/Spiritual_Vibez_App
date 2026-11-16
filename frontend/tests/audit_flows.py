@@ -5,10 +5,10 @@ import json
 def exercise_audit(page, base):
  documents = []
  page.on('request', lambda r: documents.append(r.url) if r.is_navigation_request() else None)
- page.goto(base + '/?utm_source=chatgpt.com&fbclid=tracking&keep=1#explore/natal', wait_until='networkidle')
+ page.goto(base + '/?utm_source=chatgpt.com&fbclid=tracking&keep=1#explore/natal?utm_medium=chat&section=houses', wait_until='networkidle')
  page.wait_for_function('state.online && state.tool==="natal"')
  assert page.evaluate('location.search') == '?keep=1'
- assert page.evaluate('location.hash') == '#explore/natal'
+ assert page.evaluate('location.hash') == '#explore/natal?section=houses'
  assert len(documents) == 1, documents  # replaceState must not load another document.
  assert page.locator('#birth-date').is_visible()
 

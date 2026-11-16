@@ -10,7 +10,7 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
 1. `frontend/url-hygiene.js`, loaded before the app, removes only recognized
    attribution parameters (`utm_*`, click IDs and campaign tags). It uses
    `history.replaceState`, preserves history state, legitimate queries and the
-   entire hash route, and tolerates browsers that deny history access. It does
+   hash route and legitimate fragment query, and tolerates browsers that deny history access. It does
    not remove authentication `code`, `state`, application `date`, or `ref`.
 2. Seven homepage PNGs have additional full-resolution, lossless WebP copies.
    All decoded RGBA pixels were compared with the sources during generation;
@@ -64,7 +64,7 @@ DNS change, change to login protection, or work on `neurospicymysticlandingpage`
 - Backend: 168 pytest cases and 28 legacy endpoint checks pass, including birth
   time/DST, natal positions, Moon calculations, asteroid reports, equinox dates,
   astrocartography geometry and new Metadata arithmetic/input validation.
-- Browser libraries: 49 Node tests pass, including public asset/font references,
+- Browser libraries: 50 Node tests pass, including public asset/font references,
   original artwork parity, map math, readable complete sharing, rune casting,
   URL cleanup, Safari audio fallback and review deploy guard.
 - Native: 43 UI tests, TypeScript, PNG validator/regressions and native-host audit

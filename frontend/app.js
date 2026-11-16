@@ -56,6 +56,7 @@ async function api(path,options){
 }
 
 const post=(path,data,timeoutMs=60000)=>api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),timeoutMs});
+function hashRouteParts(){try{return decodeURIComponent(location.hash.slice(1).split('?')[0]).split('/')}catch{return []}}
 function transition(page,sub=null){stopAudio();state.page=page;state.tool=page==='explore'&&allTools.some(t=>t[0]===sub)?sub:null;state.error='';state.result=null;window.location.hash=page+(sub?'/'+sub:'');render();if(page==='cosmos')fetchDailySky();window.scrollTo({top:0,behavior:'instant'});}
 const artButton=(file,label,action,attrs='',extra='')=>'<button class="art-button '+panelClasses(file)+'" data-panel="'+file+'" data-action="'+action+'" aria-label="'+e(label)+'" '+attrs+'>'+panelContents(file,extra)+'</button>';
 const artHeader=(file,label)=>'<section class="art-header '+panelClasses(file)+'" data-panel="'+file+'" aria-label="'+e(label)+'">'+panelContents(file)+'</section>';
@@ -343,8 +344,8 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
  if(a==='audio-play')return startAudio();if(a==='audio-stop')return stopAudio();});
 document.addEventListener('toggle',ev=>{if(ev.target.matches?.('.spread-search'))state.searchOpen=ev.target.open},true);
 document.addEventListener('input',ev=>{if(ev.target.id==='birth-date'&&['life','numbers'].includes(state.tool))state.numerologyDate=ev.target.value;if(ev.target.id==='spread-search'){state.searchOpen=$('.spread-search')?.open||false;state.search=ev.target.value;const pos=ev.target.selectionStart;render();const inp=$('#spread-search');inp?.focus();inp?.setSelectionRange(pos,pos)}});
-window.addEventListener('hashchange',()=>{let parts;try{parts=decodeURIComponent(location.hash.slice(1)).split('/')}catch{return}const [p,sub]=parts,tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null;if(['home','spreads','learn','cosmos','explore','journal'].includes(p)&&(p!==state.page||tool!==state.tool)){stopAudio();state.page=p;state.tool=tool;render();if(p==='cosmos')fetchDailySky()}});
+window.addEventListener('hashchange',()=>{const [p,sub]=hashRouteParts(),tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null;if(['home','spreads','learn','cosmos','explore','journal'].includes(p)&&(p!==state.page||tool!==state.tool)){stopAudio();state.page=p;state.tool=tool;render();if(p==='cosmos')fetchDailySky()}});
 window.addEventListener('resize',syncHomeLayout);
 window.addEventListener('beforeunload',stopAudio);
-async function boot(){const [p,sub]=location.hash.slice(1).split('/');if(['home','spreads','learn','cosmos','explore','journal'].includes(p)){state.page=p;state.tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null}render();try{const data=await Promise.all([api('/tarot/cards'),api('/tarot/spreads')]);if(data[0].cards?.length===78&&data[1].spreads?.length){state.cards=data[0].cards;state.spreads=normalizeSpreads(data[1].spreads);state.online=true}}catch{/* Local preview fallback is intentionally usable. */}render();if(state.page==='cosmos')fetchDailySky()}
+async function boot(){const [p,sub]=hashRouteParts();if(['home','spreads','learn','cosmos','explore','journal'].includes(p)){state.page=p;state.tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null}render();try{const data=await Promise.all([api('/tarot/cards'),api('/tarot/spreads')]);if(data[0].cards?.length===78&&data[1].spreads?.length){state.cards=data[0].cards;state.spreads=normalizeSpreads(data[1].spreads);state.online=true}}catch{/* Local preview fallback is intentionally usable. */}render();if(state.page==='cosmos')fetchDailySky()}
 boot();
