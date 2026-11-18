@@ -1,0 +1,13 @@
+/* Love tool only; never changes the other app screens. */
+body[data-page="explore"][data-tool="love"] main.main-page{position:relative;isolation:isolate;min-height:100vh;padding-bottom:max(145px,calc(125px + env(safe-area-inset-bottom)));background:linear-gradient(180deg,#2d16368a,#24102dc9),url("assets/ritual-garden-circle.webp") center top / cover no-repeat;border-radius:24px}
+body[data-page="explore"][data-tool="love"] .tool-heading,body[data-page="explore"][data-tool="love"] .page-head{text-shadow:0 2px 12px #170a25}
+body[data-page="explore"][data-tool="love"] .page-desc{color:#fff}
+.love-experience{max-width:850px;margin:24px auto;display:grid;gap:24px}
+.love-panel{background:rgba(255,247,250,.97);color:#361a3a;padding:clamp(16px,3vw,28px);border:1px solid #f1cde1;border-radius:22px;box-shadow:0 12px 32px #210b3666}
+.love-panel h2{color:#7c2f6c}.love-panel p{line-height:1.55}.love-question{border:1px solid #e6c1d7;padding:13px;margin:13px 0;border-radius:12px;min-width:0}.love-question legend{font-weight:750;color:#6b2c63;padding:0 7px}
+.love-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.love-locations{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.love-field{display:flex;flex-direction:column;min-width:0;gap:7px;margin:7px 0;font-weight:700;font-size:.93rem}
+.love-field select{width:100%;min-width:0;min-height:44px;border:1px solid #c595b8;background:#fff;color:#34173e;border-radius:10px;padding:8px}
+.love-btn{background:#832f76;border:1px solid #ab68a0;border-radius:12px;padding:12px 17px;min-height:44px;color:#fff;font-weight:800}
+.love-actions{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.love-summary{background:#ffe3f2;border-radius:14px;padding:15px;margin-top:13px}.love-note{font-size:.82rem;opacity:.85}
+@media(max-width:650px){.love-grid,.love-locations{grid-template-columns:1fr}body[data-page="explore"][data-tool="love"] main.main-page{background-size:auto 100%;background-position:50% top;padding-bottom:max(155px,calc(135px + env(safe-area-inset-bottom)))}}
