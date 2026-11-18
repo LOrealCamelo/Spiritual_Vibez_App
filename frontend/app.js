@@ -203,6 +203,7 @@ function explorePage(){
  if(id==='shadow')form+=notice('Journal reflections are saved locally in the Journal tab; public server-side storage is disabled until authentication is built.');
  if(id==='oracle')form+=notice('Rule-based interpretations require no paid AI API. The backend is not a large language model.');
  out+='<div class="glass"><h3>'+ico+' '+e(title)+'</h3>'+form+(id==='sound'?'':btn(id==='rituals'?'Find rituals ✨':'Explore / Calculate ✨','tool-run'))+(state.error?notice(state.error,'error'):'')+'</div>'+(state.result?renderResult(state.result):'');
+ if(id==='love')out+=(window.SpiritualLoveExperience?.render()||'');
  return out;
 }
 function readableResult(value){
@@ -235,7 +236,7 @@ function journalPage(){let saved=[],moods=[];try{saved=JSON.parse(localStorage.g
 function dailyCard(){if(state.cards.length){const card=state.cards[Math.floor(Math.random()*state.cards.length)];state.cardDetail=card;state.learningModule='all';transition('learn');document.querySelector('#selected-card')?.scrollIntoView({behavior:'smooth'});}}
 function navIcon(id){const paths={home:'<path d="m3 10 9-7 9 7v11H3z"/><path d="M9 21v-8h6v8"/>',spreads:'<path d="M3 5h3c5 0 7 14 12 14h3m-4-4 4 4-4 4M3 19h3c2 0 4-3 6-7m4-7h5m-4-4 4 4-4 4"/>',learn:'<path d="M12 5C8 2 4 3 2 4v16c3-2 7-1 10 1 3-2 7-3 10-1V4c-2-1-6-2-10 1zM12 5v16"/>',explore:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>',cosmos:'<path d="M20 16A9 9 0 0 1 8 4a9 9 0 1 0 12 12z"/>',journal:'<rect x="5" y="3" width="15" height="19" rx="2"/><path d="M3 7h4M3 12h4M3 17h4M10 8h6M10 12h6M10 16h4"/>'};return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[id]||paths.journal)+'</svg>'}
 function render(){
- if(document.body)document.body.dataset.page=state.page;
+ if(document.body){document.body.dataset.page=state.page;document.body.dataset.tool=state.page==='explore'?(state.tool||''):'';}
  if(document.documentElement)document.documentElement.dataset.page=state.page;
  const nav=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'selected':'')+'" data-action="nav:'+id+'"><span class="navicon">'+navIcon(id)+'</span>'+label+'</button>').join('');
  const dock=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'current':'')+'" data-action="nav:'+id+'"><span>'+navIcon(id)+'</span>'+label+'</button>').join('');
