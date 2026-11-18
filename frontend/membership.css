@@ -1,0 +1,25 @@
+.membership-panel{max-width:760px;margin:24px auto;padding:clamp(16px,4vw,32px);border:1px solid #c9a4d6;border-radius:24px;background:linear-gradient(135deg,#f7eaff,#f7dfee);color:#35174d;overflow-wrap:anywhere}.membership-panel h1,.membership-panel h2,.membership-panel h3,.membership-panel p{color:#35174d}.membership-panel form{display:grid;gap:14px;margin:22px 0}.membership-panel label{display:grid;gap:6px}.membership-panel input,.membership-panel select{width:100%;min-width:0;min-height:46px;padding:10px;border:1px solid #a777bb;border-radius:10px;background:#fff9fd;color:#35174d;font:inherit}.membership-panel button,.membership-options a{min-height:44px;padding:10px 15px;border:1px solid #ad80b8;border-radius:12px;background:#f7eefb;color:#35174d;font:inherit;cursor:pointer}.membership-options{display:flex;flex-wrap:wrap;gap:10px}.membership-panel article{padding:14px 0;border-bottom:1px solid #cdaaca}.membership-panel article button{margin:5px}.membership-secret{display:block;padding:16px;background:#fff8ee;border:1px solid #b99a56;overflow-wrap:anywhere;user-select:all}.membership-overlay{position:fixed;inset:0;z-index:10000;background:#251037aa;overflow:auto;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(30px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}.membership-dialog{max-width:800px;margin:auto}.membership-dialog>button{min-height:44px;padding:10px 20px;background:#f7eaff;color:#35174d;border:1px solid #d2addf;border-radius:12px}.membership-dialog .membership-panel{margin-top:10px}.top-actions .membership-account-button{font-size:14px;padding:8px;min-height:44px}.membership-panel button:focus-visible,.membership-panel input:focus-visible{outline:3px solid #a87923;outline-offset:3px}
+.topbar .top-actions .membership-account-button{width:auto;font-size:14px;padding:8px;white-space:nowrap}
+@media(min-width:960px){.topbar .top-actions{display:flex}.topbar .top-actions button[data-action="nav:explore"]{display:none}}
+@media(min-width:960px) and (max-width:1199px){.topbar .nav button{font-size:14px;padding:8px;gap:6px;min-height:44px}.topbar .nav button svg{width:20px;height:20px}.topbar__inner{gap:12px}}
+
+/* Scoped Love additions: preserve all existing page backgrounds and artwork. */
+body[data-tool="love"] .love-partners{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}
+body[data-tool="love"] .love-partners fieldset{min-width:0;border:1px solid #cba4d8;border-radius:18px;padding:1rem}
+body[data-tool="love"] .love-couple,body[data-tool="love"] .love-finder{margin-block:1.5rem;padding:clamp(1rem,3vw,2rem);background:rgba(255,241,252,.94);color:#39104f}
+body[data-tool="love"] .love-couple label,body[data-tool="love"] .love-finder label{display:grid;gap:.4rem;margin-bottom:1rem}
+body[data-tool="love"] .love-couple select,body[data-tool="love"] .love-finder select,body[data-tool="love"] .love-finder input{width:100%;max-width:100%;min-height:44px;color:#39104f;background:#fff7fc;border:1px solid #cba4d8;border-radius:10px;padding:.6rem}
+body[data-tool="love"] .love-finder a{color:#651c78;text-decoration:underline;overflow-wrap:anywhere}
+body[data-tool="love"] main{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+@media(max-width:600px){body[data-tool="love"] .love-partners{grid-template-columns:1fr}}
+
+body[data-tool="love"] .love-couple,body[data-tool="love"] .love-finder{border-radius:24px;border:1px solid #e7badd;box-shadow:0 10px 28px #3b124f24}
+body[data-tool="love"] .love-couple .btn,body[data-tool="love"] .love-finder .btn{color:#39104f!important;border:1px solid #956aa6!important;font-weight:700}
+body[data-tool="love"] .love-couple .btn:focus-visible,body[data-tool="love"] .love-finder .btn:focus-visible{outline:3px solid #784094;outline-offset:3px}
+
+.membership-sales{text-align:center;max-width:850px!important}
+.membership-sales-logo{display:block;width:min(100%,440px);height:auto;object-fit:contain;margin:0 auto 1rem}
+.membership-benefits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;list-style:none;padding:0;text-align:left}
+.membership-benefits li{border:1px solid #d6b3df;border-radius:14px;padding:1rem;background:#f9eafb}
+.membership-sales .membership-options{justify-content:center}
+@media(max-width:500px){.membership-benefits{grid-template-columns:1fr}}
