@@ -1,0 +1,47 @@
+name: Accounts, subscriptions and Love page
+on:
+  pull_request:
+    branches: [main, review/prelaunch-audit]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  membership:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      AURAMYSTIC_DB_PATH: /tmp/spiritual-membership-ci-legacy.db
+      BROWSER_EXECUTABLE: /usr/bin/google-chrome
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - name: Build existing frontend with Postgres-only Neon configuration
+        run: npm run build
+      - run: pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
+      - name: Test backend isolation, payments, authentication and concurrent gifts
+        run: |
+          pytest -q backend/tests
+          python backend/tests/test_all_endpoints.py
+      - name: Browser libraries and syntax
+        run: |
+          for script in frontend/*.js; do node --check "$script"; done
+          node --test frontend/tests/*.test.cjs frontend/tests/*.test.mjs
+      - name: Test enabled memberships on desktop and mobile web
+        run: python frontend/tests/membership_flows.py
+      - name: Test Love questionnaire, city dropdowns and responsive account routes
+        run: python frontend/tests/love_flows.py --screenshots "$RUNNER_TEMP/love-layout"
+      - name: Check unchanged application behavior with membership enforcement disabled
+        run: python frontend/tests/browser_flows.py --screenshots "$RUNNER_TEMP/membership-compat"
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: membership-compatibility
+          path: ${{ runner.temp }}/membership-compat
+          retention-days: 7

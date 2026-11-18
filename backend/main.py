@@ -3,6 +3,7 @@ AuraMystic — Uplifting Spiritual Sanctuary & Solar Astrology Portal
 Production FastAPI Backend Server (NeuroSpicy Mystic)
 """
 import os
+import sqlite3
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,8 +33,88 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from .routers import accounts
+from .services import memberships
+from .database import ACCOUNT_ID
+from .postgres import DatabaseUnavailable
+import psycopg
+app.include_router(accounts.router)
+from .routers import love
+app.include_router(love.router)
+
+@app.exception_handler(DatabaseUnavailable)
+@app.exception_handler(psycopg.Error)
+async def postgres_unavailable(request, exc):
+    import logging
+    logging.getLogger(__name__).error('PostgreSQL request failed: %s', type(exc).__name__)
+    return JSONResponse({'detail':'Account storage is temporarily unavailable.'}, status_code=503,
+                        headers={'Cache-Control':'no-store'})
+
+
+
+@app.middleware("http")
+async def membership_access(request, call_next):
+    path = request.url.path
+    if not memberships.enabled() or request.method == 'OPTIONS' or not path.startswith('/api/') or path.startswith('/api/account/') or path == '/api/health':
+        return await call_next(request)
+    try:
+        token = request.headers.get('authorization', '').removeprefix('Bearer ')
+        member = memberships.session_user(token)
+    except (RuntimeError, OSError, sqlite3.Error):
+        return JSONResponse({'detail': 'Membership storage is unavailable.'}, status_code=503, headers={'Cache-Control':'no-store'})
+    if not member:
+        return JSONResponse({'detail': 'Please log in.'}, status_code=401, headers={'Cache-Control':'no-store'})
+    if not member['active']:
+        return JSONResponse({'detail': 'An active membership is required.'}, status_code=403, headers={'Cache-Control':'no-store'})
+    context = ACCOUNT_ID.set(member['id'])
+    try:
+        return await call_next(request)
+    finally:
+        ACCOUNT_ID.reset(context)
+
+
+@app.middleware("http")
+async def public_response_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.get('/url-hygiene.js', include_in_schema=False)
+def serve_url_hygiene():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'url-hygiene.js'), media_type='text/javascript')
+
+
+@app.get('/robots.txt', include_in_schema=False)
+def serve_robots():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'robots.txt'), media_type='text/plain')
+
+
+@app.get('/sitemap.xml', include_in_schema=False)
+def serve_sitemap():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'sitemap.xml'), media_type='application/xml')
+
+
 @app.on_event("startup")
 def on_startup():
+    if memberships.enabled():
+        storage_keys=[] if os.getenv('DATABASE_URL') else ['MEMBERSHIP_DB_PATH','MEMBERSHIP_USER_DATA_DIR']
+        for key in storage_keys+['MEMBERSHIP_PUBLIC_URL','MEMBERSHIP_SUPPORT_EMAIL']:
+            if not os.getenv(key):
+                raise RuntimeError(key + ' is required before enabling membership protection.')
+        if not os.environ['MEMBERSHIP_PUBLIC_URL'].startswith('https://') and os.getenv('RENDER'):
+            raise RuntimeError('Production membership URLs require HTTPS.')
+        for key in storage_keys:
+            value = os.environ[key]
+            if not os.path.isabs(value) or (os.getenv('RENDER') and value.startswith('/tmp/')):
+                raise RuntimeError('Membership storage must use configured durable absolute paths.')
+        with memberships.database():
+            pass
     init_db()
 
 # Mount all 8 production routers
@@ -152,6 +233,10 @@ def serve_map_tools_script():
 def serve_astrocartography_script():
     return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'astrocartography.js'), media_type='text/javascript')
 
+@app.get('/metadata.js', include_in_schema=False)
+def serve_metadata_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'metadata.js'), media_type='text/javascript')
+
 
 # The same 78 PNGs serve browsers and are bundled by Metro for iOS/Android.
 # Keep this specific mount before the general /assets mount.
@@ -159,3 +244,26 @@ app.mount('/assets/tarot', StaticFiles(directory=os.path.join(os.path.dirname(__
 
 # Serve the approved Spiritual Vibez illustrated artwork as real image assets.
 app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "frontend", "assets")), name="spiritual-vibez-artwork")
+
+@app.get('/membership.js', include_in_schema=False)
+def serve_membership_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'membership.js'), media_type='text/javascript')
+
+@app.get('/membership.css', include_in_schema=False)
+def serve_membership_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'membership.css'), media_type='text/css')
+
+
+@app.get('/love.js', include_in_schema=False)
+def serve_love_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'love.js'), media_type='text/javascript')
+
+
+@app.get('/love-experience.js', include_in_schema=False)
+def serve_love_experience_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'love-experience.js'), media_type='text/javascript')
+
+
+@app.get('/love-experience.css', include_in_schema=False)
+def serve_love_experience_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'love-experience.css'), media_type='text/css')

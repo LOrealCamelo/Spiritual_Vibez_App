@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const lib=require('../rune-library.js');
+const lib=require('./load-browser.cjs')('../rune-library.js','SpiritualRuneLibrary');
 const ROOT=path.join(__dirname,'../..');
 test('web and native share the exact Elder Futhark rune library',()=>{
  assert.equal(fs.readFileSync(path.join(ROOT,'frontend/rune-library.js'),'utf8'),

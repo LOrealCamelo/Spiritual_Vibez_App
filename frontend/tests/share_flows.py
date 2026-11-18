@@ -111,6 +111,6 @@ def exercise_sharing(page, screenshots):
   if route=='home':assert page.locator('.home-feature').count()==6
   assert page.locator('main button button').count()==0,route
   if route=='learn':assert page.locator('.deck-card').count()==78
-  if route=='explore':assert page.locator('.explore-card').count()==18
+  if route=='explore':assert page.locator('.explore-card').count()==19
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),route
  print(json.dumps({'sharing':'PNG attachment, readable caption, canonical invitation, download/copy fallback','journal':'full BaZi reading survives reload','card_actions':'one complete-reading action pair, no fragmented card controls'}))

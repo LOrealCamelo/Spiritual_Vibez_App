@@ -2,7 +2,7 @@
 AuraMystic Numerology (Life Path & Master Numbers 11, 22, 33) and Relationship Synastry Router
 """
 from fastapi import APIRouter, HTTPException
-from ..models import LifePathRequest, SynastryRequest
+from ..models import LifePathRequest, SynastryRequest, MetadataRequest
 from ..services.ephemeris_engine import MASTER_DATA, SIGN_ELEMENTS, SIGN_MODALITIES
 from datetime import date
 from pathlib import Path
@@ -10,6 +10,14 @@ import json
 
 router = APIRouter()
 NUMBER_GUIDE = json.loads(Path(__file__).parents[1].joinpath('data/learning_library.json').read_text(encoding='utf-8'))
+
+@router.post('/metadata')
+def calculate_metadata(req: MetadataRequest):
+    from ..services.metadata import metadata_report
+    try:
+        return metadata_report(req)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 ANGEL_SYNCHRONICITIES = {
     "1": "111 — Instant manifestation portal; keep your thoughts focused on sovereign creation, not fear.",

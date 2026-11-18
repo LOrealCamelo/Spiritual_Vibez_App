@@ -15,6 +15,7 @@ import {ContentActions,ContentLocationContext} from './src/components/ContentAct
 import {subscribeJournal} from './src/content/journal';
 import {ClearGlassSurface} from './src/components/ClearGlassSurface';
 import {RuneCastingExperience} from './src/components/RuneCastingExperience';
+import {MetadataChart} from './src/components/MetadataChart';
 import {EquinoxCalendar} from './src/components/EquinoxCalendar';
 import {ReferenceHome} from './src/components/ReferenceHome';
 import {LearningCard} from './src/components/LearningCard';
@@ -46,7 +47,7 @@ const exampleSpreads=[
 const extendedCards=tarotCards;
 const exploreGroups=[
  {title:'Astrology & Charts',items:[['moon','🌒','Natal Moon Phase'],['natal','🪐','Natal Birth Chart'],['bazi','🐲','Chinese Zodiac & BaZi'],['houses','🏡','Astrology Houses'],['asteroids','☄️','Asteroids'],['astro','🌍','Astrocartography'],['calendar','🗓️','13-Month Calendar']]},
- {title:'Numbers & Love',items:[['life','🔢','Life Path'],['numbers','✨','Numerology Academy'],['love','💖','Love Match']]},
+ {title:'Numbers & Love',items:[['metadata','🔢','Your Metadata'],['life','🔢','Life Path'],['numbers','✨','Numerology Academy'],['love','💖','Love Match']]},
  {title:'Wellness & Rituals',items:[['sound','🎵','Sound Frequencies'],['rituals','🕯️','Ritual Finder'],['cycle','🌸','Moon & Period Tracker'],['shadow','🌗','Shadow Work Journey']]},
  {title:'Divination & More',items:[['runes','ᚠ','Rune Casting'],['pendulum','🔮','Pendulum'],['oracle','💬','Mystic Companion'],['store','🛍️','Creator Store']]}
 ];
@@ -261,6 +262,7 @@ export function ExploreScreen({route,navigation}:any){const {width}=useWindowDim
  <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back to all features" onPress={()=>go('')}><Text style={st.back}>← All features</Text></TouchableOpacity><Title large={tool==='natal'} eyebrow="Your personal tools" title={(toolMap[tool]?.[1]||'✨')+' '+(toolMap[tool]?.[2]||tool)} sub={tool==='shadow'?'Choose a theme and take one gentle step at a time.':'Powered by Spiritual Vibz.'}/><ExploreExplanation tool={tool}/>
  {tool==='shadow'?<ShadowWorkJourney/>:null}
  {tool==='runes'?<RuneCastingExperience/>:null}
+ {tool==='metadata'?<MetadataChart onResult={setResult}/>:null}
  {tool==='calendar'?<EquinoxCalendar onResult={setResult}/>:null}
  {tool==='moon'?<Action text="Current Moon & monthly calendar" onPress={()=>navigation.navigate('Cosmos')}/>:null}
  {['natal','moon','asteroids','astro'].includes(tool)?<NativeBirthChart key={tool} tool={tool} onResult={setResult}/>:null}
@@ -271,8 +273,8 @@ export function ExploreScreen({route,navigation}:any){const {width}=useWindowDim
  {['rituals','pendulum','oracle'].includes(tool)?<Input title="Your intention or question" value={query} onChange={setQuery} placeholder="Type your question..."/>:null}
  {tool==='cycle'?<><Input title="Last period start YYYY-MM-DD" value={period} onChange={setPeriod}/><Input title="Average cycle length" value={cycleLength} onChange={setCycleLength} keyboardType="numeric"/><Info warning>Period estimates stay in this app session. Do not use this tracker to predict fertile days, and do not rely on it for contraception.</Info></>:null}
  {tool==='sound'?<Info>Frequency education is connected to your existing API. Audio playback will be available when licensed or original tracks are added.</Info>:null}
- {tool==='houses'?<HouseLessons/>:null}{['life','numbers'].includes(tool)?<NumerologyLessons/>:null}{['natal','moon','asteroids','astro','houses','calendar','shadow','runes'].includes(tool)?null:tool==='store'?<Panel><Text style={st.body}>All products and checkout are on the NeuroSpicy Mystic website.</Text><Action text="Visit my store ↗" onPress={run}/></Panel>:<Action text={busy?'Working…':'✨ Explore this feature'} onPress={run} disabled={busy}/>}{error?<Info warning>{error}</Info>:null}
- {result&&!['natal','moon','asteroids','astro','calendar'].includes(tool)?<><Panel exportTitle={toolMap[tool]?.[2]} exportValue={result}><Text style={st.panelTitle}>Your {toolMap[tool]?.[2]} result</Text><ResultDetails value={result}/></Panel><ContentActions title={(toolMap[tool]?.[2]||'SpiritualVibz')+' — Complete Reading'} value={result} route={'explore/'+tool}/></>:null}
+ {tool==='houses'?<HouseLessons/>:null}{['life','numbers'].includes(tool)?<NumerologyLessons/>:null}{['natal','moon','asteroids','astro','houses','calendar','shadow','runes','metadata'].includes(tool)?null:tool==='store'?<Panel><Text style={st.body}>All products and checkout are on the NeuroSpicy Mystic website.</Text><Action text="Visit my store ↗" onPress={run}/></Panel>:<Action text={busy?'Working…':'✨ Explore this feature'} onPress={run} disabled={busy}/>}{error?<Info warning>{error}</Info>:null}
+ {result&&!['natal','moon','asteroids','astro','calendar','metadata'].includes(tool)?<><Panel exportTitle={toolMap[tool]?.[2]} exportValue={result}><Text style={st.panelTitle}>Your {toolMap[tool]?.[2]} result</Text><ResultDetails value={result}/></Panel><ContentActions title={(toolMap[tool]?.[2]||'SpiritualVibz')+' — Complete Reading'} value={result} route={'explore/'+tool}/></>:null}
  </>}</Screen>
 }
 export function JournalScreen({navigation}:any){

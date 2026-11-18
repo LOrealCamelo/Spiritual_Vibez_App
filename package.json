@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@neon/config": "^1.14.3",
+    "@neon/env": "^2.1.6"
+  },
+  "name": "spiritual-vibz",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "node scripts/start.mjs",
+    "test": "node --test frontend/tests/*.test.cjs frontend/tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

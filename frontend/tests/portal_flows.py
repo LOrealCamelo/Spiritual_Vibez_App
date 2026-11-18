@@ -8,7 +8,7 @@ def exercise_portal(page, screenshots):
   page.set_viewport_size({'width':width,'height':height});page.evaluate('transition("home")');page.evaluate('document.fonts.ready')
   page.locator('img').evaluate_all('(imgs)=>imgs.forEach(n=>n.loading="eager")');page.wait_for_function('Array.from(document.images).every(n=>n.complete&&n.naturalWidth>0)')
   portal=page.locator('.home-light-portal');assert portal.is_visible(),width
-  assert 'home-light-portal.png' in portal.evaluate('(n)=>getComputedStyle(n,"::before").backgroundImage')
+  assert 'optimized/home-light-portal.webp' in portal.evaluate('(n)=>getComputedStyle(n,"::before").backgroundImage')
   assert page.locator('.home-feature').count()==6
   assert portal.locator('.picture-tile').count()==4 and portal.locator('.favorite-card').count()==4 and portal.locator('.extra-card').count()==4
   room=page.locator('.mystic-room-continuation').bounding_box();first=portal.locator('.home-quick-actions').bounding_box()

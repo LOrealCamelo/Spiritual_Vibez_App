@@ -1,5 +1,9 @@
 {
   "tools": {
+    "metadata": {
+      "pack": "ritual",
+      "cell": 0
+    },
     "natal": {
       "pack": "cosmic",
       "cell": 3

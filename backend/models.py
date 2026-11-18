@@ -46,6 +46,13 @@ class LifePathRequest(BaseModel):
     birth_day: int = Field(..., ge=1, le=31)
     birth_year: int = Field(..., ge=1900, le=2100)
 
+class MetadataRequest(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=120)
+    birth_date: str = Field(..., description='Gregorian YYYY-MM-DD')
+    reference_year: Optional[int] = Field(None, ge=1900, le=2400)
+    y_vowel_positions: List[int] = Field(default_factory=list, max_length=120,
+        description='One-based positions among normalized A–Z letters; mark only Y used as a vowel.')
+
 class SynastryRequest(BaseModel):
     partner_a_sign: str = Field(..., examples=["Scorpio"])
     partner_a_birthdate: Optional[str] = Field("1996-11-05")

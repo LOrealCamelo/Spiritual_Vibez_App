@@ -16,6 +16,7 @@ def exercise_homepage(page, screenshots):
   if tool:assert page.evaluate('state.tool')==tool,feature
   if feature=='daily':assert page.locator('#selected-card .tarot-image').count()==1
   if feature=='manifest':
+   page.locator('.ritual-search-original summary').click()
    page.locator('#search').fill('abundance');page.locator('[data-action="tool-run"]').click();page.wait_for_selector('.result')
    assert 'Abundance' in page.locator('.result').inner_text()
   if feature=='natal':assert page.locator('#birth-date').count()==1

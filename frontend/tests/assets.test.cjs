@@ -20,24 +20,31 @@ function appContext() {
   return {context,app};
 }
 
-test('rendered images and CSS backgrounds resolve to real PNG uploads', () => {
+test('rendered artwork resolves to uploaded PNGs or their committed lossless copies', () => {
   const {context} = appContext();
   const html = ['home()','spreadsPage()','learningPage()','journalPage()','explorePage()'].map(code=>vm.runInContext(code,context)).join('');
   const css = fs.readFileSync(path.join(root,'styles.css'),'utf8')+fs.readFileSync(path.join(root,'liquid-glass.css'),'utf8');
   const refs = [
     ...[...html.matchAll(/src="(assets\/[^"]+)"/g)].map(m=>m[1]),
-    ...[...css.matchAll(/url\(["']?(assets\/[^)'"\s]+\.png)["']?\)/g)].map(m=>m[1]),
+    ...[...css.matchAll(/url\(["']?(assets\/[^)'"\s]+\.(?:png|webp))["']?\)/g)].map(m=>m[1]),
   ];
   assert.ok(refs.length >= 16,'Expected all home images and CSS backgrounds to be checked');
   for(const ref of refs){
-    assert.match(ref,/\.png$/i,ref);
+    assert.match(ref,/\.(png|webp)$/i,ref);
     const file=path.join(root,ref);
     assert.ok(fs.existsSync(file),`Missing uploaded image: ${ref}`);
-    assert.equal(fs.readFileSync(file).subarray(0,8).toString('hex'),'89504e470d0a1a0a',`Not an actual PNG: ${ref}`);
+    const bytes=fs.readFileSync(file);
+    if(ref.endsWith('.png'))assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a',ref);
+    else {assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.toString('ascii',8,16),'WEBPVP8L');}
   }
-  for(const file of ['app.js','artwork.js','styles.css','index.html']){
-    assert.doesNotMatch(fs.readFileSync(path.join(root,file),'utf8'),/\.webp\b/i,`Legacy image URL in ${file}`);
+  const sizes=JSON.parse(fs.readFileSync(path.join(root,'assets/optimized/sizes.json'),'utf8'));
+  for(const item of sizes){
+    assert.equal(fs.statSync(path.join(root,item.source)).size,item.before_bytes);
+    assert.equal(fs.statSync(path.join(root,item.optimized)).size,item.after_bytes);
+    assert.ok(item.after_bytes<item.before_bytes);
   }
+  assert.doesNotMatch(fs.readFileSync(path.join(root,'artwork.js'),'utf8'),/\/\.netlify\/images/);
+
 });
 
 test('Home uses one extended room scene and accessible HTML actions', () => {
@@ -127,14 +134,15 @@ test('every feature and spread uses the shared original illustrations instead of
  const bindings=JSON.parse(fs.readFileSync(path.join(root,'../mobile/src/data/illustrationBindings.json'),'utf8'));
  assert.equal(vm.runInContext('JSON.stringify(ILLUSTRATION_BINDINGS)',context),JSON.stringify(bindings));
  const ids=Array.from(vm.runInContext('allTools.map(t=>t[0])',context));
- assert.equal(ids.length,18);
+ assert.equal(ids.length,19);
+ assert.deepEqual(ids.slice().sort(),['natal','moon','bazi','houses','asteroids','astro','calendar','life','numbers','love','sound','rituals','cycle','shadow','runes','pendulum','oracle','store','metadata'].sort());
  assert.deepEqual(Object.keys(bindings.tools).sort(),ids.sort());
  for(const art of [...Object.values(bindings.tools),...Object.values(bindings.spreads)]){
   assert.ok(['cosmic','study','journal','ritual'].includes(art.pack));
   assert.ok(Number.isInteger(art.cell)&&art.cell>=0&&art.cell<=3);
  }
  const html=vm.runInContext('state.tool=null;explorePage()',context);
- assert.equal((html.match(/class="panel-illustration"/g)||[]).length,18);
+ assert.equal((html.match(/class="panel-illustration"/g)||[]).length,19);
  assert.doesNotMatch(html,/class="emoji"|class="tooltile"/);
  for(const id of ids)assert.ok(html.includes('data-action="tool:'+id+'"'));
  assert.doesNotMatch(vm.runInContext('spreadsPage()',context),/class="glyph"/);
@@ -156,7 +164,7 @@ test('the app name uses the intact approved transparent logo and the full welcom
   assert.deepEqual(shared,fs.readFileSync(path.join(root,'../mobile/assets',asset)),`Web/native Home artwork differs: ${asset}`);
   if(['daily-vibz-bright-sunshine.png','daily-vibz-crystal-pink.png','rainbow-sun-face.png','purple-yellow-sun-face.png','ace-cups-crystal-ball.png','ace-cups-deck.png','galaxy-crystal-ball.png'].includes(asset))assert.equal(shared[25],6,`Expected transparent RGBA: ${asset}`);
  }
- assert.equal((html.match(/assets\/spiritual-vibz-logo-compact\.png/g)||[]).length,1);
+ assert.equal((html.match(/assets\/optimized\/spiritual-vibz-logo-compact\.webp/g)||[]).length,1);
  assert.doesNotMatch(html,/brand-spiritual\.png|brand-vibz\.png/);
 });
 

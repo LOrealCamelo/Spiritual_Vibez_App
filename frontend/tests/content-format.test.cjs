@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const Format=require('../content-format');
+const Format=require('./load-browser.cjs')('../content-format.js','ContentFormat');
 const reading={birth_year:1977,polarity:'Yin Feminine',animal_sign:'Fire Snake 🐍',pillars:{year_pillar:{title:'Fire Snake (Ding Si)',domain:'Ancestral Lineage & Outer Persona'},day_master:{title:'Yin Earth Snake (Ji Si)',domain:'Core Soul Identity & Spouse Palace'}},wheel_svg:'<svg>PRIVATE XML</svg>',session_id:'private-token'};
 test('BaZi results share human-readable complete text with a clean app invitation',()=>{
  const item=Format.snapshot({title:'Chinese Zodiac & BaZi',value:reading,route:'explore/bazi'});
@@ -26,4 +26,11 @@ test('astrocartography shares readable places and themes without dumping map coo
  assert.ok(text.includes('Venus')&&text.includes(report.places[0].city)&&text.includes('Get your own here:'));
  assert.doesNotMatch(text,/right_ascension_hours|mc_longitude|<svg|\[\[/);
  assert.ok(text.length<15000);
+});
+
+test('Metadata shares the full reading and arithmetic without serializing its SVG',()=>{
+ const report=require('../../mobile/__tests__/fixtures/metadata.json');
+ const message=Format.message(Format.snapshot({title:report.title,value:report,route:'explore/metadata',imageSvg:report.report_svg}));
+ for(const part of ['78 → 15 → 6','38 → 11','40 → 4',report.sections.at(-1).paragraphs.at(-1),'#explore/metadata'])assert.ok(message.includes(part),part);
+ assert.doesNotMatch(message,/report_svg|<svg|normalized_name|y_vowel_positions/);
 });
