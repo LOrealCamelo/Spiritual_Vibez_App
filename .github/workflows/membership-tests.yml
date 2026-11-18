@@ -23,7 +23,9 @@ jobs:
           node-version: '24'
       - run: pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
       - name: Test backend isolation, payments, authentication and concurrent gifts
-        run: pytest -q backend/tests
+        run: |
+          pytest -q backend/tests
+          python backend/tests/test_all_endpoints.py
       - name: Browser libraries and syntax
         run: |
           for script in frontend/*.js; do node --check "$script"; done

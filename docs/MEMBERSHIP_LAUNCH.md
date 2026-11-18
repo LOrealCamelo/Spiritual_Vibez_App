@@ -238,3 +238,8 @@ storage. Existing tests run with enforcement off to check compatibility.
 
 No real provider payments, email delivery, production storage restore or production
 activation is performed by these tests. Those are owner-approved launch checks.
+
+The standalone `python backend/tests/test_all_endpoints.py` command now creates a
+fresh temporary database before importing the backend and removes only that test
+directory afterward. Repeated script runs preserve the exact $64 cart assertion
+without accumulating items or touching an existing application database.

@@ -5,6 +5,14 @@ numerology/synastry, frequencies/rituals, menstrual/shadow work, divination, ora
 """
 import sys
 import os
+import tempfile
+
+# A direct script run must never reuse or modify an application's real database.
+# Keep pytest import behavior unchanged: its fixtures manage their own stores.
+_script_database = None
+if __name__ == '__main__':
+    _script_database = tempfile.TemporaryDirectory(prefix='spiritual-endpoint-tests-')
+    os.environ['AURAMYSTIC_DB_PATH'] = os.path.join(_script_database.name, 'endpoints.db')
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from backend.main import app, health_check
@@ -142,4 +150,7 @@ def run_all_tests():
     print("ALL 28 BACKEND ENDPOINT TESTS PASSED WITH ZERO ERRORS!")
 
 if __name__ == "__main__":
-    run_all_tests()
+    try:
+        run_all_tests()
+    finally:
+        _script_database.cleanup()
