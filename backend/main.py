@@ -36,9 +36,20 @@ app.add_middleware(
 from .routers import accounts
 from .services import memberships
 from .database import ACCOUNT_ID
+from .postgres import DatabaseUnavailable
+import psycopg
 app.include_router(accounts.router)
 from .routers import love
 app.include_router(love.router)
+
+@app.exception_handler(DatabaseUnavailable)
+@app.exception_handler(psycopg.Error)
+async def postgres_unavailable(request, exc):
+    import logging
+    logging.getLogger(__name__).error('PostgreSQL request failed: %s', type(exc).__name__)
+    return JSONResponse({'detail':'Account storage is temporarily unavailable.'}, status_code=503,
+                        headers={'Cache-Control':'no-store'})
+
 
 
 @app.middleware("http")
@@ -92,12 +103,13 @@ def serve_sitemap():
 @app.on_event("startup")
 def on_startup():
     if memberships.enabled():
-        for key in ['MEMBERSHIP_DB_PATH', 'MEMBERSHIP_USER_DATA_DIR', 'MEMBERSHIP_PUBLIC_URL', 'MEMBERSHIP_SUPPORT_EMAIL']:
+        storage_keys=[] if os.getenv('DATABASE_URL') else ['MEMBERSHIP_DB_PATH','MEMBERSHIP_USER_DATA_DIR']
+        for key in storage_keys+['MEMBERSHIP_PUBLIC_URL','MEMBERSHIP_SUPPORT_EMAIL']:
             if not os.getenv(key):
                 raise RuntimeError(key + ' is required before enabling membership protection.')
         if not os.environ['MEMBERSHIP_PUBLIC_URL'].startswith('https://') and os.getenv('RENDER'):
             raise RuntimeError('Production membership URLs require HTTPS.')
-        for key in ['MEMBERSHIP_DB_PATH', 'MEMBERSHIP_USER_DATA_DIR']:
+        for key in storage_keys:
             value = os.environ[key]
             if not os.path.isabs(value) or (os.getenv('RENDER') and value.startswith('/tmp/')):
                 raise RuntimeError('Membership storage must use configured durable absolute paths.')

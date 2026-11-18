@@ -76,7 +76,7 @@ def limited(request, action, subject='', maximum=20):
 
 @router.get('/config')
 def config():
-    configured = bool(os.getenv('MEMBERSHIP_DB_PATH') and os.getenv('MEMBERSHIP_USER_DATA_DIR'))
+    configured = bool(os.getenv('DATABASE_URL') or (os.getenv('MEMBERSHIP_DB_PATH') and os.getenv('MEMBERSHIP_USER_DATA_DIR')))
     owner_ready = False
     if configured:
         with m.database() as db:
@@ -221,13 +221,13 @@ def pending(account=Depends(admin)):
 def review(payment_id: int, body: ReviewInput, account=Depends(admin)):
     with m.database() as db:
         db.execute('BEGIN IMMEDIATE')
-        row = db.execute('SELECT * FROM payments WHERE id=? AND status="pending"', (payment_id,)).fetchone()
+        row = db.execute("SELECT * FROM payments WHERE id=? AND status='pending'", (payment_id,)).fetchone()
         if not row:
             raise HTTPException(409, 'This request has already been reviewed or does not exist.')
         verified = body.verified_reference.strip().upper()
         if body.approve and len(verified) < 4:
             raise HTTPException(422, 'Enter the actual verified transaction reference from your payment account.')
-        if body.approve and db.execute('SELECT id FROM payments WHERE provider=? AND verified_reference=? AND status="approved"', (row['provider'], verified)).fetchone():
+        if body.approve and db.execute("SELECT id FROM payments WHERE provider=? AND verified_reference=? AND status='approved'", (row['provider'], verified)).fetchone():
             raise HTTPException(409, 'That verified payment has already funded a membership.')
         if body.approve:
             m.grant_month(db, row['user_id'])

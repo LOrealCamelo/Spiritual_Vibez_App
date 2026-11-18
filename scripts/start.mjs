@@ -1,0 +1,10 @@
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+const args=['-m','uvicorn','backend.main:app','--host',process.env.HOST||'0.0.0.0','--port',process.env.PORT||'8000'];
+const envFile=process.env.SPIRITUAL_ENV_FILE||'.env.local';
+if(existsSync(envFile))args.push('--env-file',envFile);
+args.push(...process.argv.slice(2));
+const child=spawn(process.env.PYTHON||'python3',args,{stdio:'inherit',env:process.env});
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>child.kill(signal));
+child.on('error',()=>{console.error('Python could not start. Install backend/requirements.txt and set PYTHON if needed.');process.exitCode=1;});
+child.on('exit',code=>{process.exitCode=code??1;});

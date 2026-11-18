@@ -70,7 +70,7 @@ const Membership=(()=>{
  async function refresh(){user=await request('/me');}
  function accessDenied(status){if(status===403&&user)user.active=false;if(status===401){token='';user=null;try{sessionStorage.removeItem('sv_session')}catch{}cleanPrivateState();location.reload();}show();}
  async function loadAdmin(){[adminPayments,adminGifts,adminMembers]=await Promise.all([request('/admin/payments'),request('/admin/gifts'),request('/admin/members')]);}
- async function action(task){if(busy)return;busy=true;message='';try{await task()}catch(error){message=error.message}finally{busy=false;if(typeof render==='function')render();show()}}
+ async function action(task){if(busy)return;busy=true;message='';document.querySelectorAll('.membership-panel').forEach(panel=>{panel.setAttribute('aria-busy','true');panel.querySelectorAll('button').forEach(control=>control.disabled=true)});try{await task()}catch(error){message=error.message}finally{busy=false;if(typeof render==='function')render();show()}}
  document.addEventListener('keydown',event=>{
   const overlay=document.querySelector('#membership-overlay');if(!overlay)return;
   if(event.key==='Escape'){overlay.remove();document.querySelector('[data-member-action="open"]')?.focus();}

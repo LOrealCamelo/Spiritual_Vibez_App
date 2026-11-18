@@ -1,6 +1,7 @@
 """Opaque sessions, manually verified memberships and atomic single-use gifts.
 
-Dedicated durable SQLite database; never falls back to temporary storage.
+Uses Neon PostgreSQL when DATABASE_URL is configured; local SQLite remains supported.
+A PostgreSQL failure never falls back to local storage.
 PayPal notifications are verified separately before granting subscription access.
 """
 import calendar
@@ -57,6 +58,18 @@ def private_path(value):
 
 @contextmanager
 def database():
+    from .. import postgres
+    if postgres.configured():
+        conn=postgres.connect(membership=True)
+        try:
+            yield conn
+            conn.commit()
+        except BaseException:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        return
     path = os.getenv('MEMBERSHIP_DB_PATH')
     if not path:
         raise RuntimeError('MEMBERSHIP_DB_PATH must point to durable private storage.')

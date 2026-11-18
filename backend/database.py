@@ -1,5 +1,5 @@
 """
-AuraMystic Production SQLite Persistence Layer
+AuraMystic Production Persistence: Neon PostgreSQL or local SQLite
 Manages all user data: Shadow Work journal entries, saved Tarot spread readings,
 Lunar Menstrual Cycle logs, Ritual completions, Study Quiz streaks, AI Oracle chat history,
 and NeuroSpicy Mystic Storefront shopping bag sessions.
@@ -19,8 +19,11 @@ DB_PATH = os.environ.get(
 _ACTIVE_DB_PATH: Optional[str] = None
 ACCOUNT_ID = ContextVar('spiritual_account_id', default=None)
 
-def get_connection() -> sqlite3.Connection:
+def get_connection() -> Any:
     global _ACTIVE_DB_PATH
+    from . import postgres
+    if postgres.configured():
+        return postgres.connect(account_id=ACCOUNT_ID.get())
     account_id = ACCOUNT_ID.get()
     if account_id is not None:
         from .services.memberships import private_path
@@ -134,7 +137,9 @@ def _init_tables(conn) -> None:
 
 def init_db() -> None:
     conn = get_connection()
-    _init_tables(conn)
+    from . import postgres
+    if not postgres.configured():
+        _init_tables(conn)
     conn.close()
 
 # Initialize tables on module load

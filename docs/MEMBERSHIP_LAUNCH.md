@@ -20,6 +20,12 @@ account database. Deploying frontend files alone does not activate memberships.
 
 ## Required backend setup — before taking payments
 
+**Neon option (no Render disk required):** see [NEON_SETUP.md](NEON_SETUP.md).
+With private `DATABASE_URL` and `DATABASE_URL_UNPOOLED` configured, membership and
+per-account server data use PostgreSQL instead of the file paths below. The
+remaining owner, payment verification, email and activation checks still apply.
+The disk instructions below are the alternative SQLite deployment option.
+
 1. Confirm the actual Render service and its storage settings in the owner account.
    Use **durable private storage**, backed up before updates. Render persistent
    disks may require a paid service/plan; do not purchase or provision one without
