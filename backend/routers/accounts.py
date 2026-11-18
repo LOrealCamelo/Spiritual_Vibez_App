@@ -81,7 +81,7 @@ def config():
     if configured:
         with m.database() as db:
             owner_ready = bool(db.execute('SELECT id FROM members WHERE admin=1 AND disabled=0').fetchone())
-    return {'accounts_configured': configured, 'owner_ready': owner_ready, ** {'required': m.enabled(), 'price_cents': 599, 'currency': 'USD', 'renewal': 'paypal' if paypal.enabled() else 'manual', 'paypal_enabled': paypal.enabled(), 'trial_hours': 24,
+    return {'accounts_configured': configured, 'owner_ready': owner_ready, ** {'required': m.enabled(), 'price_cents': 599, 'currency': 'USD', 'renewal': 'paypal' if paypal.enabled() else 'manual', 'paypal_enabled': paypal.enabled(), 'trial_hours': 0,
             'cashapp': 'https://cash.app/$lvcenterprise', 'venmo': 'https://venmo.com/lvcenterprise',
             'support_email': os.getenv('MEMBERSHIP_SUPPORT_EMAIL', ''),
             'password_reset_email': bool(os.getenv('SMTP_HOST'))}}

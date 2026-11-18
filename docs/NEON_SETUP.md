@@ -105,7 +105,7 @@ Completed:
 - `python -m pytest backend/tests -q`: 206 tests passed, including PostgreSQL
   configuration/outage safety and refusal to run tests against an app database.
 - Real Neon membership/PayPal suite: 29 tests passed in 340.56 seconds, including
-  concurrent gift redemption, duplicate-payment protection, trial/renewal/
+  concurrent gift redemption, duplicate-payment protection, no-trial signup/paid renewal/
   cancellation/refund fixtures, account separation and session revocation.
 - Real Neon endpoint script: all 28 endpoint checks passed.
 - `python scripts/verify_neon.py --websocket --init-app`: launched the actual app

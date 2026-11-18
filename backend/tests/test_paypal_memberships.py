@@ -21,8 +21,8 @@ def paypal(setup, monkeypatch):
 
 def event(custom, **extra):
     return dict(custom=custom, receiver_id=p.MERCHANT, receiver_email=p.EMAIL,
-        subscr_id='I-EXAMPLE', txn_type='subscr_signup', period1='1 D', period3='1 M',
-        mc_amount1='0.00', mc_amount3='5.99', mc_currency='USD', recurring='1',
+        subscr_id='I-EXAMPLE', txn_type='subscr_signup', period3='1 M',
+        mc_amount3='5.99', mc_currency='USD', recurring='1',
         subscr_date=datetime.now(timezone.utc).strftime('%H:%M:%S %b %d, %Y UTC'), **extra)
 
 
@@ -44,12 +44,14 @@ def test_unverified_return_and_notification_never_unlock(paypal, monkeypatch):
     assert not client.get('/api/account/me', headers=customer).json()['active']
 
 
-def test_trial_renewal_replay_cancel_and_refund(paypal, monkeypatch):
+def test_paid_renewal_replay_cancel_and_refund(paypal, monkeypatch):
     client, customer, custom = paypal
     verified(monkeypatch)
     assert send(client, event(custom)).status_code == 200
     expiry = client.get('/api/account/me', headers=customer).json()['expires']
-    assert abs(expiry-m.now()-86400)<5
+    assert expiry == 0
+    assert not client.get('/api/account/me', headers=customer).json()['active']
+    assert client.get('/api/account/config').json()['trial_hours'] == 0
     assert send(client, event(custom)).status_code == 200
     assert client.get('/api/account/me', headers=customer).json()['expires']==expiry
     payment=event(custom);payment.update(txn_type='subscr_payment', txn_id='TXN-ONE', payment_status='Completed',mc_gross='5.99',payment_date=payment['subscr_date'])
@@ -69,7 +71,8 @@ def test_trial_renewal_replay_cancel_and_refund(paypal, monkeypatch):
 
 @pytest.mark.parametrize('changes',[
  {'receiver_id':'WRONG'}, {'receiver_email':'wrong@example.test'}, {'test_ipn':'1'},
- {'period1':'7 D'}, {'period3':'1 Y'}, {'mc_amount3':'0.01'}, {'mc_currency':'EUR'},
+ {'period1':'1 D'}, {'period1':'7 D'}, {'period2':'1 D'},
+ {'mc_amount2':'1.00'}, {'period3':'1 Y'}, {'mc_amount3':'0.01'}, {'mc_currency':'EUR'},
  {'mc_amount1':'1.00'}, {'recurring':'0'}, {'custom':'unbound-token'},
 ])
 def test_invalid_plan_receiver_environment_or_binding_denied(paypal,monkeypatch,changes):
@@ -121,7 +124,7 @@ def test_invalid_or_unavailable_verification_never_accepts(monkeypatch):
             assert error.value.status_code==503
 
 
-def test_delayed_verified_trial_does_not_restart_on_delivery(paypal,monkeypatch):
+def test_delayed_verified_signup_does_not_grant_access(paypal,monkeypatch):
     client,customer,custom=paypal;verified(monkeypatch)
     start=m.now()-90000
     with m.database() as db:db.execute('UPDATE paypal_checkouts SET created=?',(start-10,))
@@ -134,3 +137,17 @@ def test_checkout_cannot_accept_payments_when_membership_gate_is_off(paypal,monk
     client,customer,custom=paypal
     monkeypatch.setenv('MEMBERSHIP_REQUIRED','false')
     assert client.post('/api/account/paypal/checkout',headers=customer,json={}).status_code==503
+
+
+@pytest.mark.parametrize('fields', [
+    {'period1': '0 D', 'period2': '0 D', 'mc_amount1': '0.00', 'mc_amount2': '0.00'},
+    {'period1': '', 'period2': '', 'mc_amount1': '', 'mc_amount2': ''},
+])
+def test_unused_trial_fields_do_not_grant_access(paypal, monkeypatch, fields):
+    client, customer, custom = paypal
+    verified(monkeypatch)
+    data = event(custom); data.update(fields)
+    assert send(client, data).status_code == 200
+    account = client.get('/api/account/me', headers=customer).json()
+    assert account['expires'] == 0
+    assert not account['active']

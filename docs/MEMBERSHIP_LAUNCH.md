@@ -90,7 +90,7 @@ customer mobile experience here is the responsive website/PWA.
   session tokens stay in sessionStorage, not URLs or long-lived localStorage.
   Closing the tab requires a fresh login; logout revokes the session server-side
   and reloads the page to discard in-memory personal forms/results.
-- PayPal: a verified 24-hour free trial, then $5.99 USD monthly until cancelled.
+- PayPal: $5.99 USD monthly until cancelled, with no free trial.
   Cash App/Venmo: one manually verified calendar month, without automatic billing.
   Manual approval begins a new month at server time, or extends existing access
   from its current expiration. End-of-month dates clamp to the final
@@ -112,10 +112,10 @@ endpoints rather than embedding them in public JavaScript.
 ## PayPal activation and cancellation
 
 The owner supplied hosted button `QE2G8ZSPEMBBC`, merchant `M8B5TF7XNYV24`, and
-receiving email `natture1st@gmail.com`, confirming $5.99 USD every month with a
-24-hour trial. The integration requires that trial to be free; the verified signup
-must contain `period1=1 D`, a zero trial amount, `period3=1 M`, a $5.99 regular
-amount, USD, and recurring billing. A mismatched notification is rejected without
+receiving email `natture1st@gmail.com`, confirming $5.99 USD every month without a trial. The verified signup
+must contain `period3=1 M`, a $5.99 regular amount, USD, and recurring billing.
+Trial fields must be absent, blank, or zero; nonzero trial durations or charges
+are rejected. Signup alone does not grant access. A mismatched notification is rejected without
 unlocking access. Confirm these exact terms in PayPal before launch.
 
 After verifying durable storage and the owner login, configure server-only:
@@ -135,8 +135,7 @@ Public SPA routes are `#sales`, `#register`, `#login`, `#checkout` and `#account
 The existing homepage and six main navigation destinations remain intact.
 
 Only an IPN round-trip returning `VERIFIED` from PayPal's fixed production HTTPS
-endpoint can grant access. Browser return URLs never grant it. Trial coverage starts
-at the verified subscription start, not at callback delivery time. Completed $5.99
+endpoint can grant access. Browser return URLs never grant it. New subscriptions have no trial entitlement. Completed $5.99
 payments grant coverage from their actual payment date; duplicate transaction IDs
 cannot extend access again. Pending payments and sandbox events cannot unlock it.
 Failed verification/storage requests return errors so PayPal can retry. Out-of-order
@@ -145,7 +144,7 @@ automated tests.
 
 Customers cancel in PayPal Automatic Payments using the in-app management link.
 Cancellation is performed by PayPal, not a local switch pretending to stop charges.
-Verified cancellation stops renewal status and preserves purchased/trial access
+Verified cancellation stops renewal status and preserves already granted access
 through its existing end date. Test the actual PayPal cancellation flow before
 advertising the app. Full verified refunds/reversals remove the corresponding paid
 coverage; partial refunds and other unsupported events require owner review.
@@ -156,7 +155,7 @@ available to lifetime members. Starting duplicate subscriptions at PayPal can cr
 duplicate charges; review the merchant subscription list and refund accidental
 duplicates. Never approve a second subscription by email address alone.
 
-The hosted button's real checkout, trial and renewal must be tested by the owner
+The hosted button's real checkout, first payment and renewal must be tested by the owner
 with PayPal's tools/approved test setup. Production code deliberately rejects
 sandbox IPNs. No payouts, instant-transfer eligibility, holds or fees are guaranteed.
 No Stripe integration or API secret is configured by this update.

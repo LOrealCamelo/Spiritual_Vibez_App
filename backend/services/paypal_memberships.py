@@ -114,11 +114,16 @@ def process(raw):
                 return
             if not order:
                 raise HTTPException(422, 'Checkout has expired.')
-            # Validate the saved hosted plan including its free one-day trial.
-            if (data.get('mc_currency') != 'USD' or data.get('period1') != '1 D'
-                or data.get('period3') != '1 M' or data.get('period2', '')
+            # Validate the saved monthly plan without granting a trial.
+            # PayPal may omit unused trial fields or send zero-duration periods.
+            no_trial = all(
+                data.get(f'period{i}', '') in ('', '0 D', '0 W', '0 M', '0 Y')
+                and money(data.get(f'mc_amount{i}', data.get(f'amount{i}', '0')) or '0', '0')
+                for i in (1, 2)
+            )
+            if (data.get('mc_currency') != 'USD' or not no_trial
+                or data.get('period3') != '1 M'
                 or data.get('recurring') != '1'
-                or not money(data.get('mc_amount1', data.get('amount1')), '0')
                 or not money(data.get('mc_amount3', data.get('amount3')), '5.99')):
                 raise HTTPException(422, 'Subscription terms do not match the approved plan.')
             start = timestamp(data.get('subscr_date'))
@@ -128,9 +133,9 @@ def process(raw):
             if order['subscription'] and order['subscription'] != sub_id:
                 raise HTTPException(422, 'Checkout is already linked to another subscription.')
             if sub:
-                db.execute('UPDATE paypal_subscriptions SET signup=?,trial_until=? WHERE id=?', (start, start+86400, sub_id))
+                db.execute('UPDATE paypal_subscriptions SET signup=?,trial_until=? WHERE id=?', (start, 0, sub_id))
             else:
-                db.execute("INSERT INTO paypal_subscriptions(id,user_id,signup,trial_until,status) VALUES(?,?,?,?,'active')", (sub_id, uid, start, start+86400))
+                db.execute("INSERT INTO paypal_subscriptions(id,user_id,signup,trial_until,status) VALUES(?,?,?,?,'active')", (sub_id, uid, start, 0))
             db.execute('UPDATE paypal_checkouts SET subscription=? WHERE hash=?', (sub_id, order['hash']))
             m.audit(db, uid, 'paypal_signup_verified', sub_id)
         elif kind == 'subscr_payment':
