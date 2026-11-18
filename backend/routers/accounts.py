@@ -29,11 +29,13 @@ class ResetInput(BaseModel):
 
 class PaymentInput(BaseModel):
     provider: str
+    plan: str = 'month'
     reference: str = Field(min_length=4, max_length=150)
 
 
 class ReviewInput(BaseModel):
     approve: bool
+    verified_amount_cents: int | None = Field(default=None, ge=1)
     verified_reference: str = Field(default='', max_length=150)
     note: str = Field(min_length=3, max_length=500)
 
@@ -81,7 +83,7 @@ def config():
     if configured:
         with m.database() as db:
             owner_ready = bool(db.execute('SELECT id FROM members WHERE admin=1 AND disabled=0').fetchone())
-    return {'accounts_configured': configured, 'owner_ready': owner_ready, ** {'required': m.enabled(), 'price_cents': 599, 'currency': 'USD', 'renewal': 'paypal' if paypal.enabled() else 'manual', 'paypal_enabled': paypal.enabled(), 'trial_hours': 0,
+    return {'accounts_configured': configured, 'owner_ready': owner_ready, ** {'required': m.enabled(), 'price_cents': 599, 'plans': list(m.PLANS.values()), 'currency': 'USD', 'renewal': 'paypal' if paypal.enabled() else 'manual', 'paypal_enabled': paypal.enabled(), 'trial_hours': 0,
             'cashapp': 'https://cash.app/$lvcenterprise', 'venmo': 'https://venmo.com/lvcenterprise',
             'support_email': os.getenv('MEMBERSHIP_SUPPORT_EMAIL', ''),
             'password_reset_email': bool(os.getenv('SMTP_HOST'))}}
@@ -170,7 +172,10 @@ def reset(body: ResetInput, request: Request):
 @router.post('/payments')
 def payment(body: PaymentInput, request: Request, account=Depends(user)):
     if account['lifetime'] or account['admin']:
-        raise HTTPException(409, 'This account does not need a monthly renewal.')
+        raise HTTPException(409, 'This account already has administrator or lifetime access.')
+    if body.plan not in m.PLANS:
+        raise HTTPException(422, 'Choose a listed membership plan.')
+    plan = m.PLANS[body.plan]
     limited(request, 'payment', str(account['id']), maximum=5)
     if body.provider not in ['cashapp', 'venmo']:
         raise HTTPException(422, 'Choose Cash App or Venmo.')
@@ -180,17 +185,18 @@ def payment(body: PaymentInput, request: Request, account=Depends(user)):
         raise HTTPException(422, 'Enter the transaction reference.')
     with m.database() as db:
         try:
-            cursor = db.execute('INSERT INTO payments(user_id,provider,reference,created) VALUES(?,?,?,?)',
-                                (account['id'], body.provider, reference, m.now()))
+            cursor = db.execute('INSERT INTO payments(user_id,provider,reference,created,plan,price_cents) VALUES(?,?,?,?,?,?)',
+                                (account['id'], body.provider, reference, m.now(), body.plan, plan['price_cents']))
         except sqlite3.IntegrityError:
             raise HTTPException(409, 'A pending request or this transaction reference already exists.')
-        return {'id': cursor.lastrowid, 'status': 'pending', 'message': 'Access begins only after the owner verifies receipt of $5.99 USD and approves this request.'}
+        return {'id': cursor.lastrowid, 'status': 'pending', 'plan': body.plan, 'price_cents': plan['price_cents'],
+                'message': f"Access begins only after the owner verifies receipt of ${plan['price_cents']/100:.2f} USD for {plan['label']} access and approves this request."}
 
 
 @router.get('/payments')
 def own_payments(account=Depends(user)):
     with m.database() as db:
-        return [dict(row) for row in db.execute('SELECT id,provider,reference,status,created,note FROM payments WHERE user_id=? ORDER BY id DESC LIMIT 100', (account['id'],))]
+        return [dict(row) for row in db.execute('SELECT id,provider,reference,status,created,note,plan,price_cents FROM payments WHERE user_id=? ORDER BY id DESC LIMIT 100', (account['id'],))]
 
 
 @router.post('/redeem')
@@ -230,9 +236,13 @@ def review(payment_id: int, body: ReviewInput, account=Depends(admin)):
         if body.approve and db.execute("SELECT id FROM payments WHERE provider=? AND verified_reference=? AND status='approved'", (row['provider'], verified)).fetchone():
             raise HTTPException(409, 'That verified payment has already funded a membership.')
         if body.approve:
-            m.grant_month(db, row['user_id'])
-        db.execute('UPDATE payments SET status=?,reviewed=?,reviewer=?,note=?,verified_reference=? WHERE id=?',
-                   ('approved' if body.approve else 'rejected', m.now(), account['id'], body.note, verified if body.approve else None, payment_id))
+            if body.verified_amount_cents != row['price_cents']:
+                raise HTTPException(422, 'Verify the completed receipt for the exact amount shown on this request.')
+            if row['plan'] not in m.PLANS:
+                raise HTTPException(409, 'This plan requires owner review.')
+            m.grant_plan(db, row['user_id'], row['plan'])
+        db.execute('UPDATE payments SET status=?,reviewed=?,reviewer=?,note=?,verified_reference=?,verified_amount_cents=? WHERE id=?',
+                   ('approved' if body.approve else 'rejected', m.now(), account['id'], body.note, verified if body.approve else None, body.verified_amount_cents if body.approve else None, payment_id))
         m.audit(db, account['id'], 'payment-approved' if body.approve else 'payment-rejected', payment_id)
     return {'ok': True}
 

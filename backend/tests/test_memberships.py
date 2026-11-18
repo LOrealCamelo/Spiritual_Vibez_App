@@ -58,7 +58,7 @@ def test_payment_claim_does_not_unlock_and_owner_approval_is_idempotent(setup):
     r = client.post('/api/account/payments', headers=customer, json={'provider': 'cashapp', 'reference': 'cash-123'})
     payment = r.json()['id']
     assert client.get('/api/tarot/cards', headers=customer).status_code == 403
-    review = {'approve': True, 'note': 'Receipt verified in Cash App', 'verified_reference': 'ACTUAL-123'}
+    review = {'approve': True, 'verified_amount_cents': 599, 'note': 'Receipt verified in Cash App', 'verified_reference': 'ACTUAL-123'}
     assert client.post(f'/api/account/admin/payments/{payment}/review', headers=customer, json=review).status_code == 403
     assert client.post(f'/api/account/admin/payments/{payment}/review', headers=owner, json=review).status_code == 200
     expiry = client.get('/api/account/me', headers=customer).json()['expires']

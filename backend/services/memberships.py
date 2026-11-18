@@ -16,6 +16,13 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 
+PLANS = {
+    'month': {'id': 'month', 'label': 'Monthly', 'price_cents': 599, 'currency': 'USD'},
+    'year': {'id': 'year', 'label': 'Yearly', 'price_cents': 4500, 'currency': 'USD', 'savings_cents': 2688},
+    'lifetime': {'id': 'lifetime', 'label': 'Lifetime', 'price_cents': 6000, 'currency': 'USD'},
+}
+
+
 def enabled():
     return os.getenv('MEMBERSHIP_REQUIRED', 'false').lower() == 'true'
 
@@ -32,6 +39,12 @@ def month_after(timestamp):
     d = datetime.fromtimestamp(timestamp, timezone.utc)
     year, month = (d.year + 1, 1) if d.month == 12 else (d.year, d.month + 1)
     return int(d.replace(year=year, month=month, day=min(d.day, calendar.monthrange(year, month)[1])).timestamp())
+
+
+def year_after(timestamp):
+    d = datetime.fromtimestamp(timestamp, timezone.utc)
+    year = d.year + 1
+    return int(d.replace(year=year, day=min(d.day, calendar.monthrange(year, d.month)[1])).timestamp())
 
 
 def password_hash(password):
@@ -106,6 +119,18 @@ def database():
           paid INTEGER NOT NULL, expires INTEGER NOT NULL, refunded INTEGER NOT NULL DEFAULT 0);
         CREATE TABLE IF NOT EXISTS limits(key TEXT PRIMARY KEY, started INTEGER NOT NULL, count INTEGER NOT NULL);
         ''')
+        # Additive migration: retain every existing request and its monthly price.
+        # Serialize inspection + ALTER across processes, not only Python threads.
+        conn.execute('BEGIN IMMEDIATE')
+        columns = {row['name'] for row in conn.execute('PRAGMA table_info(payments)')}
+        for name, definition in [
+            ('plan', "TEXT NOT NULL DEFAULT 'month'"),
+            ('price_cents', 'INTEGER NOT NULL DEFAULT 599'),
+            ('verified_amount_cents', 'INTEGER'),
+        ]:
+            if name not in columns:
+                conn.execute(f'ALTER TABLE payments ADD COLUMN {name} {definition}')
+        conn.commit()
         yield conn
         conn.commit()
     except BaseException:
@@ -170,3 +195,15 @@ def create_reset(db, user_id):
     db.execute('DELETE FROM resets WHERE user_id=?', (user_id,))
     db.execute('INSERT INTO resets VALUES(?,?,?)', (digest(token), user_id, now() + 1800))
     return token
+
+
+def grant_plan(db, user_id, plan):
+    if plan not in PLANS:
+        raise ValueError('Unknown membership plan')
+    if plan == 'lifetime':
+        db.execute('UPDATE members SET lifetime=1 WHERE id=?', (user_id,))
+        return
+    row = db.execute('SELECT * FROM members WHERE id=?', (user_id,)).fetchone()
+    start = max(now(), public_user(row, db)['expires'])
+    until = year_after(start) if plan == 'year' else month_after(start)
+    db.execute('UPDATE members SET expires=? WHERE id=?', (until, user_id))

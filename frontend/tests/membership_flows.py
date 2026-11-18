@@ -29,9 +29,32 @@ def exercise(base, screenshots):
   customer.wait_for_function('document.body.innerText.includes("Access begins only after")')
   assert not customer.evaluate('Membership.user.active')
   owner.locator('[data-member-action="admin"]').click();owner.wait_for_selector('[data-member-action^="approve:"]')
-  owner.on('dialog',lambda dialog:dialog.accept('TEST-VERIFIED-RECEIPT'))
+  receipt={'amount':'5.99','reference':'TEST-VERIFIED-RECEIPT'}
+  owner.on('dialog',lambda dialog:dialog.accept(receipt['amount'] if 'amount in USD' in dialog.message else receipt['reference']))
   owner.locator('[data-member-action^="approve:"]').click();owner.wait_for_function('document.body.innerText.includes("Request reviewed")')
   customer.locator('[data-member-action="refresh"]').click();customer.wait_for_function('Membership.user.active===true')
+  for plan,amount,reference in [('year','45.00','TEST-YEAR-RECEIPT'),('lifetime','60.00','TEST-LIFETIME-RECEIPT')]:
+   previous=customer.evaluate('Membership.user.expires')
+   form=customer.locator('[data-member-form="payment"]');form.locator('[name="plan"]').select_option(plan)
+   assert amount in customer.locator('[data-plan-summary]').inner_text()
+   assert ('save $26.88' in form.locator('[name="plan"]').inner_text())
+   form.locator('[name="provider"]').select_option('venmo')
+   form.locator('[name="reference"]').fill(reference)
+   form.get_by_role('button',name='Submit payment for verification').click()
+   customer.wait_for_function('document.body.innerText.includes("Access begins only after")')
+   receipt.update(amount=amount,reference=reference)
+   owner.locator('[data-member-action="admin"]').click();owner.wait_for_selector('[data-member-action^="approve:"]')
+   pending=owner.locator('.membership-admin article').filter(has=owner.locator('[data-member-action^="approve:"]')).first
+   assert amount in pending.inner_text()
+   pending.locator('[data-member-action^="approve:"]').click()
+   owner.wait_for_function('document.body.innerText.includes("Request reviewed")')
+   customer.locator('[data-member-action="refresh"]').click()
+   if plan=='year':
+    customer.wait_for_function('Membership.user.expires>'+str(previous+364*86400))
+   else:
+    customer.wait_for_function('Membership.user.lifetime===1')
+    assert customer.locator('[data-member-form="payment"]').count()==0
+
   customer.locator('[data-member-action="close"]').click() if customer.locator('[data-member-action="close"]').count() else None
   for width in [320,375,390,430,1440]:
    customer.set_viewport_size({'width':width,'height':900});customer.evaluate('transition("home")');assert customer.locator('.home-feature').count()==6
@@ -55,9 +78,13 @@ def exercise(base, screenshots):
   screenshots.mkdir(parents=True,exist_ok=True)
   for width in [320,390,1440]:
    customer.set_viewport_size({'width':width,'height':900});customer.screenshot(path=str(screenshots/f'account-{width}.png'),full_page=True)
+  customer.goto(base+'/#sales',wait_until='networkidle')
+  assert '$45.00' in customer.locator('.membership-sales').inner_text()
+  assert '$60.00' in customer.locator('.membership-sales').inner_text()
+  assert '$26.88' in customer.locator('.membership-sales').inner_text()
   assert not errors,errors
   browser.close()
-  print('PASS: signup/login, owner-only approval, no self-unlock, gift redemption, private saves, logout, and responsive paid tools.')
+  print('PASS: signup/login, all three manual plans, exact-price owner approval, yearly extension, lifetime access, gifts, private saves, logout and responsive paid tools.')
 
 
 if __name__=='__main__':

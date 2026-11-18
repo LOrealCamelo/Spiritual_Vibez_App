@@ -248,3 +248,23 @@ The standalone `python backend/tests/test_all_endpoints.py` command now creates 
 fresh temporary database before importing the backend and removes only that test
 directory afterward. Repeated script runs preserve the exact $64 cart assertion
 without accumulating items or touching an existing application database.
+
+
+## Manual yearly and lifetime plans
+
+Cash App and Venmo now offer $5.99 monthly, $45.00 yearly (save $26.88 versus
+12 monthly payments), and $60.00 lifetime access while the app operates. The
+customer selects the plan before paying. The owner dashboard shows its recorded
+price and requires the completed receipt amount plus actual transaction reference;
+a mismatched amount or reused receipt cannot unlock access. A yearly approval adds
+one calendar year after the existing paid-through date (or today if expired).
+Lifetime approvals set the existing lifetime entitlement and do not erase data.
+
+The payment-plan v2 migration only adds columns and preserves old monthly payment
+requests as $5.99. PostgreSQL applies memberships_v1.sql followed by
+memberships_v2.sql under the existing migration lock; SQLite uses a serialized,
+idempotent column upgrade. No existing table or user data is dropped.
+
+These two new prices are not connected to PayPal yet. The configured PayPal
+button still sells only $5.99 monthly, and switching to a manual plan never
+cancels a customer's PayPal agreement. Customers must cancel PayPal separately.

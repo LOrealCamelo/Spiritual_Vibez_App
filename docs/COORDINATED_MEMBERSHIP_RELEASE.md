@@ -107,3 +107,35 @@ been created on the owner's behalf during this release preparation.
    until the complete customer flow passes.
 
 A GitHub push/PR is not evidence that payments are enabled or production deployed.
+
+
+## Added yearly and lifetime purchases (November 18)
+
+The manual checkout now offers Monthly $5.99, Yearly $45.00 (saving $26.88
+compared with twelve monthly payments), and Lifetime $60.00 once. Lifetime means
+access while SpiritualVibz operates; no external provider subscription is created
+or cancelled. All three plans use the existing Cash App/Venmo recipient profiles.
+The signed-in customer chooses a plan and submits its payment reference. The
+server records the plan and price, and the owner must independently verify the
+exact amount and actual reference before approving. A request cannot grant access
+itself or reuse an already verified receipt. Yearly renewal extends the existing
+paid-through date by one calendar year, including leap-day clamping. Lifetime
+removes the expiration requirement. Existing accounts, payments and gift codes
+remain intact; additive v2 migrations label old payment requests as monthly $5.99.
+
+PayPal remains $5.99 monthly. Yearly recurring PayPal and lifetime one-time PayPal
+require separate hosted checkout configurations supplied by the owner; the monthly
+button is never reused for another price. Existing PayPal subscribers must cancel
+PayPal billing separately when purchasing manual yearly/lifetime access.
+
+Updated local checks: 227 backend tests passed; the opt-in PostgreSQL-only test
+is skipped in SQLite mode. All 52 frontend tests and npm run build pass. The
+membership browser test now purchases all three plans, verifies their exact amounts,
+checks yearly extension and lifetime status, and retains gift/privacy/logout flows.
+A disposable PostgreSQL 17 GitHub Actions service exercises the real migration,
+plan approvals, authentication, PayPal and gift tests without production secrets.
+The live Neon check could not connect because the workspace's saved password is
+no longer accepted. Configure the rotated pooled DATABASE_URL and direct
+DATABASE_URL_UNPOOLED in Render and verify actual Neon connectivity before launch.
+Do not post these URLs in chat, GitHub, or build logs. No production database or
+hosting setting was changed to work around this verification blocker.

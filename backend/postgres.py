@@ -87,8 +87,12 @@ def ensure_schema(schema,membership):
                 conn.execute('SELECT pg_advisory_xact_lock(%s)',(lock,))
                 conn.execute(sql.SQL('CREATE SCHEMA IF NOT EXISTS {}').format(sql.Identifier(schema)))
                 conn.execute(sql.SQL('SET LOCAL search_path TO {}, pg_catalog').format(sql.Identifier(schema)))
-                for statement in path.read_text().split(';'):
-                    if statement.strip():conn.execute(statement)
+                paths = [path]
+                if membership:
+                    paths.append(Path(__file__).parent/'sql'/'memberships_v2.sql')
+                for migration in paths:
+                    for statement in migration.read_text().split(';'):
+                        if statement.strip():conn.execute(statement)
             _initialized.add(key)
         except psycopg.Error:
             raise DatabaseUnavailable('PostgreSQL schema initialization failed; check server-side connection settings.') from None
