@@ -49,8 +49,8 @@ async function api(path,options){
  const {timeoutMs=60000,...requestOptions}=options||{};
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{
-  const r=await fetch(API+path,{...requestOptions,signal:controller.signal});
-  if(!r.ok){let data;try{data=await r.json()}catch{}throw Error(typeof data?.detail==='string'?data.detail:'API '+r.status)}
+  const r=await fetch(API+path,{...requestOptions,headers:{...requestOptions.headers,...(typeof Membership!=='undefined'?Membership.headers():{})},signal:controller.signal});
+  if(!r.ok){if(typeof Membership!=='undefined'&&[401,403].includes(r.status))Membership.accessDenied(r.status);let data;try{data=await r.json()}catch{}throw Error(typeof data?.detail==='string'?data.detail:'API '+r.status)}
   return await r.json();
  }finally{clearTimeout(timer)}
 }
@@ -214,7 +214,7 @@ function explorePage(){
  if(id==='shadow')form+=notice('Journal reflections are saved locally in the Journal tab; public server-side storage is disabled until authentication is built.');
  if(id==='oracle')form+=notice('Rule-based interpretations require no paid AI API. The backend is not a large language model.');
  out+='<div class="glass"><h3>'+ico+' '+e(title)+'</h3>'+form+(id==='sound'?'':btn(id==='rituals'?'Find rituals ✨':'Explore / Calculate ✨','tool-run'))+(state.error?notice(state.error,'error'):'')+'</div>'+(state.result?renderResult(state.result):'');
- return out;
+ return out+(id==='love'?LovePage.markup():'');
 }
 function readableResult(value){
  if(value===null||value===undefined)return '';
@@ -234,7 +234,7 @@ function renderResult(o){let s='';if(o.oracle_response)s='<p>'+e(o.oracle_respon
  else s=readableResult(o);
  return '<div class="result"><h3>✨ Your '+e(getTool(state.tool)?.[2]||'cosmic')+' result</h3>'+s+'</div>';
 }
-function journalPage(){let saved=[],moods=[];try{saved=JSON.parse(localStorage.getItem('sv_private_journal')||'[]');moods=JSON.parse(localStorage.getItem('sv_moods')||'[]')}catch{}
+function journalPage(){let saved=[],moods=[];try{saved=JSON.parse((typeof Membership!=='undefined'?Membership.storage:localStorage).getItem('sv_private_journal')||'[]');moods=JSON.parse((typeof Membership!=='undefined'?Membership.storage:localStorage).getItem('sv_moods')||'[]')}catch{}
  let out=artHeader('journal_header','My Journal — reflect, track your journey and explore more spiritual tools');
  out+=artButton('journal_today',"Today's Journal",'journal-entry');
  if(state.journalView==='entry')out+='<div class="glass" id="journal-entry"><h3>Today’s reflection</h3><label class="field">Your thoughts<textarea id="journal-text" placeholder="What came up for you today?"></textarea></label><p>'+btn('Save reflection','save-note')+'</p></div>';
@@ -246,14 +246,15 @@ function journalPage(){let saved=[],moods=[];try{saved=JSON.parse(localStorage.g
 function dailyCard(){if(state.cards.length){const card=state.cards[Math.floor(Math.random()*state.cards.length)];state.cardDetail=card;state.learningModule='all';transition('learn');document.querySelector('#selected-card')?.scrollIntoView({behavior:'smooth'});}}
 function navIcon(id){const paths={home:'<path d="m3 10 9-7 9 7v11H3z"/><path d="M9 21v-8h6v8"/>',spreads:'<path d="M3 5h3c5 0 7 14 12 14h3m-4-4 4 4-4 4M3 19h3c2 0 4-3 6-7m4-7h5m-4-4 4 4-4 4"/>',learn:'<path d="M12 5C8 2 4 3 2 4v16c3-2 7-1 10 1 3-2 7-3 10-1V4c-2-1-6-2-10 1zM12 5v16"/>',explore:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>',cosmos:'<path d="M20 16A9 9 0 0 1 8 4a9 9 0 1 0 12 12z"/>',journal:'<rect x="5" y="3" width="15" height="19" rx="2"/><path d="M3 7h4M3 12h4M3 17h4M10 8h6M10 12h6M10 16h4"/>'};return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[id]||paths.journal)+'</svg>'}
 function render(){
- if(document.body)document.body.dataset.page=state.page;
+ if(document.body){document.body.dataset.page=state.page;document.body.dataset.tool=state.tool||'';}
  if(document.documentElement)document.documentElement.dataset.page=state.page;
  const nav=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'selected':'')+'" data-action="nav:'+id+'"><span class="navicon">'+navIcon(id)+'</span>'+label+'</button>').join('');
  const dock=menu.map(([id,icon,label])=>'<button class="'+(state.page===id?'current':'')+'" data-action="nav:'+id+'"><span>'+navIcon(id)+'</span>'+label+'</button>').join('');
- const pageContent={home,spreads:spreadsPage,learn:learningPage,cosmos:cosmosPage,explore:explorePage,journal:journalPage}[state.page]||home;
- $('#app').innerHTML=clearGlassFilter()+'<header class="topbar"><div class="topbar__inner"><div class="header-identity"><a href="#home" class="brand portrait-brand" aria-label="Spiritual Vibz Home"><img src="'+optimizedAsset('assets/cartoon_me_transparent1.png',240)+'" width="1254" height="1254" alt="Your tarot guide, shown from her headphones down to her hips."></a></div><nav class="nav" aria-label="Primary">'+nav+'</nav><div class="top-actions"><button aria-label="Explore" data-action="nav:explore">'+navIcon('explore')+'<span class="feature-label">Explore</span></button></div></div></header><main class="container '+(state.page==='home'?'':'main-page')+'">'+(['spreads','learn','journal'].includes(state.page)?'<div class="art-page">'+pageContent()+'</div>':pageContent())+'</main><footer class="footer"><img class="creator-logo" src="'+optimizedAsset('assets/neurospicy-mystic-logo.png',400)+'" alt="NeuroSpicy Mystic" loading="lazy" decoding="async"></footer><nav class="bottomdock" aria-label="Mobile navigation">'+dock+'</nav>';
+ const pageContent={home,spreads:spreadsPage,learn:learningPage,cosmos:cosmosPage,explore:explorePage,journal:journalPage,sales:()=>Membership.page('sales'),register:()=>Membership.page('register'),login:()=>Membership.page('login'),checkout:()=>Membership.page('checkout'),account:()=>Membership.page('account')}[state.page]||home;
+ $('#app').innerHTML=clearGlassFilter()+'<header class="topbar"><div class="topbar__inner"><div class="header-identity"><a href="#home" class="brand portrait-brand" aria-label="Spiritual Vibz Home"><img src="'+optimizedAsset('assets/cartoon_me_transparent1.png',240)+'" width="1254" height="1254" alt="Your tarot guide, shown from her headphones down to her hips."></a></div><nav class="nav" aria-label="Primary">'+nav+'</nav><div class="top-actions"><button class="membership-account-button" data-member-action="open" aria-label="Account">Account</button><button aria-label="Explore" data-action="nav:explore">'+navIcon('explore')+'<span class="feature-label">Explore</span></button></div></div></header><main class="container '+(state.page==='home'?'':'main-page')+'">'+(['spreads','learn','journal'].includes(state.page)?'<div class="art-page">'+(typeof Membership!=='undefined'&&Membership.blocked()?Membership.screen():pageContent())+'</div>':(typeof Membership!=='undefined'&&Membership.blocked()&&!['home','sales','register','login','checkout','account'].includes(state.page)?Membership.screen():pageContent()))+'</main><footer class="footer"><img class="creator-logo" src="'+optimizedAsset('assets/neurospicy-mystic-logo.png',400)+'" alt="NeuroSpicy Mystic" loading="lazy" decoding="async"></footer><nav class="bottomdock" aria-label="Mobile navigation">'+dock+'</nav>';
+ if(state.tool==='love'&&(typeof Membership==='undefined'||!Membership.blocked()))LovePage.load();
  if(document.body){installContentActions();RuneCasting.sync();window.requestAnimationFrame(syncHomeLayout);document.fonts?.ready.then(syncHomeLayout)}
- if(['natal','moon','asteroids','astro'].includes(state.tool)){loadBirthDropdowns();if(!['moon','astro'].includes(state.tool))loadCurrentBirthSky();if(state.tool==='asteroids')loadAsteroidCatalog()}
+ if((typeof Membership==='undefined'||!Membership.blocked())&&['natal','moon','asteroids','astro'].includes(state.tool)){loadBirthDropdowns();if(!['moon','astro'].includes(state.tool))loadCurrentBirthSky();if(state.tool==='asteroids')loadAsteroidCatalog()}
 }
 function syncHomeLayout(){
  if(!document.body||state.page!=='home')return;
@@ -264,7 +265,7 @@ function syncHomeLayout(){
  container.style.setProperty('--portal-top',(bottom-container.getBoundingClientRect().top-window.scrollY-70)+'px');
 }
 function val(id){return document.getElementById(id)?.value??''}
-function save(title,text){let arr=[];try{arr=JSON.parse(localStorage.getItem('sv_private_journal')||'[]')}catch{}arr.push({title,text,date:new Date().toLocaleDateString()});localStorage.setItem('sv_private_journal',JSON.stringify(arr.slice(-100)));}
+function save(title,text){let arr=[];try{arr=JSON.parse((typeof Membership!=='undefined'?Membership.storage:localStorage).getItem('sv_private_journal')||'[]')}catch{}arr.push({title,text,date:new Date().toLocaleDateString()});(typeof Membership!=='undefined'?Membership.storage:localStorage).setItem('sv_private_journal',JSON.stringify(arr.slice(-100)));}
 let ac=null,osc=null;function stopAudio(){const oldOsc=osc,oldContext=ac;osc=null;ac=null;try{oldOsc?.stop()}catch{}try{oldContext?.close()?.catch(()=>{})}catch{}}
 async function startAudio(){
  stopAudio();
@@ -309,7 +310,7 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
 
  if(a==='ritual-reader-scroll'){document.getElementById('ritual-reader')?.scrollIntoView({block:'start',behavior:'smooth'});return;}
  if(a==='ritual-letter'){const letter=b.dataset.letter;if(letter&&/^[A-Z]$/.test(letter)){state.ritualLetter=letter;render();document.getElementById('sv-ritual-world')?.scrollIntoView({block:'start'});}return;}
- if(a==='ritual-bookmark'){const page=state.ritualBookPage||0;let pages=[];try{pages=JSON.parse(localStorage.getItem('sv_ritual_page_bookmarks')||'[]');if(!Array.isArray(pages))pages=[];}catch{}const next=pages.includes(page)?pages.filter(x=>x!==page):pages.concat(page);try{localStorage.setItem('sv_ritual_page_bookmarks',JSON.stringify(next))}catch{alert('Your browser could not store a bookmark.')}render();document.getElementById('ritual-reader')?.scrollIntoView({block:'nearest'});return;}
+ if(a==='ritual-bookmark'){const page=state.ritualBookPage||0;let pages=[];try{pages=JSON.parse((typeof Membership!=='undefined'?Membership.storage:localStorage).getItem('sv_ritual_page_bookmarks')||'[]');if(!Array.isArray(pages))pages=[];}catch{}const next=pages.includes(page)?pages.filter(x=>x!==page):pages.concat(page);try{(typeof Membership!=='undefined'?Membership.storage:localStorage).setItem('sv_ritual_page_bookmarks',JSON.stringify(next))}catch{alert('Your browser could not store a bookmark.')}render();document.getElementById('ritual-reader')?.scrollIntoView({block:'nearest'});return;}
  if(a==='ritual-page-journal'){const chapter=RITUAL_STARTER_BOOK[state.ritualBookPage||0];if(!chapter)return;try{save('Rituals for Reflection · '+chapter.title,chapter.text);alert('This complete page was saved privately to your Journal on this browser.');}catch{alert('Unable to save to your Journal in this browser.')}return;}
 
 
@@ -320,7 +321,7 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
  if(a==='journal-entry'){state.journalView='entry';render();document.querySelector('#journal-entry')?.scrollIntoView({block:'center'});return}
  if(a==='journal-saved'){state.journalView='saved';render();document.querySelector('#saved-reflections')?.scrollIntoView({block:'center'});return}
  if(a==='journal-mood'){state.journalView='mood';return render()}
- if(a==='save-mood'){let moods=[];try{moods=JSON.parse(localStorage.getItem('sv_moods')||'[]')}catch{}moods.unshift({mood:b.dataset.mood,date:new Date().toLocaleDateString()});localStorage.setItem('sv_moods',JSON.stringify(moods.slice(0,100)));return render()}
+ if(a==='save-mood'){let moods=[];try{moods=JSON.parse((typeof Membership!=='undefined'?Membership.storage:localStorage).getItem('sv_moods')||'[]')}catch{}moods.unshift({mood:b.dataset.mood,date:new Date().toLocaleDateString()});(typeof Membership!=='undefined'?Membership.storage:localStorage).setItem('sv_moods',JSON.stringify(moods.slice(0,100)));return render()}
  if(a==='daily-card'){return dailyCard()}
  if(a==='back-spreads'){state.selected=null;state.drawn={};return render()}
  if(a==='select-spread'){return pickSpread(state.spreads.find(x=>x.id===b.dataset.id))}
@@ -344,8 +345,8 @@ document.addEventListener('click',async ev=>{const b=ev.target.closest('[data-ac
  if(a==='audio-play')return startAudio();if(a==='audio-stop')return stopAudio();});
 document.addEventListener('toggle',ev=>{if(ev.target.matches?.('.spread-search'))state.searchOpen=ev.target.open},true);
 document.addEventListener('input',ev=>{if(ev.target.id==='birth-date'&&['life','numbers'].includes(state.tool))state.numerologyDate=ev.target.value;if(ev.target.id==='spread-search'){state.searchOpen=$('.spread-search')?.open||false;state.search=ev.target.value;const pos=ev.target.selectionStart;render();const inp=$('#spread-search');inp?.focus();inp?.setSelectionRange(pos,pos)}});
-window.addEventListener('hashchange',()=>{const [p,sub]=hashRouteParts(),tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null;if(['home','spreads','learn','cosmos','explore','journal'].includes(p)&&(p!==state.page||tool!==state.tool)){stopAudio();state.page=p;state.tool=tool;render();if(p==='cosmos')fetchDailySky()}});
+window.addEventListener('hashchange',()=>{const [p,sub]=hashRouteParts(),tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null;if(['home','spreads','learn','cosmos','explore','journal','sales','register','login','checkout','account'].includes(p)&&(p!==state.page||tool!==state.tool)){stopAudio();state.page=p;state.tool=tool;render();if(p==='cosmos')fetchDailySky()}});
 window.addEventListener('resize',syncHomeLayout);
 window.addEventListener('beforeunload',stopAudio);
-async function boot(){const [p,sub]=hashRouteParts();if(['home','spreads','learn','cosmos','explore','journal'].includes(p)){state.page=p;state.tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null}render();try{const data=await Promise.all([api('/tarot/cards'),api('/tarot/spreads')]);if(data[0].cards?.length===78&&data[1].spreads?.length){state.cards=data[0].cards;state.spreads=normalizeSpreads(data[1].spreads);state.online=true}}catch{/* Local preview fallback is intentionally usable. */}render();if(state.page==='cosmos')fetchDailySky()}
-boot();
+async function boot(){const [p,sub]=hashRouteParts();if(['home','spreads','learn','cosmos','explore','journal','sales','register','login','checkout','account'].includes(p)){state.page=p;state.tool=p==='explore'&&allTools.some(t=>t[0]===sub)?sub:null}render();if(typeof Membership!=='undefined'&&Membership.blocked())return;try{const data=await Promise.all([api('/tarot/cards'),api('/tarot/spreads')]);if(data[0].cards?.length===78&&data[1].spreads?.length){state.cards=data[0].cards;state.spreads=normalizeSpreads(data[1].spreads);state.online=true}}catch{/* Local preview fallback is intentionally usable. */}render();if(state.page==='cosmos')fetchDailySky()}
+if(typeof Membership!=='undefined')Membership.initialize().then(boot);else boot();

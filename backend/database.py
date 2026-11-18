@@ -6,6 +6,7 @@ and NeuroSpicy Mystic Storefront shopping bag sessions.
 """
 import os
 import sqlite3
+from contextvars import ContextVar
 import json
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -16,9 +17,19 @@ DB_PATH = os.environ.get(
 )
 
 _ACTIVE_DB_PATH: Optional[str] = None
+ACCOUNT_ID = ContextVar('spiritual_account_id', default=None)
 
 def get_connection() -> sqlite3.Connection:
     global _ACTIVE_DB_PATH
+    account_id = ACCOUNT_ID.get()
+    if account_id is not None:
+        from .services.memberships import private_path
+        root = private_path(os.environ['MEMBERSHIP_USER_DATA_DIR'])
+        os.makedirs(root, mode=0o700, exist_ok=True)
+        conn = sqlite3.connect(os.path.join(root, str(int(account_id)) + '.db'), check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        _init_tables(conn)
+        return conn
     if _ACTIVE_DB_PATH is None:
         try:
             os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -32,8 +43,7 @@ def get_connection() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db() -> None:
-    conn = get_connection()
+def _init_tables(conn) -> None:
     cur = conn.cursor()
 
     cur.execute("""
@@ -120,6 +130,11 @@ def init_db() -> None:
     """)
 
     conn.commit()
+
+
+def init_db() -> None:
+    conn = get_connection()
+    _init_tables(conn)
     conn.close()
 
 # Initialize tables on module load

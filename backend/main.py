@@ -3,6 +3,7 @@ AuraMystic — Uplifting Spiritual Sanctuary & Solar Astrology Portal
 Production FastAPI Backend Server (NeuroSpicy Mystic)
 """
 import os
+import sqlite3
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,6 +32,35 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+from .routers import accounts
+from .services import memberships
+from .database import ACCOUNT_ID
+app.include_router(accounts.router)
+from .routers import love
+app.include_router(love.router)
+
+
+@app.middleware("http")
+async def membership_access(request, call_next):
+    path = request.url.path
+    if not memberships.enabled() or request.method == 'OPTIONS' or not path.startswith('/api/') or path.startswith('/api/account/') or path == '/api/health':
+        return await call_next(request)
+    try:
+        token = request.headers.get('authorization', '').removeprefix('Bearer ')
+        member = memberships.session_user(token)
+    except (RuntimeError, OSError, sqlite3.Error):
+        return JSONResponse({'detail': 'Membership storage is unavailable.'}, status_code=503, headers={'Cache-Control':'no-store'})
+    if not member:
+        return JSONResponse({'detail': 'Please log in.'}, status_code=401, headers={'Cache-Control':'no-store'})
+    if not member['active']:
+        return JSONResponse({'detail': 'An active membership is required.'}, status_code=403, headers={'Cache-Control':'no-store'})
+    context = ACCOUNT_ID.set(member['id'])
+    try:
+        return await call_next(request)
+    finally:
+        ACCOUNT_ID.reset(context)
+
 
 @app.middleware("http")
 async def public_response_headers(request, call_next):
@@ -61,6 +91,18 @@ def serve_sitemap():
 
 @app.on_event("startup")
 def on_startup():
+    if memberships.enabled():
+        for key in ['MEMBERSHIP_DB_PATH', 'MEMBERSHIP_USER_DATA_DIR', 'MEMBERSHIP_PUBLIC_URL', 'MEMBERSHIP_SUPPORT_EMAIL']:
+            if not os.getenv(key):
+                raise RuntimeError(key + ' is required before enabling membership protection.')
+        if not os.environ['MEMBERSHIP_PUBLIC_URL'].startswith('https://') and os.getenv('RENDER'):
+            raise RuntimeError('Production membership URLs require HTTPS.')
+        for key in ['MEMBERSHIP_DB_PATH', 'MEMBERSHIP_USER_DATA_DIR']:
+            value = os.environ[key]
+            if not os.path.isabs(value) or (os.getenv('RENDER') and value.startswith('/tmp/')):
+                raise RuntimeError('Membership storage must use configured durable absolute paths.')
+        with memberships.database():
+            pass
     init_db()
 
 # Mount all 8 production routers
@@ -190,3 +232,16 @@ app.mount('/assets/tarot', StaticFiles(directory=os.path.join(os.path.dirname(__
 
 # Serve the approved Spiritual Vibez illustrated artwork as real image assets.
 app.mount("/assets", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "frontend", "assets")), name="spiritual-vibez-artwork")
+
+@app.get('/membership.js', include_in_schema=False)
+def serve_membership_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'membership.js'), media_type='text/javascript')
+
+@app.get('/membership.css', include_in_schema=False)
+def serve_membership_styles():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'membership.css'), media_type='text/css')
+
+
+@app.get('/love.js', include_in_schema=False)
+def serve_love_script():
+    return FileResponse(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'love.js'), media_type='text/javascript')

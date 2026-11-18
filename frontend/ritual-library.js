@@ -28,7 +28,7 @@
     '</details>';
   }).join('');
  }
- function bookmarks(){try{const v=JSON.parse(root.localStorage.getItem('sv_ritual_page_bookmarks')||'[]');return Array.isArray(v)?v:[]}catch{return []}}
+ function bookmarks(){try{const v=JSON.parse((typeof Membership!=='undefined'?Membership.storage:root.localStorage).getItem('sv_ritual_page_bookmarks')||'[]');return Array.isArray(v)?v:[]}catch{return []}}
  const countryFirst=(name)=>name.normalize('NFD').replace(/[\u0300-\u036f]/g,'')[0].toUpperCase();
  function directory(letter){
   const countries=Array.isArray(root.SV_RITUAL_COUNTRIES)?root.SV_RITUAL_COUNTRIES:[];
