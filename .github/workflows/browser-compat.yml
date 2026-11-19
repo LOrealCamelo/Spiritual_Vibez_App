@@ -48,7 +48,18 @@ jobs:
           PYTHON
           apt-get -o Acquire::Retries=3 -o Acquire::https::Timeout=30 update
           apt-get -o Acquire::Retries=3 -o Acquire::https::Timeout=30 install --yes --no-install-recommends pulseaudio libasound2-plugins
+          # GitHub's mounted HOME can be inaccessible to the audio daemon.
+          # Keep its runtime and auth cookie in a private directory in this job.
+          export HOME="$RUNNER_TEMP/spiritual-audio-home"
+          export XDG_RUNTIME_DIR="$HOME/runtime"
+          mkdir -p "$XDG_RUNTIME_DIR"
+          chmod 700 "$HOME" "$XDG_RUNTIME_DIR"
           pulseaudio --start --exit-idle-time=-1
+          export PULSE_SERVER="unix:$XDG_RUNTIME_DIR/pulse/native"
+          export PULSE_COOKIE="$HOME/.config/pulse/cookie"
+          echo "PULSE_SERVER=$PULSE_SERVER" >> "$GITHUB_ENV"
+          echo "PULSE_COOKIE=$PULSE_COOKIE" >> "$GITHUB_ENV"
+          echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
           pactl load-module module-null-sink sink_name=spiritual_vibz_test
           pactl set-default-sink spiritual_vibz_test
           pactl info
