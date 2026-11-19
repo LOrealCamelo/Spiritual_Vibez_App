@@ -64,6 +64,9 @@ jobs:
           pactl set-default-sink spiritual_vibz_test
           pactl info
       - name: Test real browser engines against an isolated local backend
+        env:
+          # Firefox refuses root with GitHub's pwuser-owned mounted HOME.
+          HOME: /root
         run: python frontend/tests/browser_compat.py --screenshots "$RUNNER_TEMP/browser-compat"
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
