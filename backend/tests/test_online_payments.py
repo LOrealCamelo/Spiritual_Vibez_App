@@ -3,6 +3,7 @@ import copy
 import hashlib
 import hmac
 import json
+import os
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 import pytest
@@ -10,10 +11,10 @@ from backend.services import memberships as m, online_payments as o, paypal_memb
 from backend.tests.test_memberships import setup, signup, gift
 
 
-@pytest.fixture
-def online(setup,monkeypatch):
+@pytest.fixture(params=['sk_live_fixture', 'rk_live_fixture'])
+def online(setup,monkeypatch,request):
     client,owner=setup
-    for key,value in {'STRIPE_CHECKOUT_ENABLED':'true','STRIPE_SECRET_KEY':'sk_live_fixture',
+    for key,value in {'STRIPE_CHECKOUT_ENABLED':'true','STRIPE_SECRET_KEY':request.param,
         'STRIPE_WEBHOOK_SECRET':'whsec_fixture','STRIPE_MONTH_PRICE_ID':'price_month',
         'STRIPE_YEAR_PRICE_ID':'price_year','STRIPE_LIFETIME_PRICE_ID':'price_lifetime',
         'PAYPAL_API_ENABLED':'true','PAYPAL_CLIENT_SECRET':'private-fixture',
@@ -51,7 +52,7 @@ def stripe_checkout(client,customer,monkeypatch,plan='lifetime'):
     response=client.post('/api/account/stripe/context',headers=customer,json={})
     assert response.status_code==200,response.text
     context=response.json();assert context['table_id']==o.STRIPE_TABLE and context['publishable_key'].startswith('pk_live_')
-    assert 'sk_live_' not in str(context)
+    assert os.environ['STRIPE_SECRET_KEY'] not in str(context)
     now=m.now()
     objects['checkout/sessions/cs_fixture']={'id':'cs_fixture','livemode':True,'client_reference_id':context['client_reference_id'],
         'mode':'payment' if plan=='lifetime' else 'subscription','payment_status':'paid','created':now,
@@ -221,7 +222,7 @@ def test_checkout_flags_and_merchant_headers_fail_closed(online,monkeypatch):
     client,_,customer=online
     config=client.get('/api/account/config').json()
     assert config['stripe_enabled'] and config['paypal_api_enabled'] and config['paypal_lifetime_enabled']
-    assert 'private-fixture' not in str(config) and 'sk_live_fixture' not in str(config) and 'whsec_fixture' not in str(config)
+    assert 'private-fixture' not in str(config) and os.environ['STRIPE_SECRET_KEY'] not in str(config) and 'whsec_fixture' not in str(config)
     monkeypatch.setenv('MEMBERSHIP_REQUIRED','false')
     assert client.post('/api/account/stripe/context',headers=customer,json={}).status_code==503
     assert client.post('/api/account/paypal/context',headers=customer,json={'plan':'year'}).status_code==503
@@ -242,7 +243,7 @@ def test_verification_uses_fixed_https_endpoints_and_private_auth(online,monkeyp
             return httpx.Response(200,json={'access_token':'private-access-token'})
         if provider=='stripe':
             assert str(request.url)=='https://api.stripe.com/v1/prices/price_month'
-            assert request.headers['authorization']=='Bearer sk_live_fixture'
+            assert request.headers['authorization']=='Bearer '+os.environ['STRIPE_SECRET_KEY']
             assert request.headers['stripe-version']=='2024-06-20'
         else:
             assert str(request.url)=='https://api-m.paypal.com/v1/billing/plans/'+o.PAYPAL_PLANS['month']
@@ -293,7 +294,7 @@ def test_stripe_current_public_embed_can_be_configured_without_changing_secrets(
     assert response.status_code==200
     assert response.json()['publishable_key']=='pk_live_currentpublickey'
     assert response.json()['table_id']=='prctbl_currenttable'
-    assert 'sk_live_fixture' not in response.text and 'whsec_fixture' not in response.text
+    assert os.environ['STRIPE_SECRET_KEY'] not in response.text and 'whsec_fixture' not in response.text
 
 
 @pytest.mark.parametrize('key,value',[
@@ -317,3 +318,31 @@ def test_confirmed_price_defaults_preserve_environment_overrides(monkeypatch):
     assert o.stripe_prices()['month']=='price_1UdJOJJLFxwakDjOkkkgfM7p'
     monkeypatch.setenv('STRIPE_YEAR_PRICE_ID',' price_override ')
     assert o.stripe_prices()['year']=='price_override'
+
+
+@pytest.mark.parametrize('key', ['', 'sk_test_fixture', 'rk_test_fixture', 'pk_live_fixture', 'rk_live_', 'rk_live_bad\nheader'])
+def test_invalid_private_key_blocks_checkout_verification_and_cancellation(online,monkeypatch,key):
+    import asyncio
+    client,_,customer=online
+    monkeypatch.setenv('STRIPE_SECRET_KEY',key)
+    assert client.get('/api/account/config').json()['stripe_enabled'] is False
+    assert client.post('/api/account/stripe/context',headers=customer,json={}).status_code==503
+    assert client.post('/api/account/stripe/cancel',headers=customer,json={}).status_code==503
+    with pytest.raises(o.HTTPException) as error:
+        asyncio.run(o.stripe_request('GET','prices/price_month'))
+    assert error.value.status_code==503
+
+
+def test_stripe_missing_api_permission_never_grants_access(online,monkeypatch):
+    import httpx
+    client,_,customer=online
+    actual=httpx.AsyncClient
+    def denied(request):
+        return httpx.Response(403,json={'error':{'message':'Insufficient permissions'}})
+    monkeypatch.setattr(o.httpx,'AsyncClient',lambda **kwargs:actual(transport=httpx.MockTransport(denied),**kwargs))
+    assert client.post('/api/account/stripe/context',headers=customer,json={}).status_code==503
+    assert stripe_event(client,'checkout.session.completed','cs_fixture').status_code==503
+    assert not client.get('/api/account/me',headers=customer).json()['active']
+    with m.database() as db:
+        assert not db.execute('SELECT 1 FROM online_checkouts').fetchone()
+        assert not db.execute('SELECT 1 FROM online_receipts').fetchone()
