@@ -27,13 +27,19 @@ credentials in chat, GitHub or logs.
 
 Stripe:
 
+- `STRIPE_PUBLISHABLE_KEY`: current live `pk_live_` public key from the pricing table’s account.
+- `STRIPE_PRICING_TABLE_ID`: current `prctbl_` table ID from that same account.
+  If unset, the earlier supplied public embed values remain the defaults. The newer
+  public key differs from the original embed key; verify the current table embed
+  before enabling checkout. A public key is safe to share; secret keys are not.
 - `STRIPE_SECRET_KEY`: live secret key from the **same account** as the pricing table.
 - `STRIPE_WEBHOOK_SECRET`: signing secret of the endpoint below.
-- `STRIPE_MONTH_PRICE_ID`: the pricing table's $5.99 USD recurring-monthly Price ID.
-- `STRIPE_YEAR_PRICE_ID`: $45 USD recurring-yearly Price ID.
-- `STRIPE_LIFETIME_PRICE_ID`: $60 USD **one-time** Price ID.
+- `STRIPE_MONTH_PRICE_ID`: `price_1UdJOJJLFxwakDjOkkkgfM7p`, $5.99 USD recurring monthly.
+- `STRIPE_YEAR_PRICE_ID`: `price_1UdJi6JLFxwakDjOxl3QSEKa`, $45 USD recurring yearly.
+- `STRIPE_LIFETIME_PRICE_ID`: `price_1UdJQnJLFxwakDjOdjVHLruu`, $60 USD **one time**.
 - `STRIPE_CHECKOUT_ENABLED=true`: only after configuration and launch approval.
 
+All three confirmed Price IDs are defaults; environment values can override them.
 Price IDs start with `price_` and are public identifiers. They are not the product
 IDs (`prod_`) or table ID. All three exact prices must be active/live, with quantity
 one and no trial period. Disable free trials, adjustable quantities and discount

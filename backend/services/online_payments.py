@@ -15,6 +15,7 @@ PAYPAL_CLIENT = 'BAA_khDA0lTYHUlMU_qUVbs0jUltxsS_lg0EyvVqYsnrleca-Bb8naZA9KgVLRR
 PAYPAL_PLANS = {'month': 'P-49240117EJ7400837NL7FS3Q', 'year': 'P-2CB49304GY501903DNL7FRPA'}
 LIFETIME_BUTTON = 'S6M5U5P48M76G'
 STRIPE_TABLE = 'prctbl_1UdJscJLFxwakDjONc9avp8H'
+STRIPE_PRICES = {'month':'price_1UdJOJJLFxwakDjOkkkgfM7p', 'year':'price_1UdJi6JLFxwakDjOxl3QSEKa', 'lifetime':'price_1UdJQnJLFxwakDjOdjVHLruu'}
 STRIPE_PUBLIC = 'pk_live_51UHXPrJLFxwakDjOEf8zZAk8s0HiDi7VfLSv2UZLSbfPPTFM4MYoQ9cKg8krJe6dwPOKRuTJvcSG7ElDtJGwGhLt006U1R6ivc'
 ENDED = ('cancelled','canceled','ended','expired','incomplete_expired')
 
@@ -24,12 +25,22 @@ def flag(name):
 
 
 def stripe_prices():
-    return {key: os.getenv('STRIPE_'+key.upper()+'_PRICE_ID','') for key in m.PLANS}
+    return {key: os.getenv('STRIPE_'+key.upper()+'_PRICE_ID','').strip() or STRIPE_PRICES[key] for key in m.PLANS}
+
+
+def stripe_public_key():
+    return os.getenv('STRIPE_PUBLISHABLE_KEY','').strip() or STRIPE_PUBLIC
+
+
+def stripe_table_id():
+    return os.getenv('STRIPE_PRICING_TABLE_ID','').strip() or STRIPE_TABLE
 
 
 def stripe_enabled():
     return bool(flag('STRIPE_CHECKOUT_ENABLED') and os.getenv('STRIPE_SECRET_KEY','').startswith('sk_live_')
         and os.getenv('STRIPE_WEBHOOK_SECRET','').startswith('whsec_')
+        and re.fullmatch(r'pk_live_[A-Za-z0-9]{1,300}',stripe_public_key())
+        and re.fullmatch(r'prctbl_[A-Za-z0-9]{1,100}',stripe_table_id())
         and all(re.fullmatch(r'price_[A-Za-z0-9]+', value) for value in stripe_prices().values())
         and len(set(stripe_prices().values())) == 3)
 
@@ -158,7 +169,7 @@ async def stripe_context(account):
         price_plan(price)
         if not price.get('active') or not price.get('livemode'):raise HTTPException(422,'Stripe price is not active in live mode.')
     token=prepare(account,'stripe','table')
-    return {'table_id':STRIPE_TABLE,'publishable_key':STRIPE_PUBLIC,'client_reference_id':token}
+    return {'table_id':stripe_table_id(),'publishable_key':stripe_public_key(),'client_reference_id':token}
 
 
 def validate_subscription(subscription,plan):

@@ -163,3 +163,22 @@ The existing three-plan Cash App/Venmo/gift/privacy browser test also passed.
 The PostgreSQL CI job now includes all online payment tests. These results do not
 replace the private provider settings or live merchant verification described in
 ONLINE_PAYMENT_SETUP.md. No live funds were collected and billing flags stay off.
+
+
+## Stripe Price IDs and current public embed settings
+
+All three owner-confirmed Price IDs are now recorded as defaults (monthly
+price_1UdJOJJLFxwakDjOkkkgfM7p, yearly price_1UdJi6JLFxwakDjOxl3QSEKa,
+lifetime price_1UdJQnJLFxwakDjOdjVHLruu). Environment overrides remain supported.
+STRIPE_PUBLISHABLE_KEY and STRIPE_PRICING_TABLE_ID can select the current public
+embed without changing code. The newer supplied publishable key differs from the
+original embed; matching account/table/secret configuration must be verified before
+activation. Tests reject a secret key or test-mode key in the public-key field.
+Latest local backend check: 254 passed, one opt-in PostgreSQL-only skip. Frontend
+52 tests and build passed.
+
+The preceding Firefox/WebKit run was cancelled during dependency installation on
+a slow regional EC2 Ubuntu archive, before application tests ran. The workflow now
+uses Ubuntu's official archive mirror, allows longer browser-download connections
+and a 25-minute overall timeout. The real browser tests and all assertions remain
+unchanged; no test failure is suppressed or bypassed by this setup fix.

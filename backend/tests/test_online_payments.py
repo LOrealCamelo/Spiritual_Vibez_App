@@ -283,3 +283,37 @@ def test_refund_without_payment_reference_cannot_revoke_unrelated_access(online,
     objects['charges/ch_unrelated']={'refunded':True,'currency':'usd','amount':599,'amount_refunded':599,'payment_intent':None}
     assert stripe_event(client,'charge.refunded','ch_unrelated').status_code==200
     assert client.get('/api/account/me',headers=customer).json()['active']
+
+
+def test_stripe_current_public_embed_can_be_configured_without_changing_secrets(online,monkeypatch):
+    client,_,customer=online;stripe_mock(monkeypatch,{})
+    monkeypatch.setenv('STRIPE_PUBLISHABLE_KEY','  pk_live_currentpublickey  ')
+    monkeypatch.setenv('STRIPE_PRICING_TABLE_ID',' prctbl_currenttable ')
+    response=client.post('/api/account/stripe/context',headers=customer,json={})
+    assert response.status_code==200
+    assert response.json()['publishable_key']=='pk_live_currentpublickey'
+    assert response.json()['table_id']=='prctbl_currenttable'
+    assert 'sk_live_fixture' not in response.text and 'whsec_fixture' not in response.text
+
+
+@pytest.mark.parametrize('key,value',[
+    ('STRIPE_PUBLISHABLE_KEY','sk_live_wrongfield'),
+    ('STRIPE_PUBLISHABLE_KEY','pk_test_wrongmode'),
+    ('STRIPE_PRICING_TABLE_ID','https://untrusted.example/table'),
+])
+def test_invalid_public_embed_settings_never_expose_secret_or_open_checkout(online,monkeypatch,key,value):
+    client,_,customer=online
+    monkeypatch.setenv(key,value)
+    assert client.get('/api/account/config').json()['stripe_enabled'] is False
+    response=client.post('/api/account/stripe/context',headers=customer,json={})
+    assert response.status_code==503
+    assert value not in response.text
+
+
+def test_confirmed_price_defaults_preserve_environment_overrides(monkeypatch):
+    for key in m.PLANS:monkeypatch.delenv('STRIPE_'+key.upper()+'_PRICE_ID',raising=False)
+    assert o.stripe_prices()['year']=='price_1UdJi6JLFxwakDjOxl3QSEKa'
+    assert o.stripe_prices()['lifetime']=='price_1UdJQnJLFxwakDjOdjVHLruu'
+    assert o.stripe_prices()['month']=='price_1UdJOJJLFxwakDjOkkkgfM7p'
+    monkeypatch.setenv('STRIPE_YEAR_PRICE_ID',' price_override ')
+    assert o.stripe_prices()['year']=='price_override'

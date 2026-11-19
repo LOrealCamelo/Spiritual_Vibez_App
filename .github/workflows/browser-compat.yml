@@ -8,7 +8,7 @@ permissions:
 jobs:
   browsers:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -19,7 +19,24 @@ jobs:
             backend/requirements.txt
             frontend/tests/requirements.txt
       - run: pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
-      - run: python -m playwright install --with-deps firefox webkit
+      - name: Use the official Ubuntu mirror for browser dependencies
+        run: |
+          sudo python3 - <<'PYTHON'
+          from pathlib import Path
+          import re
+          candidates = [Path('/etc/apt/sources.list'), *Path('/etc/apt/sources.list.d').glob('*.sources'), *Path('/etc/apt/sources.list.d').glob('*.list')]
+          for path in candidates:
+              if not path.is_file():
+                  continue
+              before = path.read_text()
+              after = re.sub(r'https?://[^/\s]+\.ec2\.archive\.ubuntu\.com/ubuntu/?', 'https://archive.ubuntu.com/ubuntu/', before)
+              if after != before:
+                  path.write_text(after)
+          PYTHON
+      - name: Install real Firefox and WebKit with their required libraries
+        env:
+          PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: '120000'
+        run: python -m playwright install --with-deps firefox webkit
       - name: Provide virtual audio output for real browser playback
         run: |
           sudo apt-get install --yes --no-install-recommends pulseaudio libasound2-plugins
