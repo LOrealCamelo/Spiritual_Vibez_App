@@ -4,7 +4,7 @@ const {spawnSync}=require('node:child_process');
 const path=require('node:path');
 const script=path.join(__dirname,'../scripts/skip-review-deploy.mjs');
 test('Netlify cancels this review branch before building, including PRs targeting main',()=>{
- for(const values of [{BRANCH:'fix/stripe-restricted-live-keys'},{BRANCH:'main',HEAD:'fix/stripe-restricted-live-keys'},{BRANCH:'release/neon-memberships-review'},{BRANCH:'main',HEAD:'release/neon-memberships-review'},{BRANCH:'feature/manual-memberships'},{BRANCH:'feature/neon-postgres-memberships'},{BRANCH:'review/prelaunch-audit'},{BRANCH:'main',HEAD:'review/prelaunch-audit'}]){
+ for(const values of [{BRANCH:'fix/coordinated-membership-launch'},{BRANCH:'main',HEAD:'fix/coordinated-membership-launch'},{BRANCH:'fix/stripe-restricted-live-keys'},{BRANCH:'main',HEAD:'fix/stripe-restricted-live-keys'},{BRANCH:'release/neon-memberships-review'},{BRANCH:'main',HEAD:'release/neon-memberships-review'},{BRANCH:'feature/manual-memberships'},{BRANCH:'feature/neon-postgres-memberships'},{BRANCH:'review/prelaunch-audit'},{BRANCH:'main',HEAD:'review/prelaunch-audit'}]){
   assert.equal(spawnSync(process.execPath,[script],{env:{...process.env,BRANCH:'',HEAD:'',COMMIT_REF:'',...values}}).status,0);
  }
 });

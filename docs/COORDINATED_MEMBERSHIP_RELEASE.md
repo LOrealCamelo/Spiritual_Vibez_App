@@ -182,3 +182,45 @@ a slow regional EC2 Ubuntu archive, before application tests ran. The workflow n
 uses Ubuntu's official archive mirror, allows longer browser-download connections
 and a 25-minute overall timeout. The real browser tests and all assertions remain
 unchanged; no test failure is suppressed or bypassed by this setup fix.
+
+## Final coordinated membership launch
+
+The protected homepage now shows a Sign up and subscribe invitation while keeping
+the approved artwork, room, portal and six feature cards. Active members do not
+see this invitation; with MEMBERSHIP_REQUIRED=false the existing homepage stays
+unchanged. Registration explains that the customer next logs in and chooses a
+membership. Stripe and PayPal offer recurring subscriptions; Cash App and Venmo
+remain available for owner-verified payments on all three existing plans. The
+monthly manual plan explicitly says $5.99 for one calendar month, no ongoing
+commitment and no automatic renewal. This does not mean free access.
+
+Disabled online providers are visibly marked unavailable rather than silently
+disappearing from the customer checkout. They cannot be used while disabled.
+There are no free trials. Price, account binding, signed webhook verification,
+refund handling and server-side membership enforcement remain unchanged.
+
+Prepare every remaining change before ONE final Netlify production build:
+
+1. Resolve the production owner mismatch: the Render account configuration
+   currently returns accounts_configured=true but owner_ready=false, whereas the
+   local setup found the owner. Privately compare the pooled URL, direct URL and
+   DATABASE_NAMESPACE (default spiritual_vibz) between Render and local settings.
+   Do not delete data, recreate schemas or change projects to hide the mismatch.
+2. Confirm the live Stripe and PayPal account, plans, permissions and webhook
+   configuration. Keep private credentials in the backend environment only.
+3. Review the complete tested PR and obtain approval to merge and release.
+4. Save the final backend configuration together, including
+   MEMBERSHIP_REQUIRED=true and the verified provider flags. These flags are
+   backend settings: changing them does not require rebuilding Netlify.
+5. Deploy Render once from the final main commit. Check /api/health and
+   /api/account/config: accounts_configured, owner_ready, required,
+   stripe_enabled and paypal_api_enabled must be true before offering checkout.
+   Verify support URL/email, authenticated owner access and historical data.
+6. Deploy Netlify once from that same main commit, then verify signed-out signup,
+   customer checkout, paid access, cancellation and provider webhook delivery.
+   Real provider payments require a controlled owner-authorized transaction;
+   fixtures are not proof of live merchant configuration. Do not promote before
+   these checks pass. Stop Netlify builds afterward if desired to control credits.
+
+This preparation branch explicitly skips Netlify review deployments. No production
+environment settings, memberships, database records or artwork are changed by it.

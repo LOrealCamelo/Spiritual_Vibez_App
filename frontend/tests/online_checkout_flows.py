@@ -63,7 +63,32 @@ def main():
      page.wait_for_selector('[data-member-form=login]')
      form=page.locator('[data-member-form=login]');form.locator('[name=email]').fill(email);form.locator('[name=password]').fill(password);form.locator('button').click();page.wait_for_selector('[data-member-action=logout]')
      return page
+    visitor=browser.new_page(viewport={'width':390,'height':844})
+    visitor.goto(base+'/#home',wait_until='networkidle')
+    assert visitor.locator('.membership-invitation').is_visible()
+    assert visitor.locator('.membership-invitation a[href="#register"]').inner_text()=='Sign up and subscribe'
+    assert visitor.locator('.home-feature').count()==6
+    visitor.locator('.membership-invitation a[href="#register"]').click()
+    visitor.wait_for_selector('[data-member-form=register]')
+    assert visitor.get_by_role('heading',name='Sign up and subscribe',exact=True).is_visible()
+    visitor.close()
     page=customer('stripe-buyer@example.test',390)
+    assert page.locator('[data-member-action=stripe]').is_enabled()
+    assert page.locator('[data-member-action="paypal-api:month"]').is_enabled()
+    assert page.locator('[data-member-action="paypal-api:year"]').is_enabled()
+    assert 'No ongoing commitment' in page.locator('[data-plan-summary]').inner_text()
+    assert 'No automatic renewal' in page.locator('[data-plan-summary]').inner_text()
+    assert '$5.99' in page.locator('[data-plan-summary]').inner_text()
+    assert page.get_by_role('link',name='Pay Cash App · $lvcenterprise').count()==1
+    assert page.get_by_role('link',name='Pay Venmo · @lvcenterprise').count()==1
+    switches=['STRIPE_CHECKOUT_ENABLED','PAYPAL_API_ENABLED','PAYPAL_SUBSCRIPTIONS_ENABLED']
+    for switch in switches:os.environ[switch]='false'
+    page.reload(wait_until='networkidle')
+    assert page.locator('[data-member-action=stripe]').is_disabled()
+    assert page.locator('[data-member-action="paypal-api:month"]').is_disabled()
+    assert page.locator('[data-member-form=payment]').count()==1
+    for switch in switches:os.environ[switch]='true'
+    page.reload(wait_until='networkidle')
     page.route('https://js.stripe.com/v3/pricing-table.js',lambda r:r.fulfill(content_type='text/javascript',body="customElements.define('stripe-pricing-table',class extends HTMLElement{connectedCallback(){this.textContent='Fixture Stripe pricing table'}})"))
     page.locator('[data-member-action=stripe]').click();page.wait_for_selector('stripe-pricing-table')
     table=page.locator('stripe-pricing-table');token=table.get_attribute('client-reference-id')
@@ -71,6 +96,8 @@ def main():
     assert token and not page.evaluate('Membership.user.active')
     for width in [320,375,390,430,1280,1440,1920]:
      page.set_viewport_size({'width':width,'height':900});assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),width
+     page.locator('[data-member-action=export]').scroll_into_view_if_needed()
+     assert page.locator('[data-member-action=export]').evaluate('''node=>{const b=node.getBoundingClientRect(),dock=document.querySelector('.bottomdock');return b.bottom<=(getComputedStyle(dock).display==='none'?innerHeight:dock.getBoundingClientRect().top)}'''),width
     objects['checkout/sessions/cs_browser']={'id':'cs_browser','livemode':True,'client_reference_id':token,'mode':'payment','payment_status':'paid','created':m.now(),
       'currency':'usd','amount_subtotal':6000,'amount_total':6000,'payment_intent':'pi_browser','line_items':{'data':[{'quantity':1,'price':price('lifetime')}]}}
     event={'id':'evt_browser','object':'event','type':'checkout.session.completed','livemode':True,'data':{'object':{'id':'cs_browser'}}}
