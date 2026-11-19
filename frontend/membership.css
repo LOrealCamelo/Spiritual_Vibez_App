@@ -28,3 +28,10 @@ body:is([data-page="sales"],[data-page="register"],[data-page="login"],[data-pag
 body:is([data-page="sales"],[data-page="register"],[data-page="login"],[data-page="checkout"],[data-page="account"]) .bottomdock button{color:#39104f!important}
 
 .membership-panel stripe-pricing-table{display:block;width:100%;max-width:100%;min-width:0;margin:1rem 0}.membership-panel #membership-paypal-button{max-width:100%;min-width:0;margin:1rem 0}
+.membership-invitation{margin:16px 0;padding:18px;border:1px solid #c9a4d6;border-radius:20px;background:linear-gradient(135deg,#f7eaff,#f7dfee);color:#35174d;overflow-wrap:anywhere}
+.membership-invitation h2,.membership-invitation p{color:inherit;margin:0 0 12px}
+.membership-invitation .membership-options{margin-bottom:12px}
+.membership-invitation .membership-options a{display:inline-flex;align-items:center;text-decoration:none}
+.membership-provider{margin-block:18px;padding:16px;border:1px solid #c9a4d6;border-radius:16px}
+.membership-panel button:disabled{cursor:not-allowed;opacity:.65}
+body:is([data-page="sales"],[data-page="register"],[data-page="login"],[data-page="checkout"],[data-page="account"]) main{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
