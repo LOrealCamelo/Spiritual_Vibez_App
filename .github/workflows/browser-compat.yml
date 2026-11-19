@@ -9,37 +9,45 @@ jobs:
   browsers:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.62.0-noble
+      options: --shm-size=1gb
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.11'
-          cache: pip
-          cache-dependency-path: |
-            backend/requirements.txt
-            frontend/tests/requirements.txt
-      - run: pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
-      - name: Use the official Ubuntu mirror for browser dependencies
+      - name: Install application requirements in the matching official browser image
+        run: python -m pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
+      - name: Verify the pinned browser engines are present
         run: |
-          sudo python3 - <<'PYTHON'
+          python - <<'PYTHON'
+          from importlib.metadata import version
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          assert version('playwright') == '1.62.0', 'Update the container and Python package together'
+          with sync_playwright() as playwright:
+              for name in ['firefox', 'webkit']:
+                  executable = Path(getattr(playwright, name).executable_path)
+                  assert executable.is_file(), f'Missing real browser: {name}'
+                  print(f'Ready: {name}')
+          PYTHON
+      - name: Provide virtual audio output for real browser playback
+        run: |
+          python - <<'PYTHON'
           from pathlib import Path
           import re
-          candidates = [Path('/etc/apt/sources.list'), *Path('/etc/apt/sources.list.d').glob('*.sources'), *Path('/etc/apt/sources.list.d').glob('*.list')]
-          for path in candidates:
+          for path in [Path('/etc/apt/sources.list'), *Path('/etc/apt/sources.list.d').glob('*.sources'), *Path('/etc/apt/sources.list.d').glob('*.list')]:
               if not path.is_file():
                   continue
               before = path.read_text()
               after = re.sub(r'https?://[^/\s]+\.ec2\.archive\.ubuntu\.com/ubuntu/?', 'https://archive.ubuntu.com/ubuntu/', before)
+              after = after.replace('http://archive.ubuntu.com/', 'https://archive.ubuntu.com/').replace('http://security.ubuntu.com/', 'https://security.ubuntu.com/')
               if after != before:
                   path.write_text(after)
           PYTHON
-      - name: Install real Firefox and WebKit with their required libraries
-        env:
-          PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: '120000'
-        run: python -m playwright install --with-deps firefox webkit
-      - name: Provide virtual audio output for real browser playback
-        run: |
-          sudo apt-get install --yes --no-install-recommends pulseaudio libasound2-plugins
+          apt-get -o Acquire::Retries=3 -o Acquire::https::Timeout=30 update
+          apt-get -o Acquire::Retries=3 -o Acquire::https::Timeout=30 install --yes --no-install-recommends pulseaudio libasound2-plugins
           pulseaudio --start --exit-idle-time=-1
           pactl load-module module-null-sink sink_name=spiritual_vibz_test
           pactl set-default-sink spiritual_vibz_test
