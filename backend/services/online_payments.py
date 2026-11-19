@@ -36,8 +36,12 @@ def stripe_table_id():
     return os.getenv('STRIPE_PRICING_TABLE_ID','').strip() or STRIPE_TABLE
 
 
+def stripe_key_configured():
+    return bool(re.fullmatch(r'(?:sk|rk)_live_[A-Za-z0-9_]+', os.getenv('STRIPE_SECRET_KEY','')))
+
+
 def stripe_enabled():
-    return bool(flag('STRIPE_CHECKOUT_ENABLED') and os.getenv('STRIPE_SECRET_KEY','').startswith('sk_live_')
+    return bool(flag('STRIPE_CHECKOUT_ENABLED') and stripe_key_configured()
         and os.getenv('STRIPE_WEBHOOK_SECRET','').startswith('whsec_')
         and re.fullmatch(r'pk_live_[A-Za-z0-9]{1,300}',stripe_public_key())
         and re.fullmatch(r'prctbl_[A-Za-z0-9]{1,100}',stripe_table_id())
@@ -137,7 +141,7 @@ def receipt(db, provider, txn, uid, plan, paid, until, payment_id='', subscripti
 
 
 async def stripe_request(method,path,data=None,params=None):
-    if not os.getenv('STRIPE_SECRET_KEY','').startswith('sk_live_'):
+    if not stripe_key_configured():
         raise HTTPException(503,'Stripe verification is not configured.')
     try:
         async with httpx.AsyncClient(timeout=20,follow_redirects=False) as client:
@@ -253,7 +257,7 @@ async def stripe_process(event):
 
 
 async def stripe_cancel(account):
-    if not os.getenv('STRIPE_SECRET_KEY','').startswith('sk_live_'):raise HTTPException(503,'Stripe billing is not configured.')
+    if not stripe_key_configured():raise HTTPException(503,'Stripe billing is not configured.')
     with m.database() as db:
         rows=db.execute("SELECT id FROM online_subscriptions WHERE provider='stripe' AND user_id=? AND status NOT IN ('canceled','incomplete_expired')",(account['id'],)).fetchall()
     if not rows:raise HTTPException(404,'No recurring Stripe subscription was found for this account.')

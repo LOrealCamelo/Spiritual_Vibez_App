@@ -32,7 +32,13 @@ Stripe:
   If unset, the earlier supplied public embed values remain the defaults. The newer
   public key differs from the original embed key; verify the current table embed
   before enabling checkout. A public key is safe to share; secret keys are not.
-- `STRIPE_SECRET_KEY`: live secret key from the **same account** as the pricing table.
+- `STRIPE_SECRET_KEY`: live standard (`sk_live_`) or restricted (`rk_live_`) key
+  from the **same account** as the pricing table. For a restricted key, grant Read
+  access to Products, Prices, Checkout Sessions, Invoices and Charges, and Write
+  access to Subscriptions (needed for cancellation at period end). Leave unrelated
+  permissions at None. Stripe must authorize each API request; recognizing the key
+  prefix does not verify its permissions or account. Missing permissions fail closed
+  without granting membership. Test keys and publishable keys are not accepted here.
 - `STRIPE_WEBHOOK_SECRET`: signing secret of the endpoint below.
 - `STRIPE_MONTH_PRICE_ID`: `price_1UdJOJJLFxwakDjOkkkgfM7p`, $5.99 USD recurring monthly.
 - `STRIPE_YEAR_PRICE_ID`: `price_1UdJi6JLFxwakDjOxl3QSEKa`, $45 USD recurring yearly.
