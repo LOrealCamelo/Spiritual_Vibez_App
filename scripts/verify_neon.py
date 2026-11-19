@@ -84,7 +84,7 @@ def main():
     if args.backend_tests:
         test_env={k:v for k,v in os.environ.items() if k not in ('DATABASE_URL','DATABASE_URL_UNPOOLED')}
         test_env.update(POSTGRES_TEST_URL=urls['DATABASE_URL'],POSTGRES_TEST_URL_UNPOOLED=urls['DATABASE_URL_UNPOOLED'],PYTHONPATH=str(ROOT))
-        subprocess.run([sys.executable,'-m','pytest','backend/tests/test_memberships.py','backend/tests/test_paypal_memberships.py','backend/tests/test_membership_plans.py','-q'],cwd=ROOT,env=test_env,check=True)
+        subprocess.run([sys.executable,'-m','pytest','backend/tests/test_memberships.py','backend/tests/test_paypal_memberships.py','backend/tests/test_membership_plans.py','backend/tests/test_online_payments.py','-q'],cwd=ROOT,env=test_env,check=True)
     prefix='sv_livecheck_'+secrets.token_hex(5)
     with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
     base=f'http://127.0.0.1:{port}'

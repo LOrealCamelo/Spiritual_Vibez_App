@@ -130,6 +130,7 @@ def database():
         ]:
             if name not in columns:
                 conn.execute(f'ALTER TABLE payments ADD COLUMN {name} {definition}')
+        conn.executescript((Path(__file__).resolve().parents[1]/'sql'/'memberships_v3.sql').read_text().replace('BIGINT','INTEGER'))
         conn.commit()
         yield conn
         conn.commit()
@@ -146,9 +147,15 @@ def public_user(row, db=None):
         coverage = db.execute("""SELECT MAX(until) FROM (
           SELECT trial_until AS until FROM paypal_subscriptions WHERE user_id=?
           UNION ALL SELECT r.expires AS until FROM paypal_receipts r JOIN paypal_subscriptions s
-          ON s.id=r.subscription WHERE s.user_id=? AND r.refunded=0)""", (row['id'],row['id'])).fetchone()[0]
+          ON s.id=r.subscription WHERE s.user_id=? AND r.refunded=0
+          UNION ALL SELECT expires AS until FROM online_receipts WHERE user_id=? AND refunded=0)""", (row['id'],row['id'],row['id'])).fetchone()[0]
         result['expires'] = max(result['expires'], coverage or 0)
-    result['active'] = bool(not row['disabled'] and (row['admin'] or row['lifetime'] or result['expires'] > now()))
+        if db.execute('SELECT 1 FROM online_receipts WHERE user_id=? AND lifetime=1 AND refunded=0', (row['id'],)).fetchone():
+            result['lifetime'] = 1
+    if db is not None:
+        result['stripe_billing'] = bool(db.execute("SELECT 1 FROM online_subscriptions WHERE provider='stripe' AND user_id=? AND lower(status) NOT IN ('canceled','cancelled','ended','expired','incomplete_expired')", (row['id'],)).fetchone())
+        result['paypal_billing'] = bool(db.execute("SELECT 1 FROM paypal_subscriptions WHERE user_id=? AND status NOT IN ('cancelled','ended')", (row['id'],)).fetchone() or db.execute("SELECT 1 FROM online_subscriptions WHERE provider='paypal' AND user_id=? AND lower(status) NOT IN ('cancelled','ended','expired')", (row['id'],)).fetchone())
+    result['active'] = bool(not row['disabled'] and (row['admin'] or result['lifetime'] or result['expires'] > now()))
     return result
 
 

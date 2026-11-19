@@ -139,3 +139,27 @@ no longer accepted. Configure the rotated pooled DATABASE_URL and direct
 DATABASE_URL_UNPOOLED in Render and verify actual Neon connectivity before launch.
 Do not post these URLs in chat, GitHub, or build logs. No production database or
 hosting setting was changed to work around this verification blocker.
+
+
+## Latest online-provider update
+
+The subsequent update wires the supplied Stripe pricing table and the confirmed
+modern PayPal monthly/yearly plans plus $60 hosted lifetime Buy Now into the
+existing account checkout. See ONLINE_PAYMENT_SETUP.md for exact identifiers,
+server-only settings, callbacks, cancellation behavior and launch verification.
+The earlier statements that PayPal only supports monthly apply to the earlier
+commit; new options are now implemented but remain disabled until configured.
+The owner still needs the three Stripe Price IDs and private Stripe/PayPal
+credentials/webhook settings. Cash App/Venmo remain unchanged. No production
+merge, deployment, live purchase or secret update has been performed.
+
+
+Online checkout validation before push: 249 backend tests passed (one opt-in PG-only
+migration test skipped locally), 52 frontend tests passed and build passed. The
+provider browser exercise passed Stripe account references and signed lifetime
+fulfillment, PayPal yearly SDK binding with no access from browser approval alone,
+and the $60 lifetime Buy Now/IPN flow; all external SDK/API calls were fixtures.
+The existing three-plan Cash App/Venmo/gift/privacy browser test also passed.
+The PostgreSQL CI job now includes all online payment tests. These results do not
+replace the private provider settings or live merchant verification described in
+ONLINE_PAYMENT_SETUP.md. No live funds were collected and billing flags stay off.

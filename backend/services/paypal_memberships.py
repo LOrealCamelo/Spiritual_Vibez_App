@@ -48,6 +48,8 @@ def checkout(account):
         raise HTTPException(503, 'Secure checkout URLs are not configured.')
     with m.database() as db:
         db.execute('BEGIN IMMEDIATE')
+        from .online_payments import check_existing
+        check_existing(db,account['id'])
         if not db.execute('SELECT id FROM members WHERE admin=1 AND disabled=0').fetchone():
             raise HTTPException(503, 'The owner account must be configured first.')
         if db.execute("SELECT id FROM paypal_subscriptions WHERE user_id=? AND status NOT IN ('cancelled','ended')", (account['id'],)).fetchone():
@@ -88,6 +90,9 @@ def process(raw):
         raise HTTPException(422, 'Incorrect PayPal merchant or environment.')
     if data.get('receiver_email', EMAIL).lower() != EMAIL:
         raise HTTPException(422, 'Incorrect PayPal receiver.')
+    from .online_payments import lifetime_ipn
+    if lifetime_ipn(data):
+        return
     if data.get('payment_status') in ('Refunded', 'Reversed'):
         with m.database() as db:
             db.execute('BEGIN IMMEDIATE')

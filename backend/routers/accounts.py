@@ -9,6 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from ..services import memberships as m
 from ..services import paypal_memberships as paypal
+from ..services import online_payments as online
 
 router = APIRouter(prefix='/api/account', tags=['Accounts and memberships'])
 
@@ -83,7 +84,7 @@ def config():
     if configured:
         with m.database() as db:
             owner_ready = bool(db.execute('SELECT id FROM members WHERE admin=1 AND disabled=0').fetchone())
-    return {'accounts_configured': configured, 'owner_ready': owner_ready, ** {'required': m.enabled(), 'price_cents': 599, 'plans': list(m.PLANS.values()), 'currency': 'USD', 'renewal': 'paypal' if paypal.enabled() else 'manual', 'paypal_enabled': paypal.enabled(), 'trial_hours': 0,
+    return {'accounts_configured': configured, 'owner_ready': owner_ready, ** {'required': m.enabled(), 'price_cents': 599, 'plans': list(m.PLANS.values()), 'currency': 'USD', 'renewal': 'paypal' if paypal.enabled() else 'manual', 'paypal_enabled': paypal.enabled(), 'trial_hours': 0, **online.public_config(),
             'cashapp': 'https://cash.app/$lvcenterprise', 'venmo': 'https://venmo.com/lvcenterprise',
             'support_email': os.getenv('MEMBERSHIP_SUPPORT_EMAIL', ''),
             'password_reset_email': bool(os.getenv('SMTP_HOST'))}}
@@ -350,3 +351,91 @@ async def paypal_ipn(request: Request):
     from starlette.concurrency import run_in_threadpool
     await run_in_threadpool(paypal.process, raw)
     return {'received': True}
+
+
+class OnlinePlanInput(BaseModel):
+    plan: str
+
+
+class SubscriptionInput(BaseModel):
+    subscription_id: str = Field(min_length=3, max_length=120)
+
+
+@router.post('/stripe/context')
+async def stripe_context(request: Request, account=Depends(user)):
+    limited(request, 'stripe-checkout', str(account['id']), maximum=5)
+    return await online.stripe_context(account)
+
+
+@router.post('/stripe/cancel')
+async def stripe_cancel(request: Request, account=Depends(user)):
+    limited(request, 'stripe-cancel', str(account['id']), maximum=10)
+    return await online.stripe_cancel(account)
+
+
+async def webhook_body(request):
+    raw=b''
+    async for chunk in request.stream():
+        raw+=chunk
+        if len(raw)>262144:
+            raise HTTPException(413,'Payment notification too large.')
+    return raw
+
+
+@router.post('/stripe/webhook')
+async def stripe_webhook(request: Request):
+    secret=os.getenv('STRIPE_WEBHOOK_SECRET','')
+    if not secret.startswith('whsec_'):
+        raise HTTPException(503,'Stripe notifications are not configured.')
+    raw=await webhook_body(request)
+    try:
+        online.stripe.Webhook.construct_event(raw,request.headers.get('stripe-signature',''),secret,tolerance=300)
+        import json
+        event=json.loads(raw)
+    except (ValueError,online.stripe.SignatureVerificationError):
+        raise HTTPException(400,'Unverified Stripe notification.') from None
+    await online.stripe_process(event)
+    return {'received':True}
+
+
+@router.post('/paypal/context')
+async def paypal_context(body: OnlinePlanInput, request: Request, account=Depends(user)):
+    limited(request,'paypal-context',str(account['id']),maximum=5)
+    return await online.paypal_context(account,body.plan)
+
+
+@router.post('/paypal/confirm')
+async def paypal_confirm(body: SubscriptionInput, request: Request, account=Depends(user)):
+    if not online.paypal_enabled():raise HTTPException(503,'PayPal subscriptions are not configured.')
+    limited(request,'paypal-confirm',str(account['id']),maximum=10)
+    await online.bind_paypal(body.subscription_id,account['id'])
+    return {'message':'PayPal approval received. Access starts after the completed payment notification is verified.'}
+
+
+@router.post('/paypal/lifetime-checkout')
+def paypal_lifetime(request: Request, account=Depends(user)):
+    limited(request,'paypal-lifetime',str(account['id']),maximum=5)
+    return online.lifetime_checkout(account)
+
+
+@router.post('/paypal/webhook')
+async def paypal_webhook(request: Request):
+    if not os.getenv('PAYPAL_CLIENT_SECRET') or not os.getenv('PAYPAL_WEBHOOK_ID'):
+        raise HTTPException(503,'PayPal notifications are not configured.')
+    import json
+    from urllib.parse import urlparse
+    raw=await webhook_body(request)
+    try:event=json.loads(raw)
+    except (ValueError,UnicodeError):raise HTTPException(400,'Invalid PayPal notification.') from None
+    if not isinstance(event,dict):raise HTTPException(400,'Invalid PayPal notification.')
+    names={'auth_algo':'paypal-auth-algo','cert_url':'paypal-cert-url','transmission_id':'paypal-transmission-id',
+           'transmission_sig':'paypal-transmission-sig','transmission_time':'paypal-transmission-time'}
+    verification={key:request.headers.get(header,'') for key,header in names.items()}
+    cert=urlparse(verification['cert_url'])
+    if not all(verification.values()) or cert.scheme!='https' or cert.hostname not in ('api.paypal.com','api-m.paypal.com'):
+        raise HTTPException(400,'Missing PayPal verification headers.')
+    verification.update(webhook_id=os.environ['PAYPAL_WEBHOOK_ID'],webhook_event=event)
+    result=await online.paypal_request('POST','/v1/notifications/verify-webhook-signature',verification)
+    if result.get('verification_status')!='SUCCESS':raise HTTPException(400,'Unverified PayPal notification.')
+    await online.paypal_process(event)
+    return {'received':True}

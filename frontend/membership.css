@@ -26,3 +26,5 @@ body[data-tool="love"] .love-couple .btn:focus-visible,body[data-tool="love"] .l
 /* New light account/sales screens use the existing dock geometry with readable ink. */
 body:is([data-page="sales"],[data-page="register"],[data-page="login"],[data-page="checkout"],[data-page="account"]) .bottomdock,
 body:is([data-page="sales"],[data-page="register"],[data-page="login"],[data-page="checkout"],[data-page="account"]) .bottomdock button{color:#39104f!important}
+
+.membership-panel stripe-pricing-table{display:block;width:100%;max-width:100%;min-width:0;margin:1rem 0}.membership-panel #membership-paypal-button{max-width:100%;min-width:0;margin:1rem 0}

@@ -1,0 +1,4 @@
+-- Verified online checkout bindings and receipts, separate from manual grants.
+CREATE TABLE IF NOT EXISTS online_checkouts(hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES members(id), provider TEXT NOT NULL, plan TEXT NOT NULL, created BIGINT NOT NULL, reference TEXT UNIQUE);
+CREATE TABLE IF NOT EXISTS online_subscriptions(provider TEXT NOT NULL, id TEXT NOT NULL, user_id BIGINT NOT NULL REFERENCES members(id), plan TEXT NOT NULL, customer TEXT NOT NULL DEFAULT '', status TEXT NOT NULL, created BIGINT NOT NULL, PRIMARY KEY(provider,id));
+CREATE TABLE IF NOT EXISTS online_receipts(provider TEXT NOT NULL, txn TEXT NOT NULL, user_id BIGINT NOT NULL REFERENCES members(id), plan TEXT NOT NULL, amount_cents BIGINT NOT NULL, paid BIGINT NOT NULL, expires BIGINT NOT NULL DEFAULT 0, lifetime BIGINT NOT NULL DEFAULT 0, refunded BIGINT NOT NULL DEFAULT 0, payment_id TEXT NOT NULL DEFAULT '', subscription TEXT NOT NULL DEFAULT '', PRIMARY KEY(provider,txn));

@@ -35,6 +35,8 @@ jobs:
           node --test frontend/tests/*.test.cjs frontend/tests/*.test.mjs
       - name: Test enabled memberships on desktop and mobile web
         run: python frontend/tests/membership_flows.py
+      - name: Test account-bound Stripe table, PayPal SDK and lifetime Buy Now callbacks without charges
+        run: python frontend/tests/online_checkout_flows.py
       - name: Test Love questionnaire, city dropdowns and responsive account routes
         run: python frontend/tests/love_flows.py --screenshots "$RUNNER_TEMP/love-layout"
       - name: Check unchanged application behavior with membership enforcement disabled
@@ -76,4 +78,4 @@ jobs:
           python-version: '3.11'
       - run: pip install -r backend/requirements.txt
       - name: Verify all access plans and additive upgrades using real PostgreSQL
-        run: pytest -q backend/tests/test_membership_plans.py backend/tests/test_memberships.py backend/tests/test_paypal_memberships.py backend/tests/test_owner_setup.py
+        run: pytest -q backend/tests/test_membership_plans.py backend/tests/test_memberships.py backend/tests/test_paypal_memberships.py backend/tests/test_owner_setup.py backend/tests/test_online_payments.py

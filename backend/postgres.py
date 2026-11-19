@@ -89,7 +89,7 @@ def ensure_schema(schema,membership):
                 conn.execute(sql.SQL('SET LOCAL search_path TO {}, pg_catalog').format(sql.Identifier(schema)))
                 paths = [path]
                 if membership:
-                    paths.append(Path(__file__).parent/'sql'/'memberships_v2.sql')
+                    paths.extend(Path(__file__).parent/'sql'/name for name in ['memberships_v2.sql','memberships_v3.sql'])
                 for migration in paths:
                     for statement in migration.read_text().split(';'):
                         if statement.strip():conn.execute(statement)
