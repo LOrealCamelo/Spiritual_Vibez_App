@@ -1,0 +1,74 @@
+[
+  {
+    "source": "assets/home-mystic-room-arabic.png",
+    "optimized": "assets/optimized/home-mystic-room-arabic.webp",
+    "before_bytes": 2481797,
+    "after_bytes": 2033028
+  },
+  {
+    "source": "assets/home-light-portal.png",
+    "optimized": "assets/optimized/home-light-portal.webp",
+    "before_bytes": 1835214,
+    "after_bytes": 1344466
+  },
+  {
+    "source": "assets/home-tarot-moon.png",
+    "optimized": "assets/optimized/home-tarot-moon.webp",
+    "before_bytes": 2177730,
+    "after_bytes": 1597186
+  },
+  {
+    "source": "assets/home-feature-icons.png",
+    "optimized": "assets/optimized/home-feature-icons.webp",
+    "before_bytes": 1821140,
+    "after_bytes": 1252162
+  },
+  {
+    "source": "assets/spiritual-vibz-logo-compact.png",
+    "optimized": "assets/optimized/spiritual-vibz-logo-compact.webp",
+    "before_bytes": 1568786,
+    "after_bytes": 1183180
+  },
+  {
+    "source": "assets/cartoon_me_transparent1.png",
+    "optimized": "assets/optimized/cartoon_me_transparent1.webp",
+    "before_bytes": 2409521,
+    "after_bytes": 1689836
+  },
+  {
+    "source": "assets/neurospicy-mystic-logo.png",
+    "optimized": "assets/optimized/neurospicy-mystic-logo.webp",
+    "before_bytes": 1403894,
+    "after_bytes": 849496
+  },
+  {
+    "source": "assets/fonts/CinzelDecorative-Bold.ttf",
+    "optimized": "assets/fonts/CinzelDecorative-Bold.woff2",
+    "before_bytes": 62300,
+    "after_bytes": 22548
+  },
+  {
+    "source": "assets/fonts/DMSans-Variable.ttf",
+    "optimized": "assets/fonts/DMSans-Variable.woff2",
+    "before_bytes": 240164,
+    "after_bytes": 88808
+  },
+  {
+    "source": "assets/fonts/GreatVibes-Regular.ttf",
+    "optimized": "assets/fonts/GreatVibes-Regular.woff2",
+    "before_bytes": 457588,
+    "after_bytes": 162060
+  },
+  {
+    "source": "assets/fonts/KaushanScript-Regular.ttf",
+    "optimized": "assets/fonts/KaushanScript-Regular.woff2",
+    "before_bytes": 210672,
+    "after_bytes": 58048
+  },
+  {
+    "source": "assets/fonts/Pacifico-Regular.ttf",
+    "optimized": "assets/fonts/Pacifico-Regular.woff2",
+    "before_bytes": 329380,
+    "after_bytes": 105180
+  }
+]

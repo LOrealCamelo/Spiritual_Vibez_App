@@ -193,16 +193,13 @@ const CARD_PANELS={
     "kind": "card"
   }
 };
-// Netlify Image CDN is only available when Netlify is the actual host. Our
-// custom domain still passes through Cloudflare, so it keeps original assets
-// until its DNS/hosting is verified and transferred intentionally.
+// Committed lossless originals work on every static host; no image CDN required.
+const LOSSLESS_ASSETS=new Set(['home-mystic-room-arabic','home-light-portal','home-tarot-moon','home-feature-icons','spiritual-vibz-logo-compact','cartoon_me_transparent1','neurospicy-mystic-logo']);
 function optimizedAsset(path,width){
- if(typeof location==='undefined'||!String(location.hostname||'').endsWith('.netlify.app'))return path;
- const localPath=path.startsWith('/')?path.slice(1):path;
- if(!localPath.startsWith('assets/')||!localPath.split('/').every(part=>/^[a-zA-Z0-9_.-]+$/.test(part)))return path;
- return '/.netlify/images?url='+encodeURIComponent('/'+localPath)+'&w='+Math.max(64,Math.round(width))+'&q=75';
+ const match=/^(\/?assets\/)([a-zA-Z0-9_-]+)\.png$/.exec(path);
+ return match&&LOSSLESS_ASSETS.has(match[2])?match[1]+'optimized/'+match[2]+'.webp':path;
 }
-function panelIllustration(pack,cell){return '<span class="panel-illustration" aria-hidden="true"><img src="'+optimizedAsset('assets/illustrations/'+pack+'.png',1200)+'" alt="" style="--cell-x:'+(cell%2)+';--cell-y:'+Math.floor(cell/2)+'"></span>'}
+function panelIllustration(pack,cell){return '<span class="panel-illustration" aria-hidden="true"><img src="'+optimizedAsset('assets/illustrations/'+pack+'.png',1200)+'" alt="" loading="lazy" decoding="async" style="--cell-x:'+(cell%2)+';--cell-y:'+Math.floor(cell/2)+'"></span>'}
 function panelContents(key,extra=''){
  const p=CARD_PANELS[key];if(!p)throw Error('Unknown panel '+key);
  return panelIllustration(p.pack,p.cell)+'<span class="panel-copy"><span class="panel-title"'+(p.kind==='header'?' role="heading" aria-level="2"':'')+'>'+e(p.title)+'</span><span class="panel-description">'+e(p.description)+'</span>'+extra+'</span>'+(p.kind==='header'?'':'<span class="panel-arrow" aria-hidden="true">›</span>');
@@ -215,6 +212,7 @@ function clearGlassFilter(){return '<svg width="0" height="0" aria-hidden="true"
 // Both clients reuse the original high-resolution illustrations for their complete directories.
 const ILLUSTRATION_BINDINGS={
   "tools": {
+    "metadata": {"pack":"ritual","cell":0},
     "natal": {
       "pack": "cosmic",
       "cell": 3

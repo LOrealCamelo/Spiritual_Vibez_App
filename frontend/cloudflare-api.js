@@ -3,6 +3,14 @@
  * In particular, location lookup IDs and chart calculation share one dataset.
  */
 const DEFAULT_API_ORIGIN = 'https://spiritual-vibez-app.onrender.com';
+function secureResponse(response) {
+  const headers = new Headers(response.headers);
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Frame-Options', 'DENY');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  return new Response(response.body, {status: response.status, statusText: response.statusText, headers});
+}
 const json = (data, status) => new Response(JSON.stringify(data), {
   status,
   headers: {'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store'}
@@ -13,7 +21,7 @@ export default {
     const incoming = new URL(request.url);
     const api = incoming.pathname === '/api' || incoming.pathname.startsWith('/api/');
     const tarotAsset = incoming.pathname.startsWith('/assets/tarot/');
-    if (!api && !tarotAsset) return env.ASSETS.fetch(request);
+    if (!api && !tarotAsset) return secureResponse(await env.ASSETS.fetch(request));
     // The 78 tarot PNGs are mounted by FastAPI, not stored in frontend/assets.
     if (tarotAsset && !['GET', 'HEAD'].includes(request.method)) {
       return json({detail: 'Method not allowed'}, 405);
@@ -36,11 +44,11 @@ export default {
       const upstream = await fetch(new Request(target.toString(), request), {redirect: 'manual'});
       const headers = new Headers(upstream.headers);
       if (api) headers.set('Cache-Control', 'no-store');
-      return new Response(upstream.body, {
+      return secureResponse(new Response(upstream.body, {
         status: upstream.status,
         statusText: upstream.statusText,
         headers
-      });
+      }));
     } catch {
       return json({
         detail: 'The Python API is temporarily unavailable. Please try again.',

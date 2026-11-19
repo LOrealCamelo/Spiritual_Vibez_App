@@ -1,0 +1,81 @@
+name: Accounts, subscriptions and Love page
+on:
+  pull_request:
+    branches: [main, review/prelaunch-audit]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  membership:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      AURAMYSTIC_DB_PATH: /tmp/spiritual-membership-ci-legacy.db
+      BROWSER_EXECUTABLE: /usr/bin/google-chrome
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - name: Build existing frontend with Postgres-only Neon configuration
+        run: npm run build
+      - run: pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
+      - name: Test backend isolation, payments, authentication and concurrent gifts
+        run: |
+          pytest -q backend/tests
+          python backend/tests/test_all_endpoints.py
+      - name: Browser libraries and syntax
+        run: |
+          for script in frontend/*.js; do node --check "$script"; done
+          node --test frontend/tests/*.test.cjs frontend/tests/*.test.mjs
+      - name: Test enabled memberships on desktop and mobile web
+        run: python frontend/tests/membership_flows.py
+      - name: Test account-bound Stripe table, PayPal SDK and lifetime Buy Now callbacks without charges
+        run: python frontend/tests/online_checkout_flows.py
+      - name: Test Love questionnaire, city dropdowns and responsive account routes
+        run: python frontend/tests/love_flows.py --screenshots "$RUNNER_TEMP/love-layout"
+      - name: Check unchanged application behavior with membership enforcement disabled
+        run: python frontend/tests/browser_flows.py --screenshots "$RUNNER_TEMP/membership-compat"
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: membership-compatibility
+          path: ${{ runner.temp }}/membership-compat
+          retention-days: 7
+
+  postgres:
+    name: PostgreSQL plans, migration and payment integrity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: spiritual_test
+          POSTGRES_PASSWORD: disposable_ci_password
+          POSTGRES_DB: spiritual_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U spiritual_test -d spiritual_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # Disposable local service credentials, never a production/Neon secret.
+      POSTGRES_TEST_URL: postgresql://spiritual_test:disposable_ci_password@127.0.0.1:5432/spiritual_test?sslmode=disable
+      POSTGRES_TEST_URL_UNPOOLED: postgresql://spiritual_test:disposable_ci_password@127.0.0.1:5432/spiritual_test?sslmode=disable
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: pip install -r backend/requirements.txt
+      - name: Verify all access plans and additive upgrades using real PostgreSQL
+        run: pytest -q backend/tests/test_membership_plans.py backend/tests/test_memberships.py backend/tests/test_paypal_memberships.py backend/tests/test_owner_setup.py backend/tests/test_online_payments.py

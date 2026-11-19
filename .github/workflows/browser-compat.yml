@@ -1,0 +1,76 @@
+name: Firefox and WebKit compatibility
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browsers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.62.0-noble
+      options: --shm-size=1gb
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install application requirements in the matching official browser image
+        run: python -m pip install -r backend/requirements.txt -r frontend/tests/requirements.txt
+      - name: Verify the pinned browser engines are present
+        run: |
+          python - <<'PYTHON'
+          from importlib.metadata import version
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          assert version('playwright') == '1.62.0', 'Update the container and Python package together'
+          with sync_playwright() as playwright:
+              for name in ['firefox', 'webkit']:
+                  executable = Path(getattr(playwright, name).executable_path)
+                  assert executable.is_file(), f'Missing real browser: {name}'
+                  print(f'Ready: {name}')
+          PYTHON
+      - name: Provide virtual audio output for real browser playback
+        run: |
+          python - <<'PYTHON'
+          from pathlib import Path
+          import re
+          for path in [Path('/etc/apt/sources.list'), *Path('/etc/apt/sources.list.d').glob('*.sources'), *Path('/etc/apt/sources.list.d').glob('*.list')]:
+              if not path.is_file():
+                  continue
+              before = path.read_text()
+              after = re.sub(r'https?://[^/\s]+\.ec2\.archive\.ubuntu\.com/ubuntu/?', 'https://archive.ubuntu.com/ubuntu/', before)
+              after = after.replace('http://archive.ubuntu.com/', 'https://archive.ubuntu.com/').replace('http://security.ubuntu.com/', 'https://security.ubuntu.com/')
+              if after != before:
+                  path.write_text(after)
+          PYTHON
+          apt-get -o Acquire::Retries=3 -o Acquire::https::Timeout=30 update
+          apt-get -o Acquire::Retries=3 -o Acquire::https::Timeout=30 install --yes --no-install-recommends pulseaudio libasound2-plugins
+          # GitHub's mounted HOME can be inaccessible to the audio daemon.
+          # Keep its runtime and auth cookie in a private directory in this job.
+          export HOME="$RUNNER_TEMP/spiritual-audio-home"
+          export XDG_RUNTIME_DIR="$HOME/runtime"
+          mkdir -p "$XDG_RUNTIME_DIR"
+          chmod 700 "$HOME" "$XDG_RUNTIME_DIR"
+          pulseaudio --start --exit-idle-time=-1
+          export PULSE_SERVER="unix:$XDG_RUNTIME_DIR/pulse/native"
+          export PULSE_COOKIE="$HOME/.config/pulse/cookie"
+          echo "PULSE_SERVER=$PULSE_SERVER" >> "$GITHUB_ENV"
+          echo "PULSE_COOKIE=$PULSE_COOKIE" >> "$GITHUB_ENV"
+          echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
+          pactl load-module module-null-sink sink_name=spiritual_vibz_test
+          pactl set-default-sink spiritual_vibz_test
+          pactl info
+      - name: Test real browser engines against an isolated local backend
+        env:
+          # Firefox refuses root with GitHub's pwuser-owned mounted HOME.
+          HOME: /root
+        run: python frontend/tests/browser_compat.py --screenshots "$RUNNER_TEMP/browser-compat"
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: browser-compat-evidence
+          path: ${{ runner.temp }}/browser-compat
+          if-no-files-found: warn

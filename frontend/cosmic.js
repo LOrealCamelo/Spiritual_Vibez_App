@@ -112,7 +112,7 @@ async function fetchDailySky(){const request=++skyUI.request;skyUI.loading=true;
  try{const data=await api('/astrology/daily-transits?'+new URLSearchParams({sign:state.sign,timezone:skyUI.timezone,zodiac:skyUI.zodiac,...(skyUI.date?{date:skyUI.date}:{})}));if(request!==skyUI.request)return;state.transit=data;skyUI.lastFetch=Date.now();if(!moonUI.pinned)moonUI.month=data.date.slice(0,7);loadMoonCalendar();}
  catch(ex){if(request!==skyUI.request)return;state.transit=null;skyUI.error='Unable to load the sky: '+ex.message;}
  skyUI.loading=false;if(state.page==='cosmos')render();}
-function refreshSkyIfNeeded(force=false){if(state.page==='cosmos'&&!skyUI.loading&&(force||!state.transit||Date.now()-skyUI.lastFetch>60000))fetchDailySky();}
+function refreshSkyIfNeeded(force=false){if(typeof state==='undefined')return;if(state.page==='cosmos'&&!skyUI.loading&&(force||!state.transit||Date.now()-skyUI.lastFetch>60000))fetchDailySky();}
 function updateBirthField(ev){const key=ev.target.dataset?.birthKey;if(key){const previous=birthFormState[key];birthFormState[key]=ev.target.value;if(key==='country'&&previous!==ev.target.value){birthFormState.region='';birthLocations.regions=[];birthLocations.cities=[];}if(['date','hour','minute','timezone'].includes(key))birthFormState.fold='';if(['city','country','region'].includes(key)){birthFormState.place=null;birthFormState.places=[];birthFormState.fold='';const results=document.querySelector('#birth-place-results');if(results)results.innerHTML='';}}}
 document.addEventListener('input',updateBirthField);
 document.addEventListener('input',ev=>{if(ev.target.id==='asteroid-query')asteroidUI.query=ev.target.value});

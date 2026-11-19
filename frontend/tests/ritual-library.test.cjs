@@ -24,7 +24,12 @@ test('six unique illustrated collections render in the approved order',()=>{
  const window=setup();
  const html=window.SpiritualRitualLibrary.render({features,book,position:0,letter:'A'});
  assert.equal((html.match(/class="sv-ritual-card"/g)||[]).length,6);
- for(const feature of features)assert.ok(html.includes(feature.title));
+ let previous=-1;
+ for(const feature of features){
+  const escaped=feature.title.replace(/&/g,'&amp;');
+  const index=html.indexOf('<strong>'+escaped+'</strong>');
+  assert.ok(index>previous,feature.title+' renders in order');previous=index;
+ }
  for(const artPosition of ['--sv-art-x:0%;--sv-art-y:0%','--sv-art-x:50%;--sv-art-y:0%','--sv-art-x:100%;--sv-art-y:0%','--sv-art-x:0%;--sv-art-y:100%','--sv-art-x:50%;--sv-art-y:100%','--sv-art-x:100%;--sv-art-y:100%'])assert.ok(html.includes(artPosition));
  assert.ok(html.includes('ritual-garden-circle.webp')===false,'hero background belongs in CSS');
  assert.ok(html.includes('ritual-enchanted-bookshelf.webp'));

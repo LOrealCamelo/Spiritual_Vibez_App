@@ -118,7 +118,7 @@ body[data-page="cosmos"] .moon-weekday,body[data-page="cosmos"] .moon-calendar h
 body[data-page="home"]{background:#28112f}
 body[data-page="home"]:before{background:radial-gradient(ellipse at 15% 20%,#70334d40,transparent 58%),linear-gradient(#28112f,#31162e 60%,#24112d)}
 .home-room-hero{position:relative;width:100vw;margin-left:calc(50% - 50vw);aspect-ratio:2/1;border:0;outline:0;box-shadow:none;background:transparent}
-.home-room-scene{position:absolute;inset:0;border:0;box-shadow:none;background:url('assets/home-mystic-room-arabic.png') center/cover no-repeat;mask-image:linear-gradient(#000 0 87%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0 87%,transparent 100%)}
+.home-room-scene{position:absolute;inset:0;border:0;box-shadow:none;background:url('assets/optimized/home-mystic-room-arabic.webp') center/cover no-repeat;mask-image:linear-gradient(#000 0 87%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0 87%,transparent 100%)}
 .home-room-brand{position:absolute;z-index:1;top:clamp(26px,4vw,64px);left:clamp(24px,2vw,40px);width:clamp(280px,29vw,440px)}
 .home-room-brand .brand-wordmark{width:100%;margin:0}
 .room-welcome.hero-copy{width:100%;max-width:960px;padding:0 0 20px;margin:-8px 0 0;position:relative}
@@ -139,7 +139,7 @@ body[data-page="home"]:before{background:radial-gradient(ellipse at 15% 20%,#703
 body[data-page="home"]{--home-desk-edge:calc(124px + 50vw);position:relative;background:#eee5f7}
 body[data-page="home"]:before{position:absolute;background:linear-gradient(to bottom,#eee5f7 0 calc(var(--home-desk-edge) - 190px),#d7c4ee calc(var(--home-desk-edge) - 70px),#eee5f7 calc(var(--home-desk-edge) + 500px),#f6e8f1)}
 body[data-page="home"] .container{position:relative;isolation:isolate}
-body[data-page="home"] .container:before{content:"";position:absolute;z-index:-1;pointer-events:none;top:calc(50vw - 70px);left:50%;transform:translateX(-50%);width:100vw;height:clamp(800px,70vw,1250px);background:url('assets/home-light-portal.png') center/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent)}
+body[data-page="home"] .container:before{content:"";position:absolute;z-index:-1;pointer-events:none;top:calc(50vw - 70px);left:50%;transform:translateX(-50%);width:100vw;height:clamp(800px,70vw,1250px);background:url('assets/optimized/home-light-portal.webp') center/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent)}
 body[data-page="home"] .room-welcome h1,body[data-page="home"] .room-welcome>p,body[data-page="home"] .section-heading h2,body[data-page="home"] .section-heading a,body[data-page="home"] .footer{color:#35174d}
 body[data-page="home"] .fresh-panel{--panel-ink:#35174d;--panel-accent:#603282;border-color:#754a986e;box-shadow:0 8px 24px #5936731f,inset 1px 1px 1px #ffffffd9,inset -1px -1px 1px #ffffff88}
 body[data-page="home"] .panel-title,body[data-page="home"] .panel-description,body[data-page="home"] .panel-meta,body[data-page="home"] .panel-progress{color:#35174d;text-shadow:none}
@@ -272,7 +272,7 @@ body[data-page="home"] .topbar .top-actions button svg{width:30px;height:30px}
 .home-flourish--moons>span{display:block;flex:1;height:1px;background:linear-gradient(90deg,transparent,#c78d35)}
 .home-flourish--moons>span:last-child{transform:rotate(180deg)}
 .home-flourish--moons svg{width:164px;flex:0 0 164px}
-body[data-page="home"] .mystic-room-continuation{position:relative;inset:auto;width:100%;height:400px;margin:0;aspect-ratio:auto;background:url('assets/home-mystic-room-arabic.png') center top/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 88%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 88%,transparent)}
+body[data-page="home"] .mystic-room-continuation{position:relative;inset:auto;width:100%;height:400px;margin:0;aspect-ratio:auto;background:url('assets/optimized/home-mystic-room-arabic.webp') center top/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 88%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 88%,transparent)}
 body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1px 2px #fff,0 4px 18px #67368538;background:linear-gradient(135deg,#fff4,#f2d7ff30);backdrop-filter:url('#liquid-refraction');-webkit-backdrop-filter:url('#liquid-refraction')}
 @media(max-width:959px){
  .mystic-home{max-width:700px;padding:14px 16px 0}
@@ -319,7 +319,7 @@ body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1
  body[data-page="home"] .bottomdock{bottom:calc(10px + env(safe-area-inset-bottom,0px))}
  body[data-page="home"] .mystic-features,body[data-page="home"] .home-feature-grid,body[data-page="home"] .home-feature,body[data-page="home"] .home-light-portal button{scroll-margin-top:calc(var(--site-header-height) + 16px);scroll-margin-bottom:var(--home-dock-clearance)}
  .home-light-portal{display:block;position:relative;isolation:isolate;margin-top:0;padding:12px 16px var(--home-dock-clearance);background:#eee5f7}
- .home-light-portal:before{content:"";position:absolute;z-index:-1;pointer-events:none;top:-70px;left:0;width:100%;height:min(1250px,100%);background:url('assets/home-light-portal.png') center top/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent)}
+ .home-light-portal:before{content:"";position:absolute;z-index:-1;pointer-events:none;top:-70px;left:0;width:100%;height:min(1250px,100%);background:url('assets/optimized/home-light-portal.webp') center top/cover no-repeat;mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 78%,transparent)}
  .home-light-portal .feature-grid,.home-light-portal .favorite-grid,.home-light-portal .more-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .home-light-portal .home-quick-actions{margin-top:0}
  .home-light-portal .content-card{min-width:0}
@@ -457,13 +457,4 @@ body[data-page="home"] .bottomdock{border:1px solid #fff9;box-shadow:inset 1px 1
 @media(prefers-reduced-motion:reduce){.rune-cloth.rattling .rune-hand{animation:none}.rune-bone{transition:none}}
 
 
-/* Netlify-only image transforms. Preserve original CSS images on Cloudflare
-   and Render; these routes do not host /.netlify/images. */
-html.netlify-images .home-room-scene,
-html.netlify-images body[data-page="home"] .mystic-room-continuation{
- background-image:url('/.netlify/images?url=/assets/home-mystic-room-arabic.png&w=1400&q=75');
-}
-html.netlify-images body[data-page="home"] .container:before,
-html.netlify-images .home-light-portal:before{
- background-image:url('/.netlify/images?url=/assets/home-light-portal.png&w=1200&q=75');
-}
+.metadata-chart{max-width:1000px;margin:20px auto}.metadata-chart svg{display:block;width:100%;height:auto}.metadata-report{overflow-wrap:anywhere}.metadata-report dt{font-weight:800;margin-top:12px}.metadata-report dd{margin:4px 0 14px}.metadata-reading{margin:28px 0;padding-top:12px;border-top:1px solid #b993ce88}.metadata-method{margin-top:24px}.metadata-y{display:flex;align-items:center;gap:10px;margin:12px 0}.metadata-y input{width:22px;height:22px}

@@ -1,0 +1,2 @@
+# Optional secure WebSocket transport for verification in TCP-restricted workspaces.
+websockets>=15,<16

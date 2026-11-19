@@ -1,6 +1,7 @@
 # Separate Spiritual Vibez frontend site. Does not deploy or overwrite the
 # existing Netlify site for neurospicymystic.com.
 [build]
+  ignore = "node ./frontend/scripts/skip-review-deploy.mjs"
   command = "node frontend/scripts/build-netlify.mjs"
   publish = "dist/netlify"
 
