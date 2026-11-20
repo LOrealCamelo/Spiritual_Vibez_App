@@ -73,7 +73,11 @@ def main():
     assert visitor.get_by_role('heading',name='Sign up and subscribe',exact=True).is_visible()
     visitor.close()
     page=customer('stripe-buyer@example.test',390)
-    assert page.locator('[data-member-action=stripe]').is_enabled()
+    assert page.locator('[data-member-action=stripe]').count()==0
+    assert 'No free trials' not in page.locator('body').inner_text()
+    assert page.get_by_role('button',name='$5.99 monthly',exact=True).count()==1
+    assert page.get_by_role('button',name='$45 yearly',exact=True).count()==1
+    assert page.get_by_role('button',name='Buy lifetime access',exact=True).count()==1
     assert page.locator('[data-member-action="paypal-api:month"]').is_enabled()
     assert page.locator('[data-member-action="paypal-api:year"]').is_enabled()
     assert 'No ongoing commitment' in page.locator('[data-plan-summary]').inner_text()
@@ -84,15 +88,15 @@ def main():
     switches=['STRIPE_CHECKOUT_ENABLED','PAYPAL_API_ENABLED','PAYPAL_SUBSCRIPTIONS_ENABLED']
     for switch in switches:os.environ[switch]='false'
     page.reload(wait_until='networkidle')
-    assert page.locator('[data-member-action=stripe]').is_disabled()
+    assert page.locator('[data-member-action=stripe]').count()==0
     assert page.locator('[data-member-action="paypal-api:month"]').is_disabled()
     assert page.locator('[data-member-form=payment]').count()==1
     for switch in switches:os.environ[switch]='true'
     page.reload(wait_until='networkidle')
-    page.route('https://js.stripe.com/v3/pricing-table.js',lambda r:r.fulfill(content_type='text/javascript',body="customElements.define('stripe-pricing-table',class extends HTMLElement{connectedCallback(){this.textContent='Fixture Stripe pricing table'}})"))
-    page.locator('[data-member-action=stripe]').click();page.wait_for_selector('stripe-pricing-table')
-    table=page.locator('stripe-pricing-table');token=table.get_attribute('client-reference-id')
-    assert table.get_attribute('pricing-table-id')==o.STRIPE_TABLE and table.get_attribute('publishable-key')==o.STRIPE_PUBLIC
+    # Preserve existing Stripe payment verification without advertising new Stripe checkout.
+    context=page.evaluate("""async()=>{const response=await fetch('/api/account/stripe/context',{method:'POST',headers:{'Content-Type':'application/json',...Membership.headers()},body:'{}'});if(!response.ok)throw Error('Fixture checkout context failed');return response.json()}""")
+    token=context['client_reference_id']
+    assert context['table_id']==o.STRIPE_TABLE and context['publishable_key']==o.STRIPE_PUBLIC
     assert token and not page.evaluate('Membership.user.active')
     for width in [320,375,390,430,1280,1440,1920]:
      page.set_viewport_size({'width':width,'height':900});assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),width
@@ -104,7 +108,7 @@ def main():
     raw=json.dumps(event).encode();timestamp=m.now();signature=hmac.new(b'whsec_fixture',str(timestamp).encode()+b'.'+raw,hashlib.sha256).hexdigest()
     r=httpx.post(base+'/api/account/stripe/webhook',content=raw,headers={'stripe-signature':f't={timestamp},v1={signature}'});assert r.status_code==200,r.text
     page.locator('[data-member-action=refresh]').click();page.wait_for_function('Membership.user.lifetime===1 && Membership.user.active===true')
-    print('PASS: Stripe table receives private account reference; signed completed payment grants lifetime; 7 viewport widths.',flush=True)
+    print('PASS: Stripe checkout is absent from customer UI; existing signed fulfillment remains valid; 7 viewport widths.',flush=True)
     page=customer('paypal-year-buyer@example.test',1440)
     def created(data):
      objects['/v1/billing/subscriptions/I-BROWSER']={'id':'I-BROWSER','custom_id':data['custom_id'],'plan_id':data['plan_id'],'create_time':datetime.now(timezone.utc).isoformat(),'status':'ACTIVE'}
@@ -112,7 +116,10 @@ def main():
     page.expose_function('recordPaypalFixture',created)
     sdk="window.spiritualPayPal={Buttons:opts=>({render:target=>{const b=document.createElement('button');b.textContent='Fixture PayPal approve';b.onclick=async()=>{const id=await opts.createSubscription({}, {subscription:{create:window.recordPaypalFixture}});await opts.onApprove({subscriptionID:id})};target.append(b)}})}"
     page.route('https://www.paypal.com/sdk/js?*',lambda r:r.fulfill(content_type='text/javascript',body=sdk))
-    page.locator('[data-member-action="paypal-api:year"]').click();page.get_by_role('button',name='Fixture PayPal approve').click()
+    page.locator('[data-member-action="paypal-api:year"]').click()
+    page.wait_for_selector('#membership-paypal-button')
+    assert page.evaluate("document.activeElement.id==='membership-paypal-button'")
+    page.get_by_role('button',name='Fixture PayPal approve').click()
     page.wait_for_function('document.body.innerText.includes("PayPal approval received")')
     assert objects['/v1/billing/subscriptions/I-BROWSER']['plan_id']==o.PAYPAL_PLANS['year']
     assert not page.evaluate('Membership.user.active')

@@ -31,7 +31,8 @@ class ResetInput(BaseModel):
 class PaymentInput(BaseModel):
     provider: str
     plan: str = 'month'
-    reference: str = Field(min_length=4, max_length=150)
+    reference: str = Field(default='', max_length=150)
+    handle: str = Field(default='', max_length=50)
 
 
 class ReviewInput(BaseModel):
@@ -181,13 +182,24 @@ def payment(body: PaymentInput, request: Request, account=Depends(user)):
     if body.provider not in ['cashapp', 'venmo']:
         raise HTTPException(422, 'Choose Cash App or Venmo.')
     import sqlite3
-    reference = body.reference.strip().upper()
-    if len(reference) < 4:
-        raise HTTPException(422, 'Enter the transaction reference.')
+    sender_handle = body.handle.strip()
+    if sender_handle:
+        if body.reference.strip():
+            raise HTTPException(422, 'Submit a payment handle or a legacy reference, not both.')
+        prefix = '$' if body.provider == 'cashapp' else '@'
+        bare = sender_handle.removeprefix(prefix)
+        if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,48}', bare):
+            raise HTTPException(422, 'Enter your Cash App $Cashtag or Venmo @username.')
+        sender_handle = prefix + bare
+        reference = 'REQUEST-' + m.secrets.token_hex(16).upper()
+    else:
+        reference = body.reference.strip().upper()
+        if len(reference) < 4:
+            raise HTTPException(422, 'Enter your payment handle.')
     with m.database() as db:
         try:
-            cursor = db.execute('INSERT INTO payments(user_id,provider,reference,created,plan,price_cents) VALUES(?,?,?,?,?,?)',
-                                (account['id'], body.provider, reference, m.now(), body.plan, plan['price_cents']))
+            cursor = db.execute('INSERT INTO payments(user_id,provider,reference,created,plan,price_cents,sender_handle) VALUES(?,?,?,?,?,?,?)',
+                                (account['id'], body.provider, reference, m.now(), body.plan, plan['price_cents'], sender_handle))
         except sqlite3.IntegrityError:
             raise HTTPException(409, 'A pending request or this transaction reference already exists.')
         return {'id': cursor.lastrowid, 'status': 'pending', 'plan': body.plan, 'price_cents': plan['price_cents'],
@@ -197,7 +209,7 @@ def payment(body: PaymentInput, request: Request, account=Depends(user)):
 @router.get('/payments')
 def own_payments(account=Depends(user)):
     with m.database() as db:
-        return [dict(row) for row in db.execute('SELECT id,provider,reference,status,created,note,plan,price_cents FROM payments WHERE user_id=? ORDER BY id DESC LIMIT 100', (account['id'],))]
+        return [dict(row) for row in db.execute('SELECT id,provider,reference,sender_handle,status,created,note,plan,price_cents FROM payments WHERE user_id=? ORDER BY id DESC LIMIT 100', (account['id'],))]
 
 
 @router.post('/redeem')
@@ -233,7 +245,9 @@ def review(payment_id: int, body: ReviewInput, account=Depends(admin)):
             raise HTTPException(409, 'This request has already been reviewed or does not exist.')
         verified = body.verified_reference.strip().upper()
         if body.approve and len(verified) < 4:
-            raise HTTPException(422, 'Enter the actual verified transaction reference from your payment account.')
+            raise HTTPException(422, 'Enter a unique receipt ID or label from the independently verified payment details.')
+        if body.approve and row['sender_handle'] and verified.lstrip('$@') == row['sender_handle'].upper().lstrip('$@'):
+            raise HTTPException(422, 'A sender handle alone is not a verified receipt. Include the actual payment details.')
         if body.approve and db.execute("SELECT id FROM payments WHERE provider=? AND verified_reference=? AND status='approved'", (row['provider'], verified)).fetchone():
             raise HTTPException(409, 'That verified payment has already funded a membership.')
         if body.approve:

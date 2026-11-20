@@ -10,7 +10,7 @@ import sqlite3
 import threading
 from functools import lru_cache
 from pathlib import Path
-from urllib.parse import urlsplit, parse_qs
+from urllib.parse import urlsplit, parse_qs, unquote
 
 import psycopg
 from psycopg import sql
@@ -74,8 +74,19 @@ def schema_for(account_id=None, membership=False):
     return namespace()+('_user_'+str(int(account_id)) if account_id is not None else '_legacy')
 
 
-def ensure_schema(schema,membership):
+def migration_url():
     url=validated_url('DATABASE_URL_UNPOOLED')
+    runtime=urlsplit(validated_url())
+    direct=urlsplit(url)
+    if runtime.hostname.endswith('.neon.tech') or direct.hostname.endswith('.neon.tech'):
+        if (runtime.hostname.replace('-pooler.','.') != direct.hostname
+                or unquote(runtime.path) != unquote(direct.path)):
+            raise DatabaseUnavailable('Database connections must target the same Neon endpoint and database before migrations can run.')
+    return url
+
+
+def ensure_schema(schema,membership):
+    url=migration_url()
     key=(url,schema)
     if key in _initialized:return
     with _LOCK:
@@ -89,10 +100,11 @@ def ensure_schema(schema,membership):
                 conn.execute(sql.SQL('SET LOCAL search_path TO {}, pg_catalog').format(sql.Identifier(schema)))
                 paths = [path]
                 if membership:
-                    paths.extend(Path(__file__).parent/'sql'/name for name in ['memberships_v2.sql','memberships_v3.sql'])
+                    paths.extend(Path(__file__).parent/'sql'/name for name in ['memberships_v2.sql','memberships_v3.sql','memberships_v4.sql'])
                 for migration in paths:
-                    for statement in migration.read_text().split(';'):
-                        if statement.strip():conn.execute(statement)
+                    # Trusted scripts contain comments and quoted values that can
+                    # include semicolons. Let PostgreSQL parse the complete file.
+                    conn.execute(migration.read_text(), prepare=False)
             _initialized.add(key)
         except psycopg.Error:
             raise DatabaseUnavailable('PostgreSQL schema initialization failed; check server-side connection settings.') from None

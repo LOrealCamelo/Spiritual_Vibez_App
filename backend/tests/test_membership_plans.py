@@ -3,10 +3,25 @@ from datetime import datetime, timezone
 import calendar
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import os
 import sqlite3
 import pytest
 from backend.services import memberships as m
 from backend.tests.test_memberships import setup, signup
+
+
+def test_postgres_migrations_preserve_semicolons_in_comments_and_string_values(monkeypatch):
+    if not os.getenv('POSTGRES_TEST_URL'):
+        pytest.skip('Requires the isolated PostgreSQL test database.')
+    original=Path.read_text
+    def migration_text(path,*args,**kwargs):
+        text=original(path,*args,**kwargs)
+        if path.name=='memberships_v4.sql':
+            text+="\n-- A comment; its remainder must stay a comment.\nCREATE TABLE migration_probe(value TEXT DEFAULT 'first;second');\nINSERT INTO migration_probe DEFAULT VALUES;\n"
+        return text
+    monkeypatch.setattr(Path,'read_text',migration_text)
+    with m.database() as db:
+        assert db.execute('SELECT value FROM migration_probe').fetchone()[0]=='first;second'
 
 
 def submit(client, customer, plan, reference='PLAN-RECEIPT', provider='cashapp', **extra):
@@ -20,6 +35,38 @@ def approve(client, owner, payment, amount, reference='ACTUAL-PLAN-RECEIPT'):
     return client.post(f'/api/account/admin/payments/{payment}/review', headers=owner,
                        json={'approve': True, 'note': 'Verified receipt in payment app',
                              'verified_reference': reference, 'verified_amount_cents': amount})
+
+
+@pytest.mark.parametrize('provider,prefix',[('cashapp','$'),('venmo','@')])
+@pytest.mark.parametrize('plan',['month','year','lifetime'])
+def test_sender_handles_identify_payment_but_never_unlock_without_verified_receipt(setup,provider,prefix,plan):
+    client,owner=setup;customer=signup(client)
+    amount=m.PLANS[plan]['price_cents']
+    body={'provider':provider,'plan':plan,'handle':' repeatpayer '}
+    first=client.post('/api/account/payments',headers=customer,json=body)
+    assert first.status_code==200,first.text
+    assert not client.get('/api/account/me',headers=customer).json()['active']
+    pending=client.get('/api/account/admin/payments',headers=owner).json()[0]
+    assert pending['sender_handle']==prefix+'repeatpayer'
+    assert pending['reference'].startswith('REQUEST-')
+    assert client.get('/api/account/payments',headers=customer).json()[0]['sender_handle']==prefix+'repeatpayer'
+    assert client.post('/api/account/payments',headers=customer,json=body).status_code==409
+    assert approve(client,owner,first.json()['id'],amount,reference=prefix+'repeatpayer').status_code==422
+    assert approve(client,owner,first.json()['id'],amount,reference='RECEIPT-ONE').status_code==200
+    if plan=='lifetime':return
+    second=client.post('/api/account/payments',headers=customer,json=body)
+    assert second.status_code==200,second.text
+    assert approve(client,owner,second.json()['id'],amount,reference='RECEIPT-ONE').status_code==409
+    assert approve(client,owner,second.json()['id'],amount,reference='RECEIPT-TWO').status_code==200
+
+
+@pytest.mark.parametrize('body',[
+    {'handle':''}, {'handle':'@wrongprefix'}, {'handle':'<script>'},
+    {'handle':'validsender','reference':'LEGACY-REFERENCE'},
+])
+def test_invalid_or_ambiguous_sender_handles_are_rejected(setup,body):
+    client,_=setup;customer=signup(client)
+    assert client.post('/api/account/payments',headers=customer,json={'provider':'cashapp',**body}).status_code==422
 
 
 @pytest.mark.parametrize('plan,cents', [('month',599),('year',4500),('lifetime',6000)])
@@ -134,7 +181,7 @@ def test_postgres_v1_upgrade_preserves_legacy_request_when_opted_in():
     with m.database() as db:
         uid=db.execute('INSERT INTO members(email,password,created) VALUES(?,?,?)',('legacy@example.test','existing-hash',123)).lastrowid
         pid=db.execute('INSERT INTO payments(user_id,provider,reference,created) VALUES(?,?,?,?)',(uid,'venmo','KEEP-LEGACY',123)).lastrowid
-        for column in ['verified_amount_cents','price_cents','plan']:
+        for column in ['sender_handle','verified_amount_cents','price_cents','plan']:
             db.execute('ALTER TABLE payments DROP COLUMN '+column)
     postgres._initialized.discard((postgres.validated_url('DATABASE_URL_UNPOOLED'),schema))
     for _ in range(2):
@@ -143,3 +190,4 @@ def test_postgres_v1_upgrade_preserves_legacy_request_when_opted_in():
             assert row['reference']=='KEEP-LEGACY' and row['user_id']==uid
             assert row['plan']=='month' and row['price_cents']==599
             assert row['verified_amount_cents'] is None
+            assert row['sender_handle'] == ''
