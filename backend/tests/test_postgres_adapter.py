@@ -28,6 +28,25 @@ def test_rows_support_existing_mapping_and_scalar_readers():
     assert dict(row)=={'id':8,'email':'customer@example.test'}
 
 
+@pytest.mark.parametrize('direct',[
+    'postgresql://user:example@ep-other.neon.tech/app?sslmode=require',
+    'postgresql://user:example@ep-test.neon.tech/other?sslmode=require',
+])
+def test_mismatched_neon_targets_stop_before_any_schema_write(monkeypatch,direct):
+    monkeypatch.setenv('DATABASE_URL','postgresql://user:example@ep-test-pooler.neon.tech/app?sslmode=require')
+    monkeypatch.setenv('DATABASE_URL_UNPOOLED',direct)
+    def unexpected_connection(*args,**kwargs):pytest.fail('Mismatched database must not receive schema writes')
+    monkeypatch.setattr(postgres.psycopg,'connect',unexpected_connection)
+    with pytest.raises(postgres.DatabaseUnavailable):postgres.ensure_schema('sv_target_check_memberships',True)
+
+
+def test_matching_neon_targets_allow_separate_credentials_for_migrations(monkeypatch):
+    monkeypatch.setenv('DATABASE_URL','postgresql://runtime:example@ep-test-pooler.neon.tech/app?sslmode=require')
+    direct='postgresql://migrator:example@ep-test.neon.tech/app?sslmode=require'
+    monkeypatch.setenv('DATABASE_URL_UNPOOLED',direct)
+    assert postgres.migration_url()==direct
+
+
 def test_postgres_outage_returns_503_without_local_fallback(monkeypatch):
     from fastapi.testclient import TestClient
     from backend.main import app

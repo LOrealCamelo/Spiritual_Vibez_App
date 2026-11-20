@@ -224,3 +224,34 @@ Prepare every remaining change before ONE final Netlify production build:
 
 This preparation branch explicitly skips Netlify review deployments. No production
 environment settings, memberships, database records or artwork are changed by it.
+
+## Checkout revisions after customer testing
+
+The owner has deferred new Stripe checkout. Customer signup, homepage copy and
+checkout no longer advertise Stripe or render its plan-selection button. Existing
+Stripe receipt verification and authenticated cancellation remain intact for any
+previous billing. STRIPE_CHECKOUT_ENABLED was set to false on Render; the MCP
+environment update automatically redeployed the existing production commit. It
+did not deploy the new frontend or the handle migration.
+
+Remove the customer-facing "No free trials" wording without changing the actual
+no-trial policy. PayPal plan buttons are "$5.99 monthly", "$45 yearly" and "Buy
+lifetime access", with a separate "$60 once" lifetime heading. The provider SDK
+still determines which PayPal/card funding methods a customer is eligible to use;
+the application does not promise guest card availability.
+
+Cash App and Venmo customers now enter their sender handle rather than finding a
+transaction number. All three manual plans remain. The backend stores the handle
+in a new additive sender_handle column and generates a separate request reference.
+Handles may repeat for future renewals; only one pending request per account is
+allowed. A handle never grants access. The owner independently verifies the sender,
+amount and paid date/time, and supplies a unique receipt ID or stable receipt label
+for approval. Handles alone and reused verified receipts are rejected. Old reference
+submissions and historical records remain supported. Requests appear in the owner
+dashboard; this change does not add payment-notification email delivery.
+
+Deploy the backend before the handle form. PostgreSQL memberships_v4.sql and the
+SQLite additive migration preserve existing rows. Neon runtime and direct URLs must
+target the same endpoint/database before any migration can run; mismatched settings
+now stop before schema writes rather than initializing a second database. Verify
+Render login and startup before publishing the combined Netlify update once.

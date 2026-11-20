@@ -127,6 +127,7 @@ def database():
             ('plan', "TEXT NOT NULL DEFAULT 'month'"),
             ('price_cents', 'INTEGER NOT NULL DEFAULT 599'),
             ('verified_amount_cents', 'INTEGER'),
+            ('sender_handle', "TEXT NOT NULL DEFAULT ''"),
         ]:
             if name not in columns:
                 conn.execute(f'ALTER TABLE payments ADD COLUMN {name} {definition}')
