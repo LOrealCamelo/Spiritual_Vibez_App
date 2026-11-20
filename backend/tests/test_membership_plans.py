@@ -3,10 +3,25 @@ from datetime import datetime, timezone
 import calendar
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import os
 import sqlite3
 import pytest
 from backend.services import memberships as m
 from backend.tests.test_memberships import setup, signup
+
+
+def test_postgres_migrations_preserve_semicolons_in_comments_and_string_values(monkeypatch):
+    if not os.getenv('POSTGRES_TEST_URL'):
+        pytest.skip('Requires the isolated PostgreSQL test database.')
+    original=Path.read_text
+    def migration_text(path,*args,**kwargs):
+        text=original(path,*args,**kwargs)
+        if path.name=='memberships_v4.sql':
+            text+="\n-- A comment; its remainder must stay a comment.\nCREATE TABLE migration_probe(value TEXT DEFAULT 'first;second');\nINSERT INTO migration_probe DEFAULT VALUES;\n"
+        return text
+    monkeypatch.setattr(Path,'read_text',migration_text)
+    with m.database() as db:
+        assert db.execute('SELECT value FROM migration_probe').fetchone()[0]=='first;second'
 
 
 def submit(client, customer, plan, reference='PLAN-RECEIPT', provider='cashapp', **extra):

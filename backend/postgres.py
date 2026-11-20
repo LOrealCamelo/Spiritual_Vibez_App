@@ -102,8 +102,9 @@ def ensure_schema(schema,membership):
                 if membership:
                     paths.extend(Path(__file__).parent/'sql'/name for name in ['memberships_v2.sql','memberships_v3.sql','memberships_v4.sql'])
                 for migration in paths:
-                    for statement in migration.read_text().split(';'):
-                        if statement.strip():conn.execute(statement)
+                    # Trusted scripts contain comments and quoted values that can
+                    # include semicolons. Let PostgreSQL parse the complete file.
+                    conn.execute(migration.read_text(), prepare=False)
             _initialized.add(key)
         except psycopg.Error:
             raise DatabaseUnavailable('PostgreSQL schema initialization failed; check server-side connection settings.') from None
